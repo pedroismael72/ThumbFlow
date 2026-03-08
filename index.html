@@ -874,9 +874,18 @@
     <div id="deliver-preview" style="margin-top:12px;display:none">
       <img id="deliver-preview-img" style="width:100%;border-radius:10px;border:1px solid var(--border)">
     </div>
+    <!-- Progress bar (oculta hasta que empieza la subida) -->
+    <div id="deliver-progress-wrap" style="display:none;margin-top:16px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px">
+        <span>Subiendo...</span><span id="deliver-progress-pct">0%</span>
+      </div>
+      <div style="height:6px;border-radius:10px;background:var(--surface2);overflow:hidden">
+        <div id="deliver-progress-bar" style="height:100%;width:0%;background:var(--accent);border-radius:10px;transition:width .2s ease"></div>
+      </div>
+    </div>
     <div class="mf">
-      <button class="btn btn-g" onclick="closeMo('mo-deliver')">Cancelar</button>
-      <button class="btn btn-p" id="deliver-submit-btn" onclick="submitDelivery()" disabled style="opacity:.5">Enviar al cliente</button>
+      <button class="btn btn-g" id="deliver-cancel-btn" onclick="closeMo('mo-deliver')">Cancelar</button>
+      <button class="btn btn-p" id="deliver-submit-btn" onclick="submitDelivery()" disabled style="opacity:.5">Subir archivo</button>
     </div>
   </div>
 </div>
@@ -1081,7 +1090,12 @@ function startRealtime(){
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'requests' }, payload=>{
         const r = payload.new;
         const idx = S.reqs.findIndex(x=>x.id===r.id);
-        if(idx>=0){ S.reqs[idx].status=r.status; S.reqs[idx].title=r.title; }
+        if(idx>=0){
+          // Solo pisar el status si el modal NO está abierto para este pedido
+          // (evita que realtime revierta cambios locales no guardados aún)
+          if(viewRid !== r.id) S.reqs[idx].status = r.status;
+          S.reqs[idx].title = r.title;
+        }
         renderADash(); renderAReqs();
       })
       .subscribe();
@@ -1094,7 +1108,7 @@ function startRealtime(){
           filter: `client_id=eq.${user.clientId}` }, payload=>{
         const r = payload.new;
         const idx = S.reqs.findIndex(x=>x.id===r.id);
-        if(idx>=0){ S.reqs[idx].status = r.status; }
+        if(idx>=0 && viewRid !== r.id){ S.reqs[idx].status = r.status; }
         // Re-render tracking en vivo
         renderTracking(user.clientId);
         renderCReqs(user.clientId);
@@ -2575,15 +2589,42 @@ async function submitDelivery(){
 
   let imgUrl=deliverFile;
 
+  // Mostrar progress bar, ocultar botones
+  const btn=document.getElementById('deliver-submit-btn');
+  const cancelBtn=document.getElementById('deliver-cancel-btn');
+  const progressWrap=document.getElementById('deliver-progress-wrap');
+  const progressBar=document.getElementById('deliver-progress-bar');
+  const progressPct=document.getElementById('deliver-progress-pct');
+  btn.disabled=true; btn.style.opacity='0.4';
+  cancelBtn.disabled=true; cancelBtn.style.opacity='0.4';
+  progressWrap.style.display='block';
+
+  // Simular progreso mientras sube
+  let fakePct=0;
+  const fakeInterval=setInterval(()=>{
+    fakePct=Math.min(fakePct+Math.random()*8,88);
+    progressBar.style.width=fakePct+'%';
+    progressPct.textContent=Math.round(fakePct)+'%';
+  },200);
+
   if(isSupabaseMode){
-    const btn=document.getElementById('deliver-submit-btn');
-    btn.textContent='Subiendo...';btn.disabled=true;
     const blob=await(await fetch(deliverFile)).blob();
     const path=`deliveries/${currentDeliverRid}/${Date.now()}.jpg`;
     imgUrl=await dbUploadImage(blob,path);
-    if(!imgUrl){btn.textContent='Enviar al cliente';btn.disabled=false;return;}
-    const res=await dbAddVersion(currentDeliverRid,imgUrl);
+    clearInterval(fakeInterval);
+    if(!imgUrl){
+      progressWrap.style.display='none';
+      btn.disabled=false; btn.style.opacity='1';
+      cancelBtn.disabled=false; cancelBtn.style.opacity='1';
+      return;
+    }
+    // Completar la barra al 100%
+    progressBar.style.width='100%'; progressPct.textContent='100%';
+    await dbAddVersion(currentDeliverRid,imgUrl);
     // status no se toca al subir miniatura — el admin lo controla manualmente
+  } else {
+    clearInterval(fakeInterval);
+    progressBar.style.width='100%'; progressPct.textContent='100%';
   }
 
   r.versions.push({
@@ -2593,7 +2634,14 @@ async function submitDelivery(){
   });
   const _ridToReopen = currentDeliverRid;
   const _statusToKeep = r.status; // preservar status
+  // Breve pausa para mostrar 100% antes de cerrar
+  await new Promise(res=>setTimeout(res,500));
   closeMo('mo-deliver');
+  // Reset progress bar para próxima vez
+  progressWrap.style.display='none';
+  progressBar.style.width='0%'; progressPct.textContent='0%';
+  btn.disabled=false; btn.style.opacity='1';
+  cancelBtn.disabled=false; cancelBtn.style.opacity='1';
   toast('✓ Miniatura subida');
   renderADash();renderAReqs();
   // Reabrir el modal manteniendo el status actual
