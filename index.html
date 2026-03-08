@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- saved from url=(0062)file:///Users/pedroatencio/Downloads/miniatura-manager_31.html -->
-<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="es">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ThumbFlow</title>
-<link href="./ThumbFlow_files/css2" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #0a0a0f;
@@ -311,17 +311,17 @@
     <div class="login-title">Bienvenido</div>
     <div class="login-sub">Sistema de gestión de miniaturas YouTube.<br>Iniciá sesión para continuar.</div>
     <div class="role-select">
-      <button class="role-btn active" onclick="selectRole(&#39;admin&#39;,this)"><span class="ri">🎨</span>Diseñador<br><small style="color:var(--muted)">Panel completo</small></button>
-      <button class="role-btn" onclick="selectRole(&#39;client&#39;,this)"><span class="ri">👤</span>Cliente<br><small style="color:var(--muted)">Mis pedidos</small></button>
+      <button class="role-btn active" onclick="selectRole('admin',this)"><span class="ri">🎨</span>Diseñador<br><small style="color:var(--muted)">Panel completo</small></button>
+      <button class="role-btn" onclick="selectRole('client',this)"><span class="ri">👤</span>Cliente<br><small style="color:var(--muted)">Mis pedidos</small></button>
     </div>
     <button class="google-btn" onclick="loginWithGoogle()">
-      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path></svg>
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
       Continuar con Google
     </button>
     <div class="divider">o acceso demo rápido</div>
     <div class="demo-btns">
-      <button class="demo-btn" onclick="demoLogin(&#39;admin&#39;)">🎨 Demo Diseñador</button>
-      <button class="demo-btn" onclick="demoLogin(&#39;client&#39;)">👤 Demo Cliente</button>
+      <button class="demo-btn" onclick="demoLogin('admin')">🎨 Demo Diseñador</button>
+      <button class="demo-btn" onclick="demoLogin('client')">👤 Demo Cliente</button>
     </div>
   </div>
 </div>
@@ -354,11 +354,11 @@
     </div>
     <div class="sidebar">
       <span class="nav-lbl">Principal</span>
-      <button class="nav-item active" onclick="showPanel(&#39;admin&#39;,&#39;dashboard&#39;,this)"><span class="nav-icon">◼</span> Dashboard</button>
-      <button class="nav-item" onclick="showPanel(&#39;admin&#39;,&#39;clientes&#39;,this)"><span class="nav-icon">👥</span> Clientes <span class="nav-badge" id="badge-cl">3</span></button>
-      <button class="nav-item" onclick="showPanel(&#39;admin&#39;,&#39;pedidos&#39;,this)"><span class="nav-icon">📋</span> Pedidos <span class="nav-badge" id="badge-pe">2</span></button>
+      <button class="nav-item active" onclick="showPanel('admin','dashboard',this)"><span class="nav-icon">◼</span> Dashboard</button>
+      <button class="nav-item" onclick="showPanel('admin','clientes',this)"><span class="nav-icon">👥</span> Clientes <span class="nav-badge" id="badge-cl">3</span></button>
+      <button class="nav-item" onclick="showPanel('admin','pedidos',this)"><span class="nav-icon">📋</span> Pedidos <span class="nav-badge" id="badge-pe">2</span></button>
       <span class="nav-lbl">Finanzas</span>
-      <button class="nav-item" onclick="showPanel(&#39;admin&#39;,&#39;pagos&#39;,this)"><span class="nav-icon">💰</span> Pagos</button>
+      <button class="nav-item" onclick="showPanel('admin','pagos',this)"><span class="nav-icon">💰</span> Pagos</button>
     </div>
     <div class="main-content">
       <div class="panel active" id="admin-panel-dashboard">
@@ -369,11 +369,11 @@
           <div class="stat-card"><div class="stat-lbl">Miniaturas entregadas</div><div class="stat-val c-green" id="dash-d">18</div><div class="stat-sub">Este mes: 7</div></div>
           <div class="stat-card"><div class="stat-lbl">Ingresos totales</div><div class="stat-val" style="font-size:24px">$1.480</div><div class="stat-sub c-green">+$240 este mes</div></div>
         </div>
-        <div class="card"><div class="card-title">Pedidos recientes <button class="btn btn-p btn-sm" onclick="showPanel(&#39;admin&#39;,&#39;pedidos&#39;,null)">Ver todos</button></div><div id="a-recent"></div></div>
+        <div class="card"><div class="card-title">Pedidos recientes <button class="btn btn-p btn-sm" onclick="showPanel('admin','pedidos',null)">Ver todos</button></div><div id="a-recent"></div></div>
         <div class="card"><div class="card-title">Estado de clientes</div><table><thead><tr><th>Cliente</th><th>Pack</th><th>Uso</th><th>Pago</th><th></th></tr></thead><tbody id="a-cl-sum"></tbody></table></div>
       </div>
       <div class="panel" id="admin-panel-clientes">
-        <div class="ar"><div class="page-header" style="margin:0"><div class="page-title">Clientes</div><div class="page-sub">Gestioná tus clientes</div></div><button class="btn btn-p" onclick="openMo(&#39;mo-nc&#39;)">+ Nuevo cliente</button></div>
+        <div class="ar"><div class="page-header" style="margin:0"><div class="page-title">Clientes</div><div class="page-sub">Gestioná tus clientes</div></div><button class="btn btn-p" onclick="openMo('mo-nc')">+ Nuevo cliente</button></div>
         <div class="cg" id="a-cl-grid"></div>
       </div>
       <div class="panel" id="admin-panel-pedidos">
@@ -410,11 +410,11 @@
     </div>
     <div class="sidebar">
       <span class="nav-lbl">Mi cuenta</span>
-      <button class="nav-item active" onclick="showPanel(&#39;client&#39;,&#39;inicio&#39;,this)"><span class="nav-icon">◼</span> Inicio</button>
-      <button class="nav-item" onclick="showPanel(&#39;client&#39;,&#39;pedidos&#39;,this)"><span class="nav-icon">📋</span> Mis pedidos</button>
-      <button class="nav-item" id="nav-nuevo" onclick="showPanel(&#39;client&#39;,&#39;nuevo&#39;,this)"><span class="nav-icon">✚</span> Nuevo pedido</button>
+      <button class="nav-item active" onclick="showPanel('client','inicio',this)"><span class="nav-icon">◼</span> Inicio</button>
+      <button class="nav-item" onclick="showPanel('client','pedidos',this)"><span class="nav-icon">📋</span> Mis pedidos</button>
+      <button class="nav-item" id="nav-nuevo" onclick="showPanel('client','nuevo',this)"><span class="nav-icon">✚</span> Nuevo pedido</button>
       <span class="nav-lbl">Cuenta</span>
-      <button class="nav-item" onclick="showPanel(&#39;client&#39;,&#39;pack&#39;,this)"><span class="nav-icon">📦</span> Mi pack</button>
+      <button class="nav-item" onclick="showPanel('client','pack',this)"><span class="nav-icon">📦</span> Mi pack</button>
     </div>
     <div class="main-content">
       <div class="panel active" id="client-panel-inicio">
@@ -449,8 +449,8 @@
               <div style="display:flex;flex-direction:column;gap:6px" class="fg-f"><label>Notas adicionales</label><textarea id="req-notes" placeholder="Cualquier aclaración extra..." style="min-height:70px"></textarea></div>
               <div style="display:flex;flex-direction:column;gap:6px" class="fg-f">
                 <label>Imágenes de referencia propias <span style="color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">(logos, fotos, capturas — opcional)</span></label>
-                <div class="upload-zone" id="ref-upload-zone" ondragover="event.preventDefault();this.classList.add(&#39;drag&#39;)" ondragleave="this.classList.remove(&#39;drag&#39;)" ondrop="handleRefDrop(event)">
-                  <input type="file" accept="image/*" multiple="" onchange="handleRefFiles(this.files)">
+                <div class="upload-zone" id="ref-upload-zone" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleRefDrop(event)">
+                  <input type="file" accept="image/*" multiple onchange="handleRefFiles(this.files)">
                   <div class="upload-icon">🖼️</div>
                   <div class="upload-label">Arrastrá imágenes o <strong>hacé clic para seleccionar</strong><br><small>PNG, JPG, GIF · Hasta 5 imágenes</small></div>
                 </div>
@@ -472,9 +472,9 @@
             <div class="yt-wrap">
               <div class="yt-header"><span class="yt-badge">▶ YT</span> Búsqueda de YouTube</div>
               <div class="yt-row">
-                <input id="yt-q" type="text" placeholder="Ej: plugins premiere pro 2025, tutorial excel, recetas italianas..." onkeydown="if(event.key===&#39;Enter&#39;)ytSearch()">
+                <input id="yt-q" type="text" placeholder="Ej: plugins premiere pro 2025, tutorial excel, recetas italianas..." onkeydown="if(event.key==='Enter')ytSearch()">
                 <button class="yt-btn" id="yt-btn" onclick="ytSearch()">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                   Buscar
                 </button>
               </div>
@@ -520,7 +520,7 @@
 <!-- MODALES -->
 <div class="mo" id="mo-nc">
   <div class="md">
-    <div class="mh"><div class="mt">Nuevo cliente</div><button class="mc" onclick="closeMo(&#39;mo-nc&#39;)">✕</button></div>
+    <div class="mh"><div class="mt">Nuevo cliente</div><button class="mc" onclick="closeMo('mo-nc')">✕</button></div>
     <div class="fg">
       <div style="display:flex;flex-direction:column;gap:6px" class="fg-f"><label>Nombre completo</label><input id="nc-name" type="text" placeholder="Juan Pérez"></div>
       <div style="display:flex;flex-direction:column;gap:6px"><label>Email</label><input id="nc-email" type="email" placeholder="juan@gmail.com"></div>
@@ -531,18 +531,18 @@
       <div style="display:flex;flex-direction:column;gap:6px" class="fg-f"><label>Estado de pago</label><select id="nc-ps"><option>Al día</option><option>Pendiente</option><option>Vencido</option></select></div>
       <div style="display:flex;flex-direction:column;gap:6px" class="fg-f"><label>Notas internas</label><textarea id="nc-notes" style="min-height:70px" placeholder="Solo vos podés ver esto..."></textarea></div>
     </div>
-    <div class="mf"><button class="btn btn-g" onclick="closeMo(&#39;mo-nc&#39;)">Cancelar</button><button class="btn btn-p" onclick="addClient()">Crear cliente</button></div>
+    <div class="mf"><button class="btn btn-g" onclick="closeMo('mo-nc')">Cancelar</button><button class="btn btn-p" onclick="addClient()">Crear cliente</button></div>
   </div>
 </div>
 
 <div class="mo" id="mo-req">
   <div class="md" style="width:620px">
-    <div class="mh"><div class="mt">Detalle del pedido</div><button class="mc" onclick="closeMo(&#39;mo-req&#39;)">✕</button></div>
+    <div class="mh"><div class="mt">Detalle del pedido</div><button class="mc" onclick="closeMo('mo-req')">✕</button></div>
     <div id="mo-req-body"></div>
     <div class="mf">
       <button class="btn btn-g" id="mo-delete-btn" style="color:var(--red);border-color:rgba(255,77,77,.3);display:none" onclick="deleteReq()">🗑 Eliminar</button>
       <div style="flex:1"></div>
-      <button class="btn btn-g" onclick="closeMo(&#39;mo-req&#39;)">Cerrar</button>
+      <button class="btn btn-g" onclick="closeMo('mo-req')">Cerrar</button>
       <button class="btn btn-p" id="mo-save-btn">Guardar cambios</button>
     </div>
   </div>
@@ -550,9 +550,15 @@
 
 <div class="mo" id="mo-cl">
   <div class="md" style="width:640px">
-    <div class="mh"><div class="mt" id="mo-cl-title">Cliente</div><button class="mc" onclick="closeMo(&#39;mo-cl&#39;)">✕</button></div>
+    <div class="mh"><div class="mt" id="mo-cl-title">Cliente</div><button class="mc" onclick="closeMo('mo-cl')">✕</button></div>
     <div id="mo-cl-body"></div>
-    <div class="mf"><button class="btn btn-g" onclick="closeMo(&#39;mo-cl&#39;)">Cerrar</button><button class="btn btn-p" onclick="saveClientNotes()">Guardar</button></div>
+    <div class="mf">
+      <button class="btn btn-g" id="mo-cl-delete-btn" style="color:var(--red);border-color:rgba(255,77,77,.3)" onclick="deleteClient()">🗑 Eliminar</button>
+      <button class="btn btn-g" id="mo-cl-archive-btn" onclick="archiveClient()">📦 Archivar</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-g" onclick="closeMo('mo-cl')">Cerrar</button>
+      <button class="btn btn-p" onclick="saveClientNotes()">Guardar</button>
+    </div>
   </div>
 </div>
 
@@ -561,11 +567,11 @@
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-  <img id="lightbox-img" src="file:///Users/pedroatencio/Downloads/miniatura-manager_31.html" alt="">
+  <img id="lightbox-img" src="" alt="">
   <div class="lightbox-title" id="lightbox-title"></div>
   <div class="lightbox-actions" onclick="event.stopPropagation()">
-    <a id="lightbox-dl" href="file:///Users/pedroatencio/Downloads/miniatura-manager_31.html" download="" class="btn btn-p btn-sm">⬇ Descargar</a>
-    <a id="lightbox-open" href="file:///Users/pedroatencio/Downloads/miniatura-manager_31.html" target="_blank" class="btn btn-g btn-sm">↗ Ver en YouTube</a>
+    <a id="lightbox-dl" href="" download class="btn btn-p btn-sm">⬇ Descargar</a>
+    <a id="lightbox-open" href="" target="_blank" class="btn btn-g btn-sm">↗ Ver en YouTube</a>
   </div>
 </div>
 
@@ -577,28 +583,28 @@
         <div class="mt" id="rev-title">Revisar miniatura</div>
         <div style="font-size:12px;color:var(--muted);margin-top:2px" id="rev-version-label"></div>
       </div>
-      <button class="mc" onclick="closeMo(&#39;mo-review&#39;)">✕</button>
+      <button class="mc" onclick="closeMo('mo-review')">✕</button>
     </div>
 
     <!-- Canvas de anotación -->
     <div style="margin-bottom:12px">
       <div class="ctoolbar" id="canvas-toolbar">
         <span style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-right:4px">Herramientas:</span>
-        <button class="tbtn act" id="tool-pen" onclick="setTool(&#39;pen&#39;)">✏️ Marcar</button>
-        <button class="tbtn" id="tool-arrow" onclick="setTool(&#39;arrow&#39;)">➜ Flecha</button>
-        <button class="tbtn" id="tool-rect" onclick="setTool(&#39;rect&#39;)">▭ Área</button>
+        <button class="tbtn act" id="tool-pen" onclick="setTool('pen')">✏️ Marcar</button>
+        <button class="tbtn" id="tool-arrow" onclick="setTool('arrow')">➜ Flecha</button>
+        <button class="tbtn" id="tool-rect" onclick="setTool('rect')">▭ Área</button>
         <div style="width:1px;height:20px;background:var(--border);margin:0 4px"></div>
-        <button class="tbtn" onclick="setColor(&#39;#ff4d4d&#39;)" title="Rojo"><span class="cdot" style="background:#ff4d4d"></span></button>
-        <button class="tbtn" onclick="setColor(&#39;#f5c842&#39;)" title="Amarillo"><span class="cdot" style="background:#f5c842"></span></button>
-        <button class="tbtn" onclick="setColor(&#39;#4d9fff&#39;)" title="Azul"><span class="cdot" style="background:#4d9fff"></span></button>
-        <button class="tbtn" onclick="setColor(&#39;#2dca73&#39;)" title="Verde"><span class="cdot" style="background:#2dca73"></span></button>
+        <button class="tbtn" onclick="setColor('#ff4d4d')" title="Rojo"><span class="cdot" style="background:#ff4d4d"></span></button>
+        <button class="tbtn" onclick="setColor('#f5c842')" title="Amarillo"><span class="cdot" style="background:#f5c842"></span></button>
+        <button class="tbtn" onclick="setColor('#4d9fff')" title="Azul"><span class="cdot" style="background:#4d9fff"></span></button>
+        <button class="tbtn" onclick="setColor('#2dca73')" title="Verde"><span class="cdot" style="background:#2dca73"></span></button>
         <div style="margin-left:auto;display:flex;gap:6px">
           <button class="tbtn" onclick="undoStroke()" title="Deshacer">↩ Deshacer</button>
           <button class="tbtn" onclick="clearCanvas()" title="Limpiar">🗑 Limpiar</button>
         </div>
       </div>
       <div class="canvas-wrap" id="canvas-wrap">
-        <img class="ri" id="review-img" src="file:///Users/pedroatencio/Downloads/miniatura-manager_31.html" alt="Miniatura">
+        <img class="ri" id="review-img" src="" alt="Miniatura">
         <canvas id="ann-canvas"></canvas>
       </div>
     </div>
@@ -607,8 +613,8 @@
     <div id="rev-client-actions">
       <textarea class="review-comment" id="rev-comment" placeholder="Escribí tu feedback: qué te gusta, qué querés cambiar, qué falta..."></textarea>
       <div class="rev-actions">
-        <button class="btn-chg" onclick="submitReview(&#39;cambios&#39;)">✎ Pedir cambios</button>
-        <button class="btn-ok" onclick="submitReview(&#39;aprobado&#39;)">✓ Aprobar miniatura</button>
+        <button class="btn-chg" onclick="submitReview('cambios')">✎ Pedir cambios</button>
+        <button class="btn-ok" onclick="submitReview('aprobado')">✓ Aprobar miniatura</button>
       </div>
     </div>
 
@@ -623,9 +629,9 @@
 <!-- MODAL SUBIR ENTREGA (diseñador) -->
 <div class="mo" id="mo-deliver">
   <div class="md" style="width:500px">
-    <div class="mh"><div class="mt">Subir miniatura terminada</div><button class="mc" onclick="closeMo(&#39;mo-deliver&#39;)">✕</button></div>
+    <div class="mh"><div class="mt">Subir miniatura terminada</div><button class="mc" onclick="closeMo('mo-deliver')">✕</button></div>
     <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Subí la versión lista para que el cliente la revise y apruebe.</p>
-    <div class="upload-zone" id="deliver-zone" ondragover="event.preventDefault();this.classList.add(&#39;drag&#39;)" ondragleave="this.classList.remove(&#39;drag&#39;)" ondrop="handleDeliverDrop(event)">
+    <div class="upload-zone" id="deliver-zone" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDeliverDrop(event)">
       <input type="file" accept="image/*" onchange="handleDeliverFile(this.files[0])">
       <div class="upload-icon">🎨</div>
       <div class="upload-label">Arrastrá la miniatura o <strong>hacé clic para seleccionar</strong><br><small>PNG o JPG recomendado · 1280×720px ideal</small></div>
@@ -634,8 +640,8 @@
       <img id="deliver-preview-img" style="width:100%;border-radius:10px;border:1px solid var(--border)">
     </div>
     <div class="mf">
-      <button class="btn btn-g" onclick="closeMo(&#39;mo-deliver&#39;)">Cancelar</button>
-      <button class="btn btn-p" id="deliver-submit-btn" onclick="submitDelivery()" disabled="" style="opacity:.5">Enviar al cliente</button>
+      <button class="btn btn-g" onclick="closeMo('mo-deliver')">Cancelar</button>
+      <button class="btn btn-p" id="deliver-submit-btn" onclick="submitDelivery()" disabled style="opacity:.5">Enviar al cliente</button>
     </div>
   </div>
 </div>
@@ -1183,7 +1189,7 @@ function renderADash(){
     const c=gc(r.cid);
     return`<div class="rc"><div><div class="rt" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">${r.title} ${urgencyChip(r.deadline)}</div><div class="rm"><span>👤 ${c?.name}</span><span>📅 ${fd(r.deadline)}</span>${sb(r.status)}</div></div><button class="btn btn-g btn-sm" onclick="openReqMo('${r.id}')">Ver</button></div>`;
   }).join('');
-  document.getElementById('a-cl-sum').innerHTML=S.clients.map(c=>`
+  document.getElementById('a-cl-sum').innerHTML=S.clients.filter(c=>!c.archived).map(c=>`
     <tr><td><strong>${c.name}</strong><br><small style="color:var(--muted)">${c.ch}</small></td>
     <td>${c.pack===99?'Ilimitado':c.pack+' mins.'}</td>
     <td>${c.pack===99?'∞':`${c.used}/${c.pack}`}${c.pack!==99?`<div class="pbar"><div class="pbar-fill" style="width:${Math.min(100,(c.used/c.pack)*100)}%;background:${c.used>=c.pack?'var(--red)':'var(--accent)'}"></div></div>`:''}</td>
@@ -1192,13 +1198,35 @@ function renderADash(){
   updateAdminWorkload();
 }
 function renderAClients(){
-  document.getElementById('a-cl-grid').innerHTML=S.clients.map(c=>{
-    const p=gr(c.id).filter(r=>r.status!=='Entregado').length;
-    return`<div class="cc" onclick="openClMo('${c.id}')">
-      <div class="cch"><div class="cav">${ini(c.name)}</div><div><div class="cn">${c.name}</div><div class="cp">${c.ch} · ${c.pack===99?'Ilimitado':'Pack '+c.pack}</div></div><div style="margin-left:auto">${pb(c.pay)}</div></div>
-      <div class="cs"><div class="csv"><div class="csn ${c.used>=c.pack&&c.pack!==99?'c-red':'c-green'}">${c.pack===99?'∞':c.pack-c.used}</div><div class="csl">Disponibles</div></div><div class="csv"><div class="csn c-yellow">${p}</div><div class="csl">Pendientes</div></div></div>
-    </div>`;}).join('');
-  document.getElementById('badge-cl').textContent=S.clients.length;
+  const active = S.clients.filter(c=>!c.archived);
+  const archived = S.clients.filter(c=>c.archived);
+
+  const renderCard = (c, isArchived) => {
+    const p = gr(c.id).filter(r=>r.status!=='Completado').length;
+    return `<div class="cc" style="${isArchived?'opacity:.55;border-style:dashed':''}" onclick="openClMo('${c.id}')">
+      <div class="cch">
+        <div class="cav" style="${isArchived?'filter:grayscale(1)':''}">${ini(c.name)}</div>
+        <div>
+          <div class="cn">${c.name} ${isArchived?'<span style="font-size:10px;background:rgba(255,255,255,.08);border-radius:6px;padding:2px 7px;color:var(--muted);font-weight:600">ARCHIVADO</span>':''}</div>
+          <div class="cp">${c.ch} · ${c.pack===99?'Ilimitado':'Pack '+c.pack}</div>
+        </div>
+        <div style="margin-left:auto">${isArchived?'':''+pb(c.pay)}</div>
+      </div>
+      ${isArchived
+        ? `<div style="padding:8px 0 2px;font-size:12px;color:var(--muted)">📦 Archivado · ${gr(c.id).length} pedidos guardados · <span style="color:var(--accent);cursor:pointer" onclick="event.stopPropagation();unarchiveClient('${c.id}')">Restaurar</span></div>`
+        : `<div class="cs"><div class="csv"><div class="csn ${c.used>=c.pack&&c.pack!==99?'c-red':'c-green'}">${c.pack===99?'∞':c.pack-c.used}</div><div class="csl">Disponibles</div></div><div class="csv"><div class="csn c-yellow">${p}</div><div class="csl">Pendientes</div></div></div>`
+      }
+    </div>`;
+  };
+
+  let html = active.map(c=>renderCard(c,false)).join('');
+  if(archived.length){
+    html += `<div style="grid-column:1/-1;margin-top:8px;padding-top:16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.08em">📦 ARCHIVADOS (${archived.length})</div>`;
+    html += archived.map(c=>renderCard(c,true)).join('');
+  }
+
+  document.getElementById('a-cl-grid').innerHTML = html || '<div class="es"><div style="font-size:48px;opacity:.4">👤</div><p>No hay clientes aún.</p></div>';
+  document.getElementById('badge-cl').textContent = active.length;
 }
 function renderAReqs(){
   const f=document.getElementById('filter-st')?.value||'';
@@ -1560,7 +1588,53 @@ function openClMo(cid){
     <div class="nb" style="margin-bottom:20px"><label>🔒 Notas internas</label><textarea id="en">${c.notes}</textarea></div>
     <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:12px">Pedidos (${rqs.length})</div>
     ${rqs.slice(0,4).map(r=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px"><div><strong>${r.title}</strong><span style="color:var(--muted);margin-left:8px;font-size:12px">${fd(r.deadline)}</span></div>${sb(r.status)}</div>`).join('')}`;
+
+  // Actualizar botones del footer según estado del cliente
+  const archBtn = document.getElementById('mo-cl-archive-btn');
+  if(c.archived){
+    archBtn.textContent = '📤 Restaurar';
+    archBtn.onclick = ()=>unarchiveClient(cid);
+  } else {
+    archBtn.textContent = '📦 Archivar';
+    archBtn.onclick = ()=>archiveClient();
+  }
   openMo('mo-cl');
+}
+async function deleteClient(){
+  const c=gc(viewCid);if(!c)return;
+  const activeReqs=gr(viewCid).filter(r=>r.status!=='Completado');
+  if(activeReqs.length>0){
+    if(!confirm(`⚠️ "${c.name}" tiene ${activeReqs.length} pedido(s) activo(s).\n\nSi eliminás al cliente, se borrarán también todos sus pedidos.\n\n¿Confirmás la eliminación total?`)) return;
+  } else {
+    if(!confirm(`¿Eliminar a "${c.name}" y todos sus pedidos? Esta acción no se puede deshacer.`)) return;
+  }
+  if(isSupabaseMode){
+    await sb_client.from('requests').delete().eq('client_id',viewCid);
+    const {error}=await sb_client.from('clients').delete().eq('id',viewCid);
+    if(error){toast('❌ Error al eliminar');return;}
+  }
+  S.reqs=S.reqs.filter(r=>r.cid!==viewCid);
+  S.clients=S.clients.filter(c=>c.id!==viewCid);
+  closeMo('mo-cl');
+  toast('🗑 Cliente eliminado');
+  renderADash();renderAClients();renderAReqs();renderAPays();
+}
+async function archiveClient(){
+  const c=gc(viewCid);if(!c)return;
+  if(!confirm(`¿Archivar a "${c.name}"?\n\nVas a poder restaurarlo cuando vuelva. Sus pedidos se conservan.`)) return;
+  c.archived=true;
+  if(isSupabaseMode) await dbUpdateClient(viewCid,{archived:true});
+  closeMo('mo-cl');
+  toast('📦 Cliente archivado');
+  renderADash();renderAClients();renderAPays();
+}
+async function unarchiveClient(cid){
+  const c=gc(cid||viewCid);if(!c)return;
+  c.archived=false;
+  if(isSupabaseMode) await dbUpdateClient(c.id,{archived:false});
+  closeMo('mo-cl');
+  toast('✅ Cliente restaurado');
+  renderADash();renderAClients();renderAPays();
 }
 async function saveClientNotes(){
   const c=gc(viewCid);if(!c)return;
@@ -2178,6 +2252,5 @@ function clearCanvas(){annStrokes=[];redrawCanvas();}
 
 
 </script>
-
-
-</body></html>
+</body>
+</html>
