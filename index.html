@@ -1821,7 +1821,7 @@ function openReqMo(rid){
   const r=S.reqs.find(x=>x.id===rid);if(!r)return;
   // Si es cliente en modo Supabase, refrescar versiones antes de abrir
   if(role==='client' && isSupabaseMode){
-    supabase.from('versions').select('*').eq('request_id',rid).then(({data})=>{
+    sb_client.from('versions').select('*').eq('request_id',rid).then(({data})=>{
       if(data) r.versions = data.map(v=>({id:v.id,img:v.img_url,date:new Date(v.created_at).toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric'}),status:v.status||'pendiente',comment:v.comment||'',annotation:v.annotation||null}));
       _openReqMoRender(rid);
     });
@@ -2602,7 +2602,7 @@ async function deleteVersion(rid, vidx){
   const r = S.reqs.find(x=>x.id===rid); if(!r||!r.versions) return;
   if(!confirm('¿Eliminar esta miniatura? No se puede deshacer.')) return;
   if(isSupabaseMode && r.versions[vidx]?.id){
-    await supabase.from('versions').delete().eq('id', r.versions[vidx].id);
+    await sb_client.from('versions').delete().eq('id', r.versions[vidx].id);
   }
   r.versions.splice(vidx, 1);
   renderADash(); renderAReqs();
