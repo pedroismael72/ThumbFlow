@@ -28,6 +28,31 @@
     --muted: #888880;
   }
 
+  /* ONBOARDING */
+  .ob-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:500;display:flex;align-items:center;justify-content:center;animation:fadeIn .3s ease;}
+  .ob-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px 36px;max-width:460px;width:90%;text-align:center;position:relative;}
+  .ob-steps{display:flex;gap:6px;justify-content:center;margin-bottom:32px;}
+  .ob-step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s;}
+  .ob-step-dot.active{background:var(--accent);width:24px;border-radius:4px;}
+  .ob-icon{font-size:52px;margin-bottom:16px;}
+  .ob-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;margin-bottom:10px;}
+  .ob-desc{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:32px;}
+  .ob-nav{display:flex;gap:10px;justify-content:center;}
+  .ob-skip{font-size:12px;color:var(--muted);cursor:pointer;position:absolute;top:16px;right:20px;padding:4px 8px;}
+  .ob-skip:hover{color:var(--text);}
+
+  /* CHANNEL AVATAR */
+  .ch-avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--border);flex-shrink:0;}
+  .ch-avatar-fallback{width:44px;height:44px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:white;flex-shrink:0;}
+  .ch-subs{font-size:11px;color:var(--muted);margin-top:1px;}
+
+  /* REMINDER BADGE en card cliente */
+  .cc-reminder{position:absolute;top:10px;right:10px;background:var(--yellow);color:#000;font-size:10px;font-weight:700;padding:3px 7px;border-radius:20px;letter-spacing:.03em;}
+
+  /* LISTO PARA REVISAR badge en client card */
+  .cc-review-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(77,159,255,.15);color:var(--blue);font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;border:1px solid rgba(77,159,255,.3);margin-top:8px;}
+  .cc-review-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:pulse-dot 1.5s ease-in-out infinite;}
+
   /* THEME SWITCH */
 
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -567,7 +592,10 @@
       </div>
       <div class="panel" id="admin-panel-pedidos">
         <div class="ar"><div class="page-header" style="margin:0"><div class="page-title">Pedidos</div><div class="page-sub">Todos los pedidos</div></div>
-          <select id="filter-st" onchange="renderAReqs()" style="width:auto;padding:8px 12px;font-size:13px"><option value="">Todos</option><option>No iniciado</option><option>En progreso</option><option>Listo para revisar</option><option>Completado</option></select>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <select id="filter-cl" onchange="renderAReqs()" style="width:auto;padding:8px 12px;font-size:13px"><option value="">Todos los clientes</option></select>
+            <select id="filter-st" onchange="renderAReqs()" style="width:auto;padding:8px 12px;font-size:13px"><option value="">Todos los estados</option><option>No iniciado</option><option>En progreso</option><option>Listo para revisar</option><option>Completado</option></select>
+          </div>
         </div>
         <div id="a-reqs"></div>
       </div>
@@ -889,6 +917,23 @@
   </div>
 </div>
 
+<!-- ONBOARDING MODAL -->
+<div id="ob-overlay" class="ob-overlay" style="display:none">
+  <div class="ob-card">
+    <span class="ob-skip" onclick="obSkip()">Saltar</span>
+    <div class="ob-steps">
+      <div class="ob-step-dot active" id="ob-dot-0"></div>
+      <div class="ob-step-dot" id="ob-dot-1"></div>
+      <div class="ob-step-dot" id="ob-dot-2"></div>
+    </div>
+    <div id="ob-content"></div>
+    <div class="ob-nav">
+      <button class="btn btn-g" id="ob-back" onclick="obNav(-1)" style="display:none">← Atrás</button>
+      <button class="btn btn-p" id="ob-next" onclick="obNav(1)">Siguiente →</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ═══════════════════════════════════════════════════
    SUPABASE CONFIG — Pegá tus credenciales aquí
@@ -936,7 +981,7 @@ function _initSupabaseClient(){
 /* ═══════════════════════════════════════════════════
    STATE LOCAL (demo + cache)
 ═══════════════════════════════════════════════════ */
-let role='admin', user=null, viewCid=null, viewRid=null, _blockRealtimeUntil=0;
+let role='admin', user=null, viewCid=null, viewRid=null, _blockRealtimeUntil=0, _obStep=0;
 let refs=[];
 let step=1;
 let isSupabaseMode = false;
@@ -1232,6 +1277,7 @@ function login(name){
     document.getElementById('admin-av').textContent=name[0];
     document.getElementById('admin-un').textContent=name;
     renderADash();renderAClients();renderAReqs();renderAPays();
+    setTimeout(()=>{ checkReminders(); obShow(); }, 800);
   }else{
     const c=gc('c1');
     document.getElementById('cl-av').textContent=c.name[0];
@@ -1473,24 +1519,89 @@ function renderADash(){
     <td><button class="btn btn-g btn-sm" onclick="openClMo('${c.id}')">Ver</button></td></tr>`).join('');
   updateAdminWorkload();
 }
+/* ════ ONBOARDING ════ */
+const OB_STEPS = [
+  { icon:'🎨', title:'Bienvenido a ThumbFlow', desc:'Tu sistema de gestión de miniaturas YouTube. Desde acá controlás todos tus pedidos, clientes y entregas en un solo lugar.' },
+  { icon:'📋', title:'Cómo funciona', desc:'Tus clientes cargan pedidos con referencias y detalles. Vos los ves en el panel de Pedidos, subís la miniatura terminada y ellos la aprueban directamente.' },
+  { icon:'🔔', title:'Recordatorios automáticos', desc:'ThumbFlow te avisa cuando un pedido lleva más de 3 días sin moverse. Así nunca perdés el ritmo con tus clientes.' }
+];
+
+function obShow(){
+  const key = 'tf-ob-done-' + (ADMIN_EMAIL||'demo');
+  if(localStorage.getItem(key)) return;
+  _obStep = 0;
+  obRender();
+  document.getElementById('ob-overlay').style.display = 'flex';
+}
+function obRender(){
+  const s = OB_STEPS[_obStep];
+  document.getElementById('ob-content').innerHTML = `<div class="ob-icon">${s.icon}</div><div class="ob-title">${s.title}</div><div class="ob-desc">${s.desc}</div>`;
+  document.querySelectorAll('.ob-step-dot').forEach((d,i)=>{ d.className='ob-step-dot'+(i===_obStep?' active':''); });
+  document.getElementById('ob-back').style.display = _obStep>0?'':'none';
+  document.getElementById('ob-next').textContent = _obStep===OB_STEPS.length-1?'¡Empezar! 🚀':'Siguiente →';
+}
+function obNav(dir){
+  _obStep = Math.max(0, Math.min(OB_STEPS.length-1, _obStep+dir));
+  if(dir>0 && _obStep===OB_STEPS.length-1 && document.getElementById('ob-next').textContent.includes('Empezar')){ obSkip(); return; }
+  if(dir>0 && _obStep>=OB_STEPS.length){ obSkip(); return; }
+  obRender();
+}
+function obSkip(){
+  document.getElementById('ob-overlay').style.display = 'none';
+  localStorage.setItem('tf-ob-done-'+(ADMIN_EMAIL||'demo'), '1');
+}
+
+/* ════ RECORDATORIOS (pedidos sin moverse X días) ════ */
+const REMINDER_DAYS = 3;
+function checkReminders(){
+  const now = Date.now();
+  S.reqs.filter(r=>r.status!=='Completado'&&r.status!=='No iniciado').forEach(r=>{
+    const updated = r.updated_at ? new Date(r.updated_at).getTime() : null;
+    if(!updated) return;
+    const days = Math.floor((now - updated) / 86400000);
+    if(days >= REMINDER_DAYS){
+      const c = gc(r.cid);
+      addNotification('⏳','Pedido sin mover',`"${r.title}" lleva ${days} días en "${r.status}"${c?' ('+c.name+')':''}`,r.id);
+    }
+  });
+}
+
 function renderAClients(){
   const active = S.clients.filter(c=>!c.archived);
   const archived = S.clients.filter(c=>c.archived);
 
   const renderCard = (c, isArchived) => {
-    const p = gr(c.id).filter(r=>r.status!=='Completado').length;
-    return `<div class="cc" style="${isArchived?'opacity:.55;border-style:dashed':''}" onclick="openClMo('${c.id}')">
+    const reqs = gr(c.id);
+    const p = reqs.filter(r=>r.status!=='Completado').length;
+    const enRevision = reqs.filter(r=>r.status==='Listo para revisar').length;
+    // Reminder: algún pedido sin moverse más de REMINDER_DAYS días
+    const now = Date.now();
+    const hasReminder = !isArchived && reqs.some(r=>{
+      if(r.status==='Completado'||r.status==='No iniciado') return false;
+      const updated = r.updated_at ? new Date(r.updated_at).getTime() : null;
+      return updated && Math.floor((now-updated)/86400000) >= REMINDER_DAYS;
+    });
+    // Avatar: foto del canal si está disponible
+    const avatarHtml = c.ch_avatar
+      ? `<img src="${c.ch_avatar}" class="ch-avatar" alt="${c.name}" onerror="this.style.display='none';this.nextSibling.style.display='flex'">`
+        + `<div class="ch-avatar-fallback" style="display:none">${ini(c.name)}</div>`
+      : `<div class="cav" style="${isArchived?'filter:grayscale(1)':''}">${ini(c.name)}</div>`;
+    const subsHtml = c.ch_subs ? `<div class="ch-subs">📊 ${c.ch_subs}</div>` : '';
+    return `<div class="cc" style="${isArchived?'opacity:.55;border-style:dashed':''}position:relative" onclick="openClMo('${c.id}')">
+      ${hasReminder ? '<span class="cc-reminder">⏳ Sin mover</span>' : ''}
       <div class="cch">
-        <div class="cav" style="${isArchived?'filter:grayscale(1)':''}">${ini(c.name)}</div>
+        ${avatarHtml}
         <div>
           <div class="cn">${c.name} ${isArchived?'<span style="font-size:10px;background:rgba(255,255,255,.08);border-radius:6px;padding:2px 7px;color:var(--muted);font-weight:600">ARCHIVADO</span>':''}</div>
           <div class="cp">${c.ch} · ${c.pack===99?'Ilimitado':'Pack '+c.pack}</div>
+          ${subsHtml}
         </div>
         <div style="margin-left:auto">${isArchived?'':''+pb(c.pay)}</div>
       </div>
       ${isArchived
-        ? `<div style="padding:8px 0 2px;font-size:12px;color:var(--muted)">📦 Archivado · ${gr(c.id).length} pedidos guardados · <span style="color:var(--accent);cursor:pointer" onclick="event.stopPropagation();unarchiveClient('${c.id}')">Restaurar</span></div>`
-        : `<div class="cs"><div class="csv"><div class="csn ${c.used>=c.pack&&c.pack!==99?'c-red':'c-green'}">${c.pack===99?'∞':c.pack-c.used}</div><div class="csl">Disponibles</div></div><div class="csv"><div class="csn c-yellow">${p}</div><div class="csl">Pendientes</div></div></div>`
+        ? `<div style="padding:8px 0 2px;font-size:12px;color:var(--muted)">📦 Archivado · ${reqs.length} pedidos guardados · <span style="color:var(--accent);cursor:pointer" onclick="event.stopPropagation();unarchiveClient('${c.id}')">Restaurar</span></div>`
+        : `<div class="cs"><div class="csv"><div class="csn ${c.used>=c.pack&&c.pack!==99?'c-red':'c-green'}">${c.pack===99?'∞':c.pack-c.used}</div><div class="csl">Disponibles</div></div><div class="csv"><div class="csn c-yellow">${p}</div><div class="csl">Pendientes</div></div></div>
+           ${enRevision>0 ? `<div class="cc-review-badge"><span class="cc-review-dot"></span>${enRevision} listo${enRevision>1?'s':''} para revisar</div>` : ''}`
       }
     </div>`;
   };
@@ -1503,10 +1614,27 @@ function renderAClients(){
 
   document.getElementById('a-cl-grid').innerHTML = html || '<div class="es"><div style="font-size:48px;opacity:.4">👤</div><p>No hay clientes aún.</p></div>';
   document.getElementById('badge-cl').textContent = active.length;
+  // Enrich active clients with channel avatar/subs (async, non-blocking)
+  active.forEach(async (cl)=>{
+    if(!cl.ch_avatar && cl.ch && YT_API_KEY){
+      const info = await fetchChannelInfo(cl.ch);
+      if(info){ cl.ch_avatar=info.avatar; cl.ch_subs=info.subs; renderAClients(); }
+    }
+  });
 }
 function renderAReqs(){
   const f=document.getElementById('filter-st')?.value||'';
-  const list=f?S.reqs.filter(r=>r.status===f):S.reqs;
+  const fc=document.getElementById('filter-cl')?.value||'';
+  let list=S.reqs;
+  if(f) list=list.filter(r=>r.status===f);
+  if(fc) list=list.filter(r=>r.cid===fc);
+  // Populate client filter options
+  const clSel=document.getElementById('filter-cl');
+  if(clSel){
+    const cur=clSel.value;
+    clSel.innerHTML='<option value="">Todos los clientes</option>'+S.clients.filter(c=>!c.archived).map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+    if(cur) clSel.value=cur;
+  }
   document.getElementById('badge-pe').textContent=S.reqs.filter(r=>r.status!=='Entregado').length;
   const el=document.getElementById('a-reqs');if(!el)return;
   el.innerHTML=list.length?list.map(r=>{
@@ -2213,6 +2341,24 @@ async function updPay(cid,val){
    YOUTUBE DATA API v3
    CORS habilitado — funciona desde archivo local (file://)
 ════════════════════════ */
+
+async function fetchChannelInfo(handle){
+  if(!YT_API_KEY||!handle) return null;
+  // handle puede ser @canal o ID
+  const q = handle.startsWith('@') ? handle.slice(1) : handle;
+  try{
+    const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&forHandle=${encodeURIComponent(handle)}&key=${YT_API_KEY}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if(data.items&&data.items.length>0){
+      const ch = data.items[0];
+      const subs = parseInt(ch.statistics.subscriberCount||0);
+      const subsStr = subs>=1000000 ? (subs/1000000).toFixed(1)+'M subs' : subs>=1000 ? Math.round(subs/1000)+'K subs' : subs+' subs';
+      return { avatar: ch.snippet.thumbnails.default.url, subs: subsStr };
+    }
+  }catch(e){}
+  return null;
+}
 
 async function ytSearch(){
   const q=document.getElementById('yt-q').value.trim();
