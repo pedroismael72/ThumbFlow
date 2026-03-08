@@ -509,14 +509,26 @@
     <div class="topbar">
       <div class="topbar-logo">Thumb<span>Flow</span></div>
       <div class="topbar-spacer"></div>
-      <div style="position:relative">
-        <button class="notif-btn" onclick="toggleNotifPanel()" id="notif-btn">🔔<span class="notif-dot" id="notif-dot"></span></button>
-        <div class="notif-panel" id="notif-panel">
-          <div class="notif-head">
-            <span class="notif-head-title">Notificaciones</span>
-            <button class="btn btn-g btn-sm" onclick="markAllRead()">Marcar todo leído</button>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="position:relative">
+          <button class="notif-btn" onclick="toggleInboxPanel()" id="inbox-btn" title="Bandeja de entrada" style="font-size:16px">📥<span class="notif-dot" id="inbox-dot"></span></button>
+          <div class="notif-panel" id="inbox-panel" style="display:none">
+            <div class="notif-head">
+              <span class="notif-head-title">Mensajes</span>
+              <button class="btn btn-g btn-sm" onclick="markAllChatsRead()">Todo leído</button>
+            </div>
+            <div class="notif-list" id="inbox-list"><div class="notif-empty">Sin mensajes nuevos</div></div>
           </div>
-          <div class="notif-list" id="notif-list"><div class="notif-empty">Sin notificaciones</div></div>
+        </div>
+        <div style="position:relative">
+          <button class="notif-btn" onclick="toggleNotifPanel()" id="notif-btn">🔔<span class="notif-dot" id="notif-dot"></span></button>
+          <div class="notif-panel" id="notif-panel">
+            <div class="notif-head">
+              <span class="notif-head-title">Notificaciones</span>
+              <button class="btn btn-g btn-sm" onclick="markAllRead()">Marcar todo leído</button>
+            </div>
+            <div class="notif-list" id="notif-list"><div class="notif-empty">Sin notificaciones</div></div>
+          </div>
         </div>
       </div>
       <div class="topbar-user">
@@ -573,6 +585,16 @@
     <div class="topbar">
       <div class="topbar-logo">Thumb<span>Flow</span></div>
       <div class="topbar-spacer"></div>
+      <div style="position:relative">
+        <button class="notif-btn" onclick="toggleInboxPanel()" id="inbox-btn-cl" title="Mensajes" style="font-size:16px">📥<span class="notif-dot" id="inbox-dot-cl"></span></button>
+        <div class="notif-panel" id="inbox-panel-cl" style="display:none">
+          <div class="notif-head">
+            <span class="notif-head-title">Mensajes</span>
+            <button class="btn btn-g btn-sm" onclick="markAllChatsRead()">Todo leído</button>
+          </div>
+          <div class="notif-list" id="inbox-list-cl"><div class="notif-empty">Sin mensajes nuevos</div></div>
+        </div>
+      </div>
       <div class="topbar-user">
         <div id="cl-credits-pill" style="display:none;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 12px 5px 8px;font-size:12px;font-weight:600;">
           <span style="font-size:15px">🎬</span>
@@ -1495,7 +1517,8 @@ function renderAReqs(){
     return`<div class="rc"><div><div class="rt" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">${r.title}${hr?` <span style="font-size:11px;color:var(--accent)">📸 ${r.refs.length} ref.</span>`:''} ${urgencyChip(r.deadline)}</div><div class="rm"><span>👤 ${c?.name}</span><span>🎨 ${r.style||'-'}</span><span>📅 ${fd(r.deadline)}</span>${sb(r.status)}</div></div>
     <div style="display:flex;gap:8px;align-items:center">
       <button class="btn btn-g btn-sm chat-fab" onclick="openChat('${r.id}',event)" title="Chat" style="position:relative;padding:7px 10px">
-        💬${unread?`<span style="position:absolute;top:-4px;right:-4px;background:var(--accent);color:white;font-size:9px;font-weight:800;border-radius:10px;padding:1px 5px;min-width:16px;text-align:center">${unread}</span>`:''}
+        💬${unread?`<span style="position:absolute;top:3px;right:3px;width:7px;height:7px;border-radius:50%;background:#ff3b3b;border:1.5px solid var(--surface)"></span>`:''}
+      </button>
       </button>
       <select onchange="chStatus('${r.id}',this.value)" style="width:auto;padding:6px 10px;font-size:12px" onclick="event.stopPropagation()">
         <option ${r.status==='No iniciado'?'selected':''}>No iniciado</option>
@@ -1776,7 +1799,8 @@ function renderCReqs(cid){
     return`<div class="rc"><div><div class="rt">${r.title}${r.refs&&r.refs.length?` <span style="font-size:11px;color:var(--accent)">📸 ${r.refs.length} ref.</span>`:''}</div><div class="rm">${sb(r.status)}<span>🎨 ${r.style||'-'}</span><span>📅 ${fd(r.deadline)}</span></div></div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-g btn-sm chat-fab" onclick="openChat('${r.id}',event)" title="Chat" style="position:relative;padding:7px 10px">
-        💬${unread?`<span style="position:absolute;top:-4px;right:-4px;background:var(--accent);color:white;font-size:9px;font-weight:800;border-radius:10px;padding:1px 5px;min-width:16px;text-align:center">${unread}</span>`:''}
+        💬${unread?`<span style="position:absolute;top:3px;right:3px;width:7px;height:7px;border-radius:50%;background:#ff3b3b;border:1.5px solid var(--surface)"></span>`:''}
+      </button>
       </button>
       <button class="btn btn-g btn-sm" onclick="openReqMo('${r.id}')">Ver / Editar</button>
     </div></div>`;}).join(''):`<div class="es"><div style="font-size:48px;opacity:.4">📋</div><p>No tenés pedidos aún.</p></div>`;
@@ -2567,9 +2591,105 @@ function renderBadges(){
     const cid = user?.clientId || S.clients.find(c=>!c.name.startsWith('[DEMO]'))?.id;
     if(cid) renderCReqs(cid);
   }
+  // Actualizar dot de bandeja
+  const otherRole = role==='admin' ? 'client' : 'admin';
+  const hasUnread = S.reqs.some(r=>(r.messages||[]).some(m=>m.sender_role===otherRole&&!m.read_at));
+  const dotId = role==='admin' ? 'inbox-dot' : 'inbox-dot-cl';
+  const dot = document.getElementById(dotId);
+  if(dot) dot.classList.toggle('show', hasUnread);
 }
 
-async function triggerPushNotif(rid, text){
+function toggleInboxPanel(){
+  const panels = ['inbox-panel','inbox-panel-cl'];
+  const dots   = ['inbox-dot','inbox-dot-cl'];
+  const panel  = panels.map(id=>document.getElementById(id)).find(el=>el);
+  if(!panel) return;
+  // Cerrar otros paneles abiertos
+  document.getElementById('notif-panel')?.style.setProperty && closePanels(['notif-panel']);
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen) renderInboxPanel();
+}
+
+function renderInboxPanel(){
+  // Todos los pedidos con mensajes no leídos del otro rol
+  const myRole = role;
+  const otherRole = myRole==='admin' ? 'client' : 'admin';
+  const unreadReqs = S.reqs
+    .map(r => ({r, msgs: (r.messages||[]).filter(m=>m.sender_role===otherRole&&!m.read_at)}))
+    .filter(x=>x.msgs.length>0)
+    .sort((a,b)=> new Date(b.msgs[b.msgs.length-1].created_at) - new Date(a.msgs[a.msgs.length-1].created_at));
+
+  const listId = role==='admin' ? 'inbox-list' : 'inbox-list-cl';
+  const dotId  = role==='admin' ? 'inbox-dot'  : 'inbox-dot-cl';
+  const el = document.getElementById(listId); if(!el) return;
+  const dot = document.getElementById(dotId);
+
+  if(dot) dot.classList.toggle('show', unreadReqs.length > 0);
+
+  if(!unreadReqs.length){
+    el.innerHTML = `<div class="notif-empty">Sin mensajes nuevos</div>`;
+    return;
+  }
+
+  el.innerHTML = unreadReqs.map(({r, msgs})=>{
+    const c = gc(r.cid);
+    const last = msgs[msgs.length-1];
+    const preview = last.text.length>50 ? last.text.slice(0,48)+'…' : last.text;
+    const who = role==='admin' ? c?.name||'Cliente' : 'Tu diseñador';
+    const dt = new Date(last.created_at);
+    const time = dt.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+    return `<div class="notif-item unread" onclick="openChat('${r.id}');closeInboxPanel()" style="cursor:pointer">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px">💬 ${who}</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:3px">${r.title.length>35?r.title.slice(0,33)+'…':r.title}</div>
+          <div style="font-size:12px;color:var(--text)">${preview}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
+          <span style="font-size:10px;color:var(--muted)">${time}</span>
+          <span style="background:#ff3b3b;color:white;font-size:10px;font-weight:800;border-radius:10px;padding:1px 6px">${msgs.length}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function closeInboxPanel(){
+  ['inbox-panel','inbox-panel-cl'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.style.display='none';
+  });
+}
+
+async function markAllChatsRead(){
+  const otherRole = role==='admin' ? 'client' : 'admin';
+  const now = new Date().toISOString();
+  const allUnread = [];
+  S.reqs.forEach(r=>{
+    if(!r.messages) return;
+    r.messages.filter(m=>m.sender_role===otherRole&&!m.read_at).forEach(m=>{
+      m.read_at = now;
+      allUnread.push(m.id);
+    });
+  });
+  if(isSupabaseMode && allUnread.length){
+    await sb_client.from('messages').update({read_at:now}).in('id', allUnread);
+  }
+  renderInboxPanel();
+  renderBadges();
+}
+
+// Cerrar paneles al click afuera
+document.addEventListener('click', e=>{
+  const inboxIds = ['inbox-btn','inbox-btn-cl','inbox-panel','inbox-panel-cl'];
+  const notifIds = ['notif-btn','notif-panel'];
+  const clickedInbox = inboxIds.some(id=>document.getElementById(id)?.contains(e.target));
+  const clickedNotif = notifIds.some(id=>document.getElementById(id)?.contains(e.target));
+  if(!clickedInbox) closeInboxPanel();
+  if(!clickedNotif){ const np=document.getElementById('notif-panel'); if(np) np.style.display='none'; }
+});
+
+
   // Web Push — pedir permiso si no fue dado
   if(!('Notification' in window)) return;
   if(Notification.permission === 'default') await Notification.requestPermission();
