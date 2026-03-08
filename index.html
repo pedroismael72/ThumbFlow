@@ -29,12 +29,7 @@
   }
 
   /* THEME SWITCH */
-  .theme-switch{display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none;}
-  .theme-switch-track{width:36px;height:20px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);position:relative;transition:background .2s,border-color .2s;flex-shrink:0;}
-  .theme-switch-thumb{position:absolute;top:3px;left:3px;width:12px;height:12px;border-radius:50%;background:var(--muted);transition:transform .2s,background .2s;}
-  .light-mode .theme-switch-track{background:#e8e7e3;border-color:#c8c7c2;}
-  .light-mode .theme-switch-thumb{transform:translateX(16px);background:var(--accent);}
-  .theme-switch-icon{font-size:13px;line-height:1;}
+
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
   h1,h2,h3,h4{font-family:'Syne',sans-serif;}
@@ -68,14 +63,20 @@
 
   /* LAYOUT */
   .app-layout{display:grid;grid-template-columns:240px 1fr;grid-template-rows:56px 1fr;min-height:100vh;}
-  .topbar{grid-column:1/-1;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;}
-  .topbar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;}
+  .topbar{grid-column:1/-1;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:10px;overflow:hidden;}
+  .topbar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;flex-shrink:0;}
   .topbar-logo span{color:var(--accent);}
   .topbar-spacer{flex:1;}
-  .topbar-user{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);}
-  .avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:white;}
-  .logout-btn{padding:6px 14px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;}
+  .topbar-user{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);flex-shrink:0;}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:white;flex-shrink:0;}
+  .logout-btn{padding:6px 12px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;flex-shrink:0;}
   .logout-btn:hover{border-color:var(--accent);color:var(--text);}
+  /* Theme switch — solo el track, sin labels de texto */
+  .theme-switch{display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none;flex-shrink:0;padding:4px;}
+  .theme-switch-track{width:32px;height:18px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);position:relative;transition:background .2s;flex-shrink:0;}
+  .theme-switch-thumb{position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:var(--muted);transition:transform .2s,background .2s;}
+  .light-mode .theme-switch-thumb{transform:translateX(14px);background:var(--accent);}
+  .theme-switch-icon{font-size:13px;line-height:1;}
   .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:20px 12px;display:flex;flex-direction:column;gap:4px;}
   .nav-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);padding:8px 12px 4px;font-weight:600;}
   .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);transition:all .15s;border:none;background:none;width:100%;text-align:left;}
@@ -338,6 +339,9 @@
     .stats-grid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;}
     .cg{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));}
     .page-title{font-size:22px;}
+    /* Ocultar nombre de usuario para ganar espacio en topbar */
+    #admin-un, #cl-un{display:none;}
+    #admin-workload span:last-child{display:none;}
   }
 
   /* ════════════════════════════════════
@@ -556,10 +560,8 @@
         </div>
         <div class="avatar" id="admin-av">D</div><span id="admin-un">Diseñador</span>
       </div>
-      <label class="theme-switch" onclick="toggleTheme()" title="Cambiar tema">
-        <span class="theme-switch-icon" id="theme-icon-a">🌙</span>
+      <label class="theme-switch" onclick="toggleTheme()" title="Alternar dark / light mode">
         <div class="theme-switch-track"><div class="theme-switch-thumb"></div></div>
-        <span class="theme-switch-icon" id="theme-icon-b">☀️</span>
       </label>
       <button class="logout-btn" onclick="logout()">Salir</button>
       <button class="nav-item active" onclick="showPanel('admin','dashboard',this)"><span class="nav-icon">◼</span> Dashboard</button>
@@ -624,10 +626,8 @@
         </div>
         <div class="avatar" id="cl-av">C</div><span id="cl-un">Cliente</span>
       </div>
-      <label class="theme-switch" onclick="toggleTheme()" title="Cambiar tema">
-        <span class="theme-switch-icon">🌙</span>
+      <label class="theme-switch" onclick="toggleTheme()" title="Alternar dark / light mode">
         <div class="theme-switch-track"><div class="theme-switch-thumb"></div></div>
-        <span class="theme-switch-icon">☀️</span>
       </label>
       <button class="logout-btn" onclick="logout()">Salir</button>
     </div>
