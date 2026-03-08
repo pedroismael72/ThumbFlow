@@ -2690,6 +2690,7 @@ document.addEventListener('click', e=>{
 });
 
 
+async function triggerPushNotif(rid, text){
   // Web Push — pedir permiso si no fue dado
   if(!('Notification' in window)) return;
   if(Notification.permission === 'default') await Notification.requestPermission();
