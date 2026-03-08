@@ -305,6 +305,18 @@
   .tmsg-title{font-weight:700;font-size:14px;margin-bottom:3px;}
   .tmsg-sub{font-size:12px;color:var(--muted);line-height:1.5;}
   @keyframes trackingPulse{0%,100%{box-shadow:0 0 0 6px rgba(255,77,0,.15);}50%{box-shadow:0 0 0 14px rgba(255,77,0,.04);}}
+  
+  @keyframes sparkleRotate {
+    0%,100%{transform:rotate(-8deg) scale(1);}
+    25%{transform:rotate(8deg) scale(1.1);}
+    50%{transform:rotate(-4deg) scale(1.05);}
+    75%{transform:rotate(6deg) scale(1.08);}
+  }
+  @keyframes starPulse {
+    0%,100%{transform:scale(1);opacity:1;}
+    50%{transform:scale(1.15);opacity:.85;}
+  }
+
   @keyframes trackingFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
   @keyframes liveDot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}.msg-row.me
   .msg-row.them
@@ -597,64 +609,19 @@
         <div class="page-header"><div class="page-title">Dashboard</div><div class="page-sub">Resumen general de tu estudio</div></div>
         <div class="stats-grid">
           <div class="stat-card"><div class="stat-card-inner">
-            <div class="stat-card-icon"><svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="g-cl" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#5E9FFF"/>
-      <stop offset="100%" stop-color="#9B59FF"/>
-    </linearGradient>
-  </defs>
-  <rect width="44" height="44" rx="12" fill="url(#g-cl)" opacity=".15"/>
-  <g transform="translate(7,7)" fill="url(#g-cl)">
-    <path d="M19 14c1.66 0 2.99-1.34 2.99-3S20.66 8 19 8c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S12.66 8 11 8C9.34 8 8 9.34 8 11s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V22h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V22h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-  </g>
-</svg></div>
+            <div class="stat-card-icon"><div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#5E9FFF,#9B59FF);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px #5E9FFF55"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div></div>
             <div class="stat-card-body"><div class="stat-lbl">Clientes activos</div><div class="stat-val" id="dash-cl">—</div><div class="stat-sub">Total registrados</div></div>
           </div></div>
           <div class="stat-card"><div class="stat-card-inner">
-            <div class="stat-card-icon"><svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="g-or" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FF7A00"/>
-      <stop offset="100%" stop-color="#FF3D3D"/>
-    </linearGradient>
-  </defs>
-  <rect width="44" height="44" rx="12" fill="url(#g-or)" opacity=".15"/>
-  <g transform="translate(7,7)" fill="url(#g-or)">
-    <path d="M17 2H7C5.9 2 5 2.9 5 4v16c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V7l-4-5zm2 18H7V4h9v4h3v12zM9 15h8v2H9zm0-4h8v2H9zm0-4h5v2H9z"/>
-  </g>
-</svg></div>
+            <div class="stat-card-icon"><div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#FF7A00,#FF3D3D);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px #FF7A0055"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg></div></div>
             <div class="stat-card-body"><div class="stat-lbl">Pedidos pendientes</div><div class="stat-val" id="dash-p">—</div><div class="stat-sub">Esperando entrega</div></div>
           </div></div>
           <div class="stat-card"><div class="stat-card-inner">
-            <div class="stat-card-icon"><svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="g-de" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#00D4AA"/>
-      <stop offset="100%" stop-color="#00A878"/>
-    </linearGradient>
-  </defs>
-  <rect width="44" height="44" rx="12" fill="url(#g-de)" opacity=".15"/>
-  <g transform="translate(7,7)" fill="url(#g-de)">
-    <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zm-10-3.5l-3.5-3.5-1.41 1.41L11 18.42l7.41-7.41L17 9.5l-6 6z"/>
-  </g>
-</svg></div>
+            <div class="stat-card-icon"><div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#00D4AA,#00A878);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px #00D4AA55"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></div></div>
             <div class="stat-card-body"><div class="stat-lbl">Entregadas</div><div class="stat-val" id="dash-d">—</div><div class="stat-sub" id="dash-d-sub">Total aprobadas</div></div>
           </div></div>
           <div class="stat-card"><div class="stat-card-inner">
-            <div class="stat-card-icon"><svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="g-rv" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFD60A"/>
-      <stop offset="100%" stop-color="#FF9500"/>
-    </linearGradient>
-  </defs>
-  <rect width="44" height="44" rx="12" fill="url(#g-rv)" opacity=".15"/>
-  <g transform="translate(7,7)" fill="url(#g-rv)">
-    <path d="M21 7H3c-1.11 0-2 .89-2 2v10c0 1.11.89 2 2 2h18c1.11 0 2-.89 2-2V9c0-1.11-.89-2-2-2zm0 10H3v-4h18v4zm0-8H3V7h18v2z"/>
-    <circle cx="18" cy="14" r="2"/>
-  </g>
-</svg></div>
+            <div class="stat-card-icon"><div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#FFD60A,#FF9500);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px #FFD60A55"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></div></div>
             <div class="stat-card-body"><div class="stat-lbl">Ingresos totales</div><div class="stat-val" id="dash-rev" style="font-size:24px">—</div><div class="stat-sub c-green" id="dash-rev-sub">Este mes: $0</div></div>
           </div></div>
         </div>
@@ -1984,12 +1951,15 @@ function renderTracking(cid){
   const stepsHtml = steps.map((s,i)=>{
     const cls = i<idx?'done':i===idx?'active':'';
     const isCurrent = i===idx;
+    const isDone = i<idx;
     // Dot activo toma el color del estado
-    const dotStyle = isCurrent
+    const dotStyle = i<idx
+      ? `background:#2dca73;border-color:#2dca73;box-shadow:0 0 0 6px rgba(45,202,115,.2);`
+      : isCurrent
       ? `background:${sc.dot};border-color:${sc.color};box-shadow:0 0 0 6px ${sc.dot};`
       : '';
     return `<div class="ts ${cls}">
-      <div class="ts-dot ${cls}" style="${dotStyle}">${{'clipboard':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>`,'paint':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>`,'sparkle':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z"/><path d="M5 17l.5 1.5L7 19l-1.5.5L5 21l-.5-1.5L3 19l1.5-.5L5 17z"/></svg>`,'check':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`}[i<idx?'check':s.icon]||s.icon}</div>
+      <div class="ts-dot ${cls}" style="${dotStyle}">${i<idx?`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>`:({'clipboard':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2v1a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4zM8 4V3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1H8z"/></svg>`,'paint':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 5.52 4.48 10 10 10 .926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2zm-5.5 9c-.828 0-1.5-.672-1.5-1.5S5.672 8 6.5 8 8 8.672 8 9.5 7.328 11 6.5 11zm3-4C8.672 7 8 6.328 8 5.5S8.672 4 9.5 4s1.5.672 1.5 1.5S10.328 7 9.5 7zm5 0c-.828 0-1.5-.672-1.5-1.5S13.672 4 14.5 4s1.5.672 1.5 1.5S15.328 7 14.5 7zm3 4c-.828 0-1.5-.672-1.5-1.5S16.672 8 17.5 8s1.5.672 1.5 1.5S18.328 11 17.5 11z"/></svg>`,'sparkle':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L9.5 8.5 2 11l7.5 2.5L12 21l2.5-7.5L22 11l-7.5-2.5L12 1z"/><path d="M5 3L4 5.5 1.5 6.5 4 7.5 5 10l1-2.5L8.5 6.5 6 5.5 5 3z" opacity=".6"/></svg>`,'check':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>`}[s.icon]||s.icon)}</div>
       <div class="ts-lbl" style="${isCurrent?'color:'+sc.color+';font-weight:800':''}">${s.label}</div>
     </div>`;
   }).join('');
@@ -2025,8 +1995,8 @@ function renderTracking(cid){
               <div class="tracking-progress-line" style="width:calc(${ri===0?0:ri===1?33:ri===2?66:100}% * (100% - 60px) / 100)"></div>
               ${rs.map((s,i)=>{
                 const cls=i<ri?'done':i===ri?'active':'';
-                const dotStyle2=i===ri?`background:${rsc.dot};border-color:${rsc.color};box-shadow:0 0 0 5px ${rsc.dot}`:'';
-                return `<div class="ts ${cls}"><div class="ts-dot ${cls}" style="width:32px;height:32px;font-size:14px;${dotStyle2}">${i<ri?`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`:s.icon}</div><div class="ts-lbl">${s.label}</div></div>`;
+                const dotStyle2=i<ri?`background:#2dca73;border-color:#2dca73;box-shadow:0 0 0 4px rgba(45,202,115,.2)`:i===ri?`background:${rsc.dot};border-color:${rsc.color};box-shadow:0 0 0 5px ${rsc.dot}`:'';
+                return `<div class="ts ${cls}"><div class="ts-dot ${cls}" style="width:32px;height:32px;font-size:14px;${dotStyle2}">${i<ri?`<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>`:({'clipboard':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2v1a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4zM8 4V3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1H8z"/></svg>`,'paint':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 5.52 4.48 10 10 10 .926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2zm-5.5 9c-.828 0-1.5-.672-1.5-1.5S5.672 8 6.5 8 8 8.672 8 9.5 7.328 11 6.5 11zm3-4C8.672 7 8 6.328 8 5.5S8.672 4 9.5 4s1.5.672 1.5 1.5S10.328 7 9.5 7zm5 0c-.828 0-1.5-.672-1.5-1.5S13.672 4 14.5 4s1.5.672 1.5 1.5S15.328 7 14.5 7zm3 4c-.828 0-1.5-.672-1.5-1.5S16.672 8 17.5 8s1.5.672 1.5 1.5S18.328 11 17.5 11z"/></svg>`,'sparkle':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L9.5 8.5 2 11l7.5 2.5L12 21l2.5-7.5L22 11l-7.5-2.5L12 1z"/><path d="M5 3L4 5.5 1.5 6.5 4 7.5 5 10l1-2.5L8.5 6.5 6 5.5 5 3z" opacity=".6"/></svg>`,'check':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>`}[s.icon]||s.icon)}</div><div class="ts-lbl">${s.label}</div></div>`;
               }).join('')}
             </div>
             <button class="btn btn-g btn-sm" onclick="event.stopPropagation();openReqMo('${r.id}')">Ver detalle</button>
@@ -2053,7 +2023,7 @@ function renderTracking(cid){
         ${stepsHtml}
       </div>
       <div class="tracking-msg" style="border:1px solid ${sc.color}22;background:${sc.dot}">
-        <div class="tmsg-icon">${msg.icon}</div>
+        <div class="tmsg-icon" style="color:${sc.color}">${{'inbox':`<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="currentColor" style="animation:trackingFloat 3s ease-in-out infinite"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>`,'paint':`<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="currentColor" style="animation:trackingFloat 2.5s ease-in-out infinite"><path d="M12 2C6.48 2 2 6.48 2 12c0 5.52 4.48 10 10 10 .926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2zm-5.5 9c-.828 0-1.5-.672-1.5-1.5S5.672 8 6.5 8 8 8.672 8 9.5 7.328 11 6.5 11zm3-4C8.672 7 8 6.328 8 5.5S8.672 4 9.5 4s1.5.672 1.5 1.5S10.328 7 9.5 7zm5 0c-.828 0-1.5-.672-1.5-1.5S13.672 4 14.5 4s1.5.672 1.5 1.5S15.328 7 14.5 7zm3 4c-.828 0-1.5-.672-1.5-1.5S16.672 8 17.5 8s1.5.672 1.5 1.5S18.328 11 17.5 11z"/></svg>`,'sparkle':`<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="currentColor" style="animation:sparkleRotate 3s ease-in-out infinite"><path d="M12 1L9.5 8.5 2 11l7.5 2.5L12 21l2.5-7.5L22 11l-7.5-2.5L12 1z"/><path d="M5 3L4 5.5 1.5 6.5 4 7.5 5 10l1-2.5L8.5 6.5 6 5.5 5 3z" opacity=".55"/><path d="M19 13l-.75 2L16.5 16l1.75.75L19 19l.75-1.75L21.5 16l-1.75-.75L19 13z" opacity=".4"/></svg>`,'star':`<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="currentColor" style="animation:starPulse 2s ease-in-out infinite"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27z"/></svg>`}[msg.icon]||msg.icon}</div>
         <div class="tmsg-text">
           <div class="tmsg-title">${msg.title}</div>
           <div class="tmsg-sub">${msg.sub}</div>
