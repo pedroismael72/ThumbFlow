@@ -1,0 +1,2183 @@
+<!DOCTYPE html>
+<!-- saved from url=(0062)file:///Users/pedroatencio/Downloads/miniatura-manager_31.html -->
+<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ThumbFlow</title>
+<link href="./ThumbFlow_files/css2" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --border: #22222f;
+    --accent: #ff4d00;
+    --text: #f0eee8;
+    --muted: #6b6b7e;
+    --green: #2dca73;
+    --yellow: #f5c842;
+    --red: #ff4d4d;
+    --blue: #4d9fff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+  h1,h2,h3,h4{font-family:'Syne',sans-serif;}
+  .screen{display:none;min-height:100vh;}
+  .screen.active{display:flex;flex-direction:column;}
+
+  /* LOGIN */
+  #screen-login{align-items:center;justify-content:center;position:relative;overflow:hidden;}
+  #screen-login::before{content:'';position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(255,77,0,.15) 0%,transparent 70%);top:-100px;right:-100px;border-radius:50%;animation:pulse 4s ease-in-out infinite;}
+  #screen-login::after{content:'';position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(255,140,66,.08) 0%,transparent 70%);bottom:-50px;left:-50px;border-radius:50%;animation:pulse 4s ease-in-out infinite reverse;}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.1);opacity:.7;}}
+  .login-card{position:relative;z-index:1;background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:48px;width:420px;text-align:center;animation:fadeUp .6s ease;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+  .logo{display:inline-flex;align-items:center;gap:10px;margin-bottom:32px;}
+  .logo-icon{width:40px;height:40px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+  .logo-text{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;}
+  .logo-text span{color:var(--accent);}
+  .login-title{font-size:28px;font-weight:800;margin-bottom:8px;}
+  .login-sub{color:var(--muted);font-size:14px;margin-bottom:36px;line-height:1.5;}
+  .role-select{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;}
+  .role-btn{padding:16px;border:1px solid var(--border);border-radius:12px;background:var(--surface2);cursor:pointer;transition:all .2s;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;}
+  .role-btn .ri{font-size:24px;margin-bottom:6px;display:block;}
+  .role-btn:hover,.role-btn.active{border-color:var(--accent);background:rgba(255,77,0,.08);}
+  .google-btn{width:100%;padding:14px;background:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;color:#333;transition:all .2s;margin-bottom:12px;}
+  .google-btn:hover{background:#f5f5f5;transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,.3);}
+  .demo-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;}
+  .demo-btn{padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;}
+  .demo-btn:hover{color:var(--text);border-color:var(--accent);}
+  .divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;margin:16px 0;}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+
+  /* LAYOUT */
+  .app-layout{display:grid;grid-template-columns:240px 1fr;grid-template-rows:56px 1fr;min-height:100vh;}
+  .topbar{grid-column:1/-1;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;}
+  .topbar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;}
+  .topbar-logo span{color:var(--accent);}
+  .topbar-spacer{flex:1;}
+  .topbar-user{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:white;}
+  .logout-btn{padding:6px 14px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;}
+  .logout-btn:hover{border-color:var(--accent);color:var(--text);}
+  .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:20px 12px;display:flex;flex-direction:column;gap:4px;}
+  .nav-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);padding:8px 12px 4px;font-weight:600;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);transition:all .15s;border:none;background:none;width:100%;text-align:left;}
+  .nav-item:hover{background:var(--surface2);color:var(--text);}
+  .nav-item.active{background:rgba(255,77,0,.12);color:var(--accent);}
+  .nav-icon{font-size:16px;width:20px;text-align:center;}
+  .nav-badge{margin-left:auto;background:var(--accent);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:20px;}
+  .main-content{padding:32px;overflow-y:auto;background:var(--bg);}
+  .panel{display:none;}
+  .panel.active{display:block;animation:fadeIn .3s ease;}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+  /* COMPONENTS */
+  .page-header{margin-bottom:28px;}
+  .page-title{font-size:26px;font-weight:800;letter-spacing:-.5px;margin-bottom:4px;}
+  .page-sub{color:var(--muted);font-size:13px;}
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px;}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;transition:border-color .2s;}
+  .stat-card:hover{border-color:var(--accent);}
+  .stat-lbl{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px;font-weight:600;}
+  .stat-val{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;margin-bottom:4px;}
+  .stat-sub{font-size:12px;color:var(--muted);}
+  .c-green{color:var(--green);} .c-yellow{color:var(--yellow);} .c-red{color:var(--red);} .c-blue{color:var(--blue);}
+  .pbar{width:100%;height:6px;background:var(--surface2);border-radius:3px;margin-top:8px;overflow:hidden;}
+  .pbar-fill{height:100%;border-radius:3px;background:var(--accent);transition:width .6s ease;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;}
+  .card-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
+  table{width:100%;border-collapse:collapse;}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:10px 16px;border-bottom:1px solid var(--border);font-weight:600;}
+  td{padding:14px 16px;font-size:13px;border-bottom:1px solid rgba(34,34,47,.5);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:rgba(255,255,255,.02);}
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+  .badge::before{content:'';width:5px;height:5px;border-radius:50%;}
+  .bg{background:rgba(45,202,115,.12);color:var(--green);} .bg::before{background:var(--green);}
+  .by{background:rgba(245,200,66,.12);color:var(--yellow);} .by::before{background:var(--yellow);}
+  .br{background:rgba(255,77,77,.12);color:var(--red);} .br::before{background:var(--red);}
+  .bb{background:rgba(77,159,255,.12);color:var(--blue);} .bb::before{background:var(--blue);}
+  .bm{background:var(--surface2);color:var(--muted);} .bm::before{background:var(--muted);}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .2s;}
+  .btn-p{background:var(--accent);color:white;} .btn-p:hover{background:#e04400;transform:translateY(-1px);}
+  .btn-g{background:none;border:1px solid var(--border);color:var(--muted);} .btn-g:hover{border-color:var(--accent);color:var(--text);}
+  .btn-sm{padding:6px 12px;font-size:12px;}
+  .fg{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .fg-f{grid-column:1/-1;}
+  label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;}
+  input,textarea,select{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;width:100%;}
+  input:focus,textarea:focus,select:focus{border-color:var(--accent);}
+  textarea{resize:vertical;min-height:100px;}
+  select option{background:var(--surface2);}
+  .mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:100;align-items:center;justify-content:center;}
+  .mo.open{display:flex;}
+  .md{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;width:580px;max-width:95vw;max-height:90vh;overflow-y:auto;animation:fadeUp .3s ease;}
+  .mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+  .mt{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;}
+  .mc{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+  .mc:hover{color:var(--text);border-color:var(--accent);}
+  .mf{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid var(--border);}
+  .ar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+  .rc{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin-bottom:12px;transition:all .2s;}
+  .rc:hover{border-color:rgba(255,77,0,.3);}
+  .rt{font-weight:600;font-size:14px;margin-bottom:4px;}
+  .rm{font-size:12px;color:var(--muted);display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+  .nb{background:rgba(245,200,66,.06);border:1px solid rgba(245,200,66,.2);border-radius:12px;padding:16px;}
+  .nb label{color:var(--yellow);}
+  .nb textarea{background:none;border:none;padding:8px 0 0;font-size:13px;color:var(--text);resize:none;min-height:80px;}
+  .nb textarea:focus{outline:none;border:none;}
+  #toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--green);color:var(--green);padding:12px 20px;border-radius:12px;font-size:13px;font-weight:500;z-index:999;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;}
+  #toast.show{opacity:1;transform:translateY(0);}
+  .es{text-align:center;padding:60px 20px;color:var(--muted);}
+  .pay-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);font-size:13px;}
+  .pay-row:last-child{border-bottom:none;}
+  .cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+  .cc{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;cursor:pointer;transition:all .2s;}
+  .cc:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,77,0,.1);}
+  .cch{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+  .cav{width:44px;height:44px;border-radius:12px;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:16px;}
+  .cn{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;}
+  .cp{font-size:12px;color:var(--muted);}
+  .cs{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .csv{background:var(--surface2);border-radius:10px;padding:10px;text-align:center;}
+  .csn{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;}
+  .csl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;}
+
+  /* ════ YOUTUBE SEARCH ════ */
+  .yt-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:20px;}
+  .yt-header{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .yt-badge{background:#ff0000;color:white;font-size:9px;padding:2px 6px;border-radius:4px;font-weight:800;letter-spacing:.5px;}
+  .yt-row{display:flex;gap:8px;margin-bottom:16px;}
+  .yt-row input{flex:1;background:var(--surface);}
+  .yt-row input:focus{border-color:#ff0000;}
+  .yt-btn{padding:12px 18px;background:#ff0000;border:none;border-radius:10px;color:white;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:all .2s;}
+  .yt-btn:hover{background:#cc0000;}
+  .yt-btn:disabled{background:var(--muted);cursor:not-allowed;}
+  .yt-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+  .yt-ph{grid-column:1/-1;text-align:center;padding:32px;color:var(--muted);font-size:13px;}
+  .yt-ph .phi{font-size:36px;margin-bottom:10px;opacity:.4;}
+  .yt-card{position:relative;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .2s;aspect-ratio:16/9;background:var(--surface);}
+  .yt-card:hover{border-color:rgba(255,255,255,.4);transform:scale(1.03);z-index:2;}
+  .yt-card.sel{border-color:var(--accent)!important;box-shadow:0 0 0 3px rgba(255,77,0,.25);}
+  .yt-card img{width:100%;height:100%;object-fit:cover;display:block;}
+  .yt-check{position:absolute;top:5px;right:5px;width:20px;height:20px;background:var(--accent);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:800;z-index:2;}
+  .yt-card.sel .yt-check{display:flex;}
+  .yt-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.92) 0%,rgba(0,0,0,.2) 50%,transparent 100%);opacity:0;transition:opacity .18s;display:flex;align-items:flex-end;padding:8px 7px;}
+  .yt-card:hover .yt-ov,.yt-card.sel .yt-ov{opacity:1;}
+  .yt-ttl{font-size:10px;color:white;line-height:1.35;font-weight:600;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-shadow:0 1px 3px rgba(0,0,0,.8);}
+  .refs-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .ref-chip{display:flex;align-items:center;gap:6px;background:rgba(255,77,0,.1);border:1px solid rgba(255,77,0,.3);border-radius:8px;padding:4px 8px 4px 4px;font-size:11px;color:var(--accent);font-weight:600;}
+  .ref-chip img{width:32px;height:18px;object-fit:cover;border-radius:4px;}
+  .ref-rm{background:none;border:none;color:var(--accent);cursor:pointer;font-size:12px;padding:0 2px;}
+  .ref-rm:hover{color:var(--red);}
+
+  /* Steps */
+  .steps{display:flex;margin-bottom:28px;}
+  .step{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;}
+  .step::after{content:'';position:absolute;top:14px;left:50%;width:100%;height:1px;background:var(--border);}
+  .step:last-child::after{display:none;}
+  .sn{width:28px;height:28px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted);position:relative;z-index:1;transition:all .3s;}
+  .step.done .sn{background:var(--green);border-color:var(--green);color:white;}
+  .step.act .sn{background:var(--accent);border-color:var(--accent);color:white;}
+  .sl{font-size:10px;color:var(--muted);text-align:center;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+  .step.act .sl{color:var(--accent);}
+  .step.done .sl{color:var(--green);}
+
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;}
+  /* ════ NOTIFICACIONES ════ */
+  .notif-btn{position:relative;width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .2s;color:var(--muted);}
+  .notif-btn:hover{border-color:var(--accent);color:var(--text);}
+  .notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--accent);border:2px solid var(--surface);display:none;}
+  .notif-dot.show{display:block;}
+  .notif-panel{position:absolute;top:48px;right:0;width:340px;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5);z-index:200;display:none;overflow:hidden;}
+  .notif-panel.open{display:block;animation:fadeUp .2s ease;}
+  .notif-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .notif-head-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;}
+  .notif-list{max-height:360px;overflow-y:auto;}
+  .notif-item{padding:14px 20px;border-bottom:1px solid rgba(34,34,47,.5);cursor:pointer;transition:background .15s;display:flex;gap:12px;align-items:flex-start;}
+  .notif-item:hover{background:var(--surface2);}
+  .notif-item.unread{background:rgba(255,77,0,.05);}
+  .notif-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+  .notif-txt{flex:1;}
+  .notif-title{font-size:13px;font-weight:600;margin-bottom:2px;}
+  .notif-sub{font-size:11px;color:var(--muted);}
+  .notif-empty{padding:40px 20px;text-align:center;color:var(--muted);font-size:13px;}
+  .chip-urgente{background:rgba(255,77,77,.15);color:var(--red);border:1px solid rgba(255,77,77,.3);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;animation:urgentPulse 1.5s ease-in-out infinite;}
+  .chip-hoy{background:rgba(245,200,66,.15);color:var(--yellow);border:1px solid rgba(245,200,66,.3);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;}
+  .chip-pronto{background:rgba(77,159,255,.1);color:var(--blue);border:1px solid rgba(77,159,255,.2);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;}
+  @keyframes urgentPulse{0%,100%{opacity:1;}50%{opacity:.6;}}
+
+  /* ════ LIGHTBOX ════ */
+  .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);backdrop-filter:blur(8px);z-index:300;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+  .lightbox.open{display:flex;animation:fadeIn .2s ease;}
+  .lightbox img{max-width:85vw;max-height:70vh;border-radius:12px;object-fit:contain;box-shadow:0 20px 80px rgba(0,0,0,.8);}
+  .lightbox-title{color:white;font-size:13px;max-width:600px;text-align:center;opacity:.8;line-height:1.5;}
+  .lightbox-actions{display:flex;gap:10px;}
+  .lightbox-close{position:fixed;top:20px;right:20px;width:40px;height:40px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:10px;color:white;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+  .lightbox-close:hover{background:rgba(255,255,255,.2);}
+  .ref-thumb{width:110px;height:62px;object-fit:cover;border-radius:8px;border:2px solid var(--accent);cursor:pointer;transition:all .2s;}
+  .ref-thumb:hover{transform:scale(1.05);box-shadow:0 4px 20px rgba(255,77,0,.3);}
+
+  ::-webkit-scrollbar{width:6px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+  /* ════ TRACKING PEDIDOSYA ════ */
+  .tracking-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:20px;overflow:hidden;position:relative;}
+  .tracking-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),#ff8c42);border-radius:20px 20px 0 0;}
+  .tracking-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:12px;}
+  .tracking-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:4px;}
+  .tracking-sub{font-size:12px;color:var(--muted);}
+  .tracking-steps{display:flex;align-items:center;margin-bottom:28px;position:relative;padding:0 10px;}
+  .tracking-steps::before{content:'';position:absolute;top:20px;left:30px;right:30px;height:2px;background:var(--border);z-index:0;}
+  .tracking-progress-line{position:absolute;top:20px;left:30px;height:2px;background:linear-gradient(90deg,var(--accent),#ff8c42);z-index:1;transition:width 1s cubic-bezier(.4,0,.2,1);}
+  .ts{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;z-index:2;}
+  .ts-dot{width:40px;height:40px;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .5s cubic-bezier(.4,0,.2,1);}
+  .ts-dot.done{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 6px rgba(255,77,0,.15);}
+  .ts-dot.active{background:var(--surface2);border-color:var(--accent);box-shadow:0 0 0 6px rgba(255,77,0,.15);animation:trackingPulse 2s ease-in-out infinite;}
+  .ts-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);text-align:center;transition:color .3s;max-width:70px;}
+  .ts.done .ts-lbl,.ts.active .ts-lbl{color:var(--text);}
+  .tracking-msg{background:var(--surface2);border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:14px;}
+  .tmsg-icon{font-size:28px;animation:trackingFloat 3s ease-in-out infinite;flex-shrink:0;}
+  .tmsg-text{flex:1;}
+  .tmsg-title{font-weight:700;font-size:14px;margin-bottom:3px;}
+  .tmsg-sub{font-size:12px;color:var(--muted);line-height:1.5;}
+  @keyframes trackingPulse{0%,100%{box-shadow:0 0 0 6px rgba(255,77,0,.15);}50%{box-shadow:0 0 0 14px rgba(255,77,0,.04);}}
+  @keyframes trackingFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+  .tracking-mini{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;cursor:pointer;transition:border-color .2s;}
+  .tracking-mini:hover{border-color:rgba(255,77,0,.3);}
+  .tracking-mini.open{border-color:rgba(255,77,0,.4);}
+  .tracking-mini-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;}
+  .tracking-mini-arrow{color:var(--muted);font-size:20px;transition:transform .3s;line-height:1;}
+  .tracking-mini.open .tracking-mini-arrow{transform:rotate(90deg);}
+  .tracking-mini-body{display:none;padding:0 18px 16px;}
+  .tracking-mini.open .tracking-mini-body{display:block;animation:fadeIn .2s ease;}
+
+  /* ════ UPLOAD DE IMÁGENES (cliente) ════ */
+  .upload-zone{border:2px dashed var(--border);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface2);position:relative;}
+  .upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:rgba(255,77,0,.05);}
+  .upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+  .upload-icon{font-size:32px;margin-bottom:8px;opacity:.6;}
+  .upload-label{font-size:13px;color:var(--muted);}
+  .upload-label strong{color:var(--accent);}
+  .img-preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:12px;}
+  .img-preview{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+  .img-preview img{width:100%;height:100%;object-fit:cover;display:block;}
+  .img-preview-rm{position:absolute;top:4px;right:4px;width:20px;height:20px;background:rgba(0,0,0,.75);border:none;border-radius:50%;color:white;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .img-preview-rm:hover{background:var(--red);}
+
+  /* ════ ENTREGA DEL DISEÑADOR ════ */
+  .delivery-section{border:1px solid rgba(45,202,115,.25);border-radius:14px;padding:20px;background:rgba(45,202,115,.04);margin-bottom:16px;}
+  .version-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+  .version-item{display:grid;grid-template-columns:90px 1fr auto;gap:12px;align-items:center;background:var(--surface2);border-radius:10px;padding:10px;}
+  .version-thumb{aspect-ratio:16/9;border-radius:6px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .2s;}
+  .version-thumb:hover{border-color:var(--accent);transform:scale(1.02);}
+  .version-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+
+  /* ════ MODAL REVISIÓN CON CANVAS ════ */
+  .mo-review .md{width:min(860px,96vw);max-height:96vh;}
+  .canvas-wrap{position:relative;border-radius:10px;overflow:hidden;background:#111;touch-action:none;}
+  .canvas-wrap img.ri{width:100%;display:block;pointer-events:none;border-radius:10px;}
+  #ann-canvas{position:absolute;inset:0;width:100%;height:100%;cursor:crosshair;}
+  .ctoolbar{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+  .tbtn{padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px;}
+  .tbtn:hover{border-color:var(--accent);color:var(--text);}
+  .tbtn.act{background:var(--accent);border-color:var(--accent);color:white;}
+  .cdot{width:14px;height:14px;border-radius:50%;display:inline-block;border:2px solid rgba(255,255,255,.25);}
+  .rev-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+  .btn-ok{background:var(--green);color:white;border:none;padding:13px;border-radius:12px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .btn-ok:hover{background:#24b362;transform:translateY(-1px);}
+  .btn-chg{background:rgba(245,200,66,.1);color:var(--yellow);border:1px solid rgba(245,200,66,.3);padding:13px;border-radius:12px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .btn-chg:hover{background:rgba(245,200,66,.18);}
+  .feedback-history{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+  .fb-item{background:var(--surface2);border-radius:10px;padding:12px;font-size:12px;}
+  .fb-item .fb-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .fb-version{font-family:'Syne',sans-serif;font-weight:700;font-size:11px;}
+</style>
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  window.supabaseCreateClient = createClient;
+  window.dispatchEvent(new Event('supabase-ready'));
+</script>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="screen-login" class="screen active">
+  <div class="login-card">
+    <div class="logo"><div class="logo-icon">▶</div><div class="logo-text">Thumb<span>Flow</span></div></div>
+    <div class="login-title">Bienvenido</div>
+    <div class="login-sub">Sistema de gestión de miniaturas YouTube.<br>Iniciá sesión para continuar.</div>
+    <div class="role-select">
+      <button class="role-btn active" onclick="selectRole(&#39;admin&#39;,this)"><span class="ri">🎨</span>Diseñador<br><small style="color:var(--muted)">Panel completo</small></button>
+      <button class="role-btn" onclick="selectRole(&#39;client&#39;,this)"><span class="ri">👤</span>Cliente<br><small style="color:var(--muted)">Mis pedidos</small></button>
+    </div>
+    <button class="google-btn" onclick="loginWithGoogle()">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path></svg>
+      Continuar con Google
+    </button>
+    <div class="divider">o acceso demo rápido</div>
+    <div class="demo-btns">
+      <button class="demo-btn" onclick="demoLogin(&#39;admin&#39;)">🎨 Demo Diseñador</button>
+      <button class="demo-btn" onclick="demoLogin(&#39;client&#39;)">👤 Demo Cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="screen-admin" class="screen">
+  <div class="app-layout">
+    <div class="topbar">
+      <div class="topbar-logo">Thumb<span>Flow</span></div>
+      <div class="topbar-spacer"></div>
+      <div style="position:relative">
+        <button class="notif-btn" onclick="toggleNotifPanel()" id="notif-btn">🔔<span class="notif-dot" id="notif-dot"></span></button>
+        <div class="notif-panel" id="notif-panel">
+          <div class="notif-head">
+            <span class="notif-head-title">Notificaciones</span>
+            <button class="btn btn-g btn-sm" onclick="markAllRead()">Marcar todo leído</button>
+          </div>
+          <div class="notif-list" id="notif-list"><div class="notif-empty">Sin notificaciones</div></div>
+        </div>
+      </div>
+      <div class="topbar-user">
+        <div id="admin-workload" style="display:none;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 12px 5px 8px;font-size:12px;font-weight:600;">
+          <span style="font-size:15px">⚡</span>
+          <span id="admin-workload-num" style="color:var(--accent)">0</span>
+          <span style="color:var(--muted);font-weight:400">activos</span>
+        </div>
+        <div class="avatar" id="admin-av">D</div><span id="admin-un">Diseñador</span>
+      </div>
+      <button class="logout-btn" onclick="logout()">Salir</button>
+    </div>
+    <div class="sidebar">
+      <span class="nav-lbl">Principal</span>
+      <button class="nav-item active" onclick="showPanel(&#39;admin&#39;,&#39;dashboard&#39;,this)"><span class="nav-icon">◼</span> Dashboard</button>
+      <button class="nav-item" onclick="showPanel(&#39;admin&#39;,&#39;clientes&#39;,this)"><span class="nav-icon">👥</span> Clientes <span class="nav-badge" id="badge-cl">3</span></button>
+      <button class="nav-item" onclick="showPanel(&#39;admin&#39;,&#39;pedidos&#39;,this)"><span class="nav-icon">📋</span> Pedidos <span class="nav-badge" id="badge-pe">2</span></button>
+      <span class="nav-lbl">Finanzas</span>
+      <button class="nav-item" onclick="showPanel(&#39;admin&#39;,&#39;pagos&#39;,this)"><span class="nav-icon">💰</span> Pagos</button>
+    </div>
+    <div class="main-content">
+      <div class="panel active" id="admin-panel-dashboard">
+        <div class="page-header"><div class="page-title">Dashboard</div><div class="page-sub">Resumen general de tu estudio</div></div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-lbl">Clientes activos</div><div class="stat-val c-blue">3</div><div class="stat-sub">Total registrados</div></div>
+          <div class="stat-card"><div class="stat-lbl">Pedidos pendientes</div><div class="stat-val c-yellow" id="dash-p">2</div><div class="stat-sub">Esperando entrega</div></div>
+          <div class="stat-card"><div class="stat-lbl">Miniaturas entregadas</div><div class="stat-val c-green" id="dash-d">18</div><div class="stat-sub">Este mes: 7</div></div>
+          <div class="stat-card"><div class="stat-lbl">Ingresos totales</div><div class="stat-val" style="font-size:24px">$1.480</div><div class="stat-sub c-green">+$240 este mes</div></div>
+        </div>
+        <div class="card"><div class="card-title">Pedidos recientes <button class="btn btn-p btn-sm" onclick="showPanel(&#39;admin&#39;,&#39;pedidos&#39;,null)">Ver todos</button></div><div id="a-recent"></div></div>
+        <div class="card"><div class="card-title">Estado de clientes</div><table><thead><tr><th>Cliente</th><th>Pack</th><th>Uso</th><th>Pago</th><th></th></tr></thead><tbody id="a-cl-sum"></tbody></table></div>
+      </div>
+      <div class="panel" id="admin-panel-clientes">
+        <div class="ar"><div class="page-header" style="margin:0"><div class="page-title">Clientes</div><div class="page-sub">Gestioná tus clientes</div></div><button class="btn btn-p" onclick="openMo(&#39;mo-nc&#39;)">+ Nuevo cliente</button></div>
+        <div class="cg" id="a-cl-grid"></div>
+      </div>
+      <div class="panel" id="admin-panel-pedidos">
+        <div class="ar"><div class="page-header" style="margin:0"><div class="page-title">Pedidos</div><div class="page-sub">Todos los pedidos</div></div>
+          <select id="filter-st" onchange="renderAReqs()" style="width:auto;padding:8px 12px;font-size:13px"><option value="">Todos</option><option>No iniciado</option><option>En progreso</option><option>Listo para revisar</option><option>Completado</option></select>
+        </div>
+        <div id="a-reqs"></div>
+      </div>
+      <div class="panel" id="admin-panel-pagos">
+        <div class="page-header"><div class="page-title">Pagos</div><div class="page-sub">Control financiero</div></div>
+        <div id="a-pays"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT -->
+<div id="screen-client" class="screen">
+  <div class="app-layout">
+    <div class="topbar">
+      <div class="topbar-logo">Thumb<span>Flow</span></div>
+      <div class="topbar-spacer"></div>
+      <div class="topbar-user">
+        <div id="cl-credits-pill" style="display:none;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 12px 5px 8px;font-size:12px;font-weight:600;">
+          <span style="font-size:15px">🎬</span>
+          <span id="cl-credits-used" style="color:var(--muted)">0</span>
+          <span style="color:var(--border)">/</span>
+          <span id="cl-credits-total" style="color:var(--text)">8</span>
+          <span style="color:var(--muted);font-weight:400;font-size:11px">créditos</span>
+        </div>
+        <div class="avatar" id="cl-av">C</div><span id="cl-un">Cliente</span>
+      </div>
+      <button class="logout-btn" onclick="logout()">Salir</button>
+    </div>
+    <div class="sidebar">
+      <span class="nav-lbl">Mi cuenta</span>
+      <button class="nav-item active" onclick="showPanel(&#39;client&#39;,&#39;inicio&#39;,this)"><span class="nav-icon">◼</span> Inicio</button>
+      <button class="nav-item" onclick="showPanel(&#39;client&#39;,&#39;pedidos&#39;,this)"><span class="nav-icon">📋</span> Mis pedidos</button>
+      <button class="nav-item" id="nav-nuevo" onclick="showPanel(&#39;client&#39;,&#39;nuevo&#39;,this)"><span class="nav-icon">✚</span> Nuevo pedido</button>
+      <span class="nav-lbl">Cuenta</span>
+      <button class="nav-item" onclick="showPanel(&#39;client&#39;,&#39;pack&#39;,this)"><span class="nav-icon">📦</span> Mi pack</button>
+    </div>
+    <div class="main-content">
+      <div class="panel active" id="client-panel-inicio">
+        <div class="page-header"><div class="page-title" id="cl-welcome">Hola 👋</div><div class="page-sub">Tu panel de miniaturas</div></div>
+        <div class="stats-grid" id="cl-stats"></div>
+        <div id="cl-tracking-section"></div>
+        <div class="card"><div class="card-title">Pedidos recientes</div><div id="cl-recent"></div></div>
+      </div>
+      <div class="panel" id="client-panel-pedidos">
+        <div class="page-header"><div class="page-title">Mis pedidos</div><div class="page-sub">Historial completo</div></div>
+        <div id="cl-all-reqs"></div>
+      </div>
+
+      <!-- NUEVO PEDIDO CON YT SEARCH -->
+      <div class="panel" id="client-panel-nuevo">
+        <div class="page-header"><div class="page-title">Nuevo pedido</div><div class="page-sub">Completá los datos paso a paso</div></div>
+        <div class="steps">
+          <div class="step act" id="st-1"><div class="sn">1</div><div class="sl">Datos</div></div>
+          <div class="step" id="st-2"><div class="sn">2</div><div class="sl">Referencias YT</div></div>
+          <div class="step" id="st-3"><div class="sn">3</div><div class="sl">Confirmar</div></div>
+        </div>
+
+        <!-- Step 1 -->
+        <div id="fs-1">
+          <div class="card">
+            <div class="card-title" style="margin-bottom:20px">Información del video</div>
+            <div class="fg">
+              <div style="display:flex;flex-direction:column;gap:6px" class="fg-f"><label>Título del video *</label><input id="req-title" type="text" placeholder="Ej: Los 10 mejores plugins de Premiere en 2025"></div>
+              <div style="display:flex;flex-direction:column;gap:6px" class="fg-f"><label>Descripción / Idea de la miniatura</label><textarea id="req-desc" placeholder="Describí qué querés que muestre la miniatura..."></textarea></div>
+              <div style="display:flex;flex-direction:column;gap:6px"><label>Colores o estilo</label><input id="req-style" type="text" placeholder="Ej: Rojo y negro, estilo gaming"></div>
+              <div style="display:flex;flex-direction:column;gap:6px"><label>Fecha límite</label><input id="req-deadline" type="date"></div>
+              <div style="display:flex;flex-direction:column;gap:6px" class="fg-f"><label>Notas adicionales</label><textarea id="req-notes" placeholder="Cualquier aclaración extra..." style="min-height:70px"></textarea></div>
+              <div style="display:flex;flex-direction:column;gap:6px" class="fg-f">
+                <label>Imágenes de referencia propias <span style="color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">(logos, fotos, capturas — opcional)</span></label>
+                <div class="upload-zone" id="ref-upload-zone" ondragover="event.preventDefault();this.classList.add(&#39;drag&#39;)" ondragleave="this.classList.remove(&#39;drag&#39;)" ondrop="handleRefDrop(event)">
+                  <input type="file" accept="image/*" multiple="" onchange="handleRefFiles(this.files)">
+                  <div class="upload-icon">🖼️</div>
+                  <div class="upload-label">Arrastrá imágenes o <strong>hacé clic para seleccionar</strong><br><small>PNG, JPG, GIF · Hasta 5 imágenes</small></div>
+                </div>
+                <div class="img-preview-grid" id="ref-img-previews"></div>
+              </div>
+            </div>
+            <div style="margin-top:24px;display:flex;justify-content:flex-end">
+              <button class="btn btn-p" onclick="goStep(2)">Siguiente: Buscar referencias →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: YouTube Search -->
+        <div id="fs-2" style="display:none">
+          <div class="card">
+            <div class="card-title">Referencias visuales de YouTube</div>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6">Buscá un tema relacionado a tu video y seleccioná hasta <strong style="color:var(--text)">3 miniaturas</strong> de la competencia que te gusten como referencia de estilo para el diseñador. Este paso es <em>opcional</em>.</p>
+
+            <div class="yt-wrap">
+              <div class="yt-header"><span class="yt-badge">▶ YT</span> Búsqueda de YouTube</div>
+              <div class="yt-row">
+                <input id="yt-q" type="text" placeholder="Ej: plugins premiere pro 2025, tutorial excel, recetas italianas..." onkeydown="if(event.key===&#39;Enter&#39;)ytSearch()">
+                <button class="yt-btn" id="yt-btn" onclick="ytSearch()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+                  Buscar
+                </button>
+              </div>
+
+              <div class="yt-grid" id="yt-grid" style="max-height:none">
+                <div class="yt-ph"><div class="phi">🎬</div>Escribí un tema de búsqueda y presioná <strong>Buscar</strong><br>para ver las miniaturas de YouTube</div>
+              </div>
+
+              <div id="refs-wrap" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+                <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Seleccionadas como referencia</div>
+                <div class="refs-row" id="refs-row"></div>
+              </div>
+            </div>
+
+            <div style="margin-top:24px;display:flex;justify-content:space-between">
+              <button class="btn btn-g" onclick="goStep(1)">← Volver</button>
+              <button class="btn btn-p" onclick="goStep(3)">Siguiente: Confirmar →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Confirm -->
+        <div id="fs-3" style="display:none">
+          <div class="card">
+            <div class="card-title">Confirmá tu pedido</div>
+            <div id="confirm-sum"></div>
+            <div style="margin-top:24px;display:flex;justify-content:space-between">
+              <button class="btn btn-g" onclick="goStep(2)">← Volver</button>
+              <button class="btn btn-p" onclick="submitReq()">✓ Enviar pedido al diseñador</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="client-panel-pack">
+        <div class="page-header"><div class="page-title">Mi pack</div><div class="page-sub">Estado de tu suscripción</div></div>
+        <div id="cl-pack"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALES -->
+<div class="mo" id="mo-nc">
+  <div class="md">
+    <div class="mh"><div class="mt">Nuevo cliente</div><button class="mc" onclick="closeMo(&#39;mo-nc&#39;)">✕</button></div>
+    <div class="fg">
+      <div style="display:flex;flex-direction:column;gap:6px" class="fg-f"><label>Nombre completo</label><input id="nc-name" type="text" placeholder="Juan Pérez"></div>
+      <div style="display:flex;flex-direction:column;gap:6px"><label>Email</label><input id="nc-email" type="email" placeholder="juan@gmail.com"></div>
+      <div style="display:flex;flex-direction:column;gap:6px"><label>User ID de Supabase <span style="color:var(--muted);font-size:11px">(opcional — para vincular login)</span></label><input id="nc-uid" type="text" placeholder="Se completa automático si el cliente ya se logueó"></div>
+      <div style="display:flex;flex-direction:column;gap:6px"><label>Canal YouTube</label><input id="nc-ch" type="text" placeholder="@micanal"></div>
+      <div style="display:flex;flex-direction:column;gap:6px"><label>Pack</label><select id="nc-pack"><option value="4">Pack Básico (4)</option><option value="8">Pack Estándar (8)</option><option value="16">Pack Pro (16)</option><option value="99">Ilimitado</option></select></div>
+      <div style="display:flex;flex-direction:column;gap:6px"><label>Precio ($)</label><input id="nc-price" type="number" placeholder="120"></div>
+      <div style="display:flex;flex-direction:column;gap:6px" class="fg-f"><label>Estado de pago</label><select id="nc-ps"><option>Al día</option><option>Pendiente</option><option>Vencido</option></select></div>
+      <div style="display:flex;flex-direction:column;gap:6px" class="fg-f"><label>Notas internas</label><textarea id="nc-notes" style="min-height:70px" placeholder="Solo vos podés ver esto..."></textarea></div>
+    </div>
+    <div class="mf"><button class="btn btn-g" onclick="closeMo(&#39;mo-nc&#39;)">Cancelar</button><button class="btn btn-p" onclick="addClient()">Crear cliente</button></div>
+  </div>
+</div>
+
+<div class="mo" id="mo-req">
+  <div class="md" style="width:620px">
+    <div class="mh"><div class="mt">Detalle del pedido</div><button class="mc" onclick="closeMo(&#39;mo-req&#39;)">✕</button></div>
+    <div id="mo-req-body"></div>
+    <div class="mf">
+      <button class="btn btn-g" id="mo-delete-btn" style="color:var(--red);border-color:rgba(255,77,77,.3);display:none" onclick="deleteReq()">🗑 Eliminar</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-g" onclick="closeMo(&#39;mo-req&#39;)">Cerrar</button>
+      <button class="btn btn-p" id="mo-save-btn">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="mo-cl">
+  <div class="md" style="width:640px">
+    <div class="mh"><div class="mt" id="mo-cl-title">Cliente</div><button class="mc" onclick="closeMo(&#39;mo-cl&#39;)">✕</button></div>
+    <div id="mo-cl-body"></div>
+    <div class="mf"><button class="btn btn-g" onclick="closeMo(&#39;mo-cl&#39;)">Cerrar</button><button class="btn btn-p" onclick="saveClientNotes()">Guardar</button></div>
+  </div>
+</div>
+
+<div id="toast">✓ Guardado</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightbox-img" src="file:///Users/pedroatencio/Downloads/miniatura-manager_31.html" alt="">
+  <div class="lightbox-title" id="lightbox-title"></div>
+  <div class="lightbox-actions" onclick="event.stopPropagation()">
+    <a id="lightbox-dl" href="file:///Users/pedroatencio/Downloads/miniatura-manager_31.html" download="" class="btn btn-p btn-sm">⬇ Descargar</a>
+    <a id="lightbox-open" href="file:///Users/pedroatencio/Downloads/miniatura-manager_31.html" target="_blank" class="btn btn-g btn-sm">↗ Ver en YouTube</a>
+  </div>
+</div>
+
+<!-- MODAL REVISIÓN CON CANVAS -->
+<div class="mo mo-review" id="mo-review">
+  <div class="md" style="width:min(860px,96vw)">
+    <div class="mh">
+      <div>
+        <div class="mt" id="rev-title">Revisar miniatura</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px" id="rev-version-label"></div>
+      </div>
+      <button class="mc" onclick="closeMo(&#39;mo-review&#39;)">✕</button>
+    </div>
+
+    <!-- Canvas de anotación -->
+    <div style="margin-bottom:12px">
+      <div class="ctoolbar" id="canvas-toolbar">
+        <span style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-right:4px">Herramientas:</span>
+        <button class="tbtn act" id="tool-pen" onclick="setTool(&#39;pen&#39;)">✏️ Marcar</button>
+        <button class="tbtn" id="tool-arrow" onclick="setTool(&#39;arrow&#39;)">➜ Flecha</button>
+        <button class="tbtn" id="tool-rect" onclick="setTool(&#39;rect&#39;)">▭ Área</button>
+        <div style="width:1px;height:20px;background:var(--border);margin:0 4px"></div>
+        <button class="tbtn" onclick="setColor(&#39;#ff4d4d&#39;)" title="Rojo"><span class="cdot" style="background:#ff4d4d"></span></button>
+        <button class="tbtn" onclick="setColor(&#39;#f5c842&#39;)" title="Amarillo"><span class="cdot" style="background:#f5c842"></span></button>
+        <button class="tbtn" onclick="setColor(&#39;#4d9fff&#39;)" title="Azul"><span class="cdot" style="background:#4d9fff"></span></button>
+        <button class="tbtn" onclick="setColor(&#39;#2dca73&#39;)" title="Verde"><span class="cdot" style="background:#2dca73"></span></button>
+        <div style="margin-left:auto;display:flex;gap:6px">
+          <button class="tbtn" onclick="undoStroke()" title="Deshacer">↩ Deshacer</button>
+          <button class="tbtn" onclick="clearCanvas()" title="Limpiar">🗑 Limpiar</button>
+        </div>
+      </div>
+      <div class="canvas-wrap" id="canvas-wrap">
+        <img class="ri" id="review-img" src="file:///Users/pedroatencio/Downloads/miniatura-manager_31.html" alt="Miniatura">
+        <canvas id="ann-canvas"></canvas>
+      </div>
+    </div>
+
+    <!-- Comentario y acciones (cliente) -->
+    <div id="rev-client-actions">
+      <textarea class="review-comment" id="rev-comment" placeholder="Escribí tu feedback: qué te gusta, qué querés cambiar, qué falta..."></textarea>
+      <div class="rev-actions">
+        <button class="btn-chg" onclick="submitReview(&#39;cambios&#39;)">✎ Pedir cambios</button>
+        <button class="btn-ok" onclick="submitReview(&#39;aprobado&#39;)">✓ Aprobar miniatura</button>
+      </div>
+    </div>
+
+    <!-- Vista del diseñador (solo ver feedback) -->
+    <div id="rev-admin-view" style="display:none">
+      <div style="font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Historial de feedback</div>
+      <div class="feedback-history" id="rev-feedback-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SUBIR ENTREGA (diseñador) -->
+<div class="mo" id="mo-deliver">
+  <div class="md" style="width:500px">
+    <div class="mh"><div class="mt">Subir miniatura terminada</div><button class="mc" onclick="closeMo(&#39;mo-deliver&#39;)">✕</button></div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Subí la versión lista para que el cliente la revise y apruebe.</p>
+    <div class="upload-zone" id="deliver-zone" ondragover="event.preventDefault();this.classList.add(&#39;drag&#39;)" ondragleave="this.classList.remove(&#39;drag&#39;)" ondrop="handleDeliverDrop(event)">
+      <input type="file" accept="image/*" onchange="handleDeliverFile(this.files[0])">
+      <div class="upload-icon">🎨</div>
+      <div class="upload-label">Arrastrá la miniatura o <strong>hacé clic para seleccionar</strong><br><small>PNG o JPG recomendado · 1280×720px ideal</small></div>
+    </div>
+    <div id="deliver-preview" style="margin-top:12px;display:none">
+      <img id="deliver-preview-img" style="width:100%;border-radius:10px;border:1px solid var(--border)">
+    </div>
+    <div class="mf">
+      <button class="btn btn-g" onclick="closeMo(&#39;mo-deliver&#39;)">Cancelar</button>
+      <button class="btn btn-p" id="deliver-submit-btn" onclick="submitDelivery()" disabled="" style="opacity:.5">Enviar al cliente</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   SUPABASE CONFIG — Pegá tus credenciales aquí
+═══════════════════════════════════════════════════ */
+const SUPABASE_URL = 'https://xwfbbozthbkuoutbocde.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh3ZmJib3p0aGJrdW91dGJvY2RlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NTI0NTAsImV4cCI6MjA4ODQyODQ1MH0.IrXoDw04onDtPFG7z_rd4xyelHvMe50QFWhMDpVJkDU';
+const ADMIN_EMAIL  = 'pedroismael72@gmail.com';
+
+// ⚠️ YouTube API Key
+const YT_API_KEY = 'AIzaSyD8ryR1y6tVZZManD0qQNbjjBvH3BMUsHI';
+
+/* ═══════════════════════════════════════════════════
+   INICIALIZAR SUPABASE SDK
+═══════════════════════════════════════════════════ */
+let sb_client = null;
+
+function initSupabase(){
+  if(SUPABASE_URL.includes('PEGA_TU')){
+    console.warn('[ThumbFlow] Supabase no configurado — modo demo activo');
+    return false;
+  }
+  // Esperar a que el módulo de Supabase cargue
+  if(window.supabaseCreateClient){
+    _initSupabaseClient();
+  } else {
+    window.addEventListener('supabase-ready', _initSupabaseClient, { once: true });
+    // Fallback si el módulo tarda más de 5 segundos
+    setTimeout(() => {
+      if(!sb_client) console.error('[ThumbFlow] SDK de Supabase no cargó — modo demo activo');
+    }, 5000);
+  }
+  return true;
+}
+
+function _initSupabaseClient(){
+  try{
+    sb_client = window.supabaseCreateClient(SUPABASE_URL, SUPABASE_KEY);
+    console.log('[ThumbFlow] Supabase conectado ✓');
+    checkSession();
+  }catch(e){
+    console.error('[ThumbFlow] Error iniciando Supabase:', e);
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   STATE LOCAL (demo + cache)
+═══════════════════════════════════════════════════ */
+let role='admin', user=null, viewCid=null, viewRid=null;
+let refs=[];
+let step=1;
+let isSupabaseMode = false;
+
+// Datos demo (usados cuando Supabase no está configurado)
+const S={
+  clients:[
+    {id:'c1',name:'[DEMO] Marcos Rueda',email:'marcos@gmail.com',ch:'@marcosrueda',pack:8,used:5,price:120,pay:'Al día',notes:'Cliente puntual. Prefiere miniaturas oscuras con texto grande.',payments:[{d:'2025-01-05',a:120,s:'Pagado',m:'Transferencia'},{d:'2025-02-05',a:120,s:'Pagado',m:'Transferencia'},{d:'2025-03-05',a:120,s:'Pendiente',m:'-'}]},
+    {id:'c2',name:'[DEMO] Sofía Gómez',email:'sofi@gmail.com',ch:'@sofigomez',pack:4,used:4,price:70,pay:'Vencido',notes:'Necesita renovar pack. Le gusta estilo minimalista con pasteles.',payments:[{d:'2025-01-12',a:70,s:'Pagado',m:'PayPal'},{d:'2025-02-12',a:70,s:'Vencido',m:'-'}]},
+    {id:'c3',name:'[DEMO] Diego Torres',email:'diego@gmail.com',ch:'@diegotorres',pack:16,used:9,price:200,pay:'Al día',notes:'Cliente Pro. Siempre manda referencias. Muy organizado.',payments:[{d:'2025-01-20',a:200,s:'Pagado',m:'Efectivo'},{d:'2025-02-20',a:200,s:'Pagado',m:'Efectivo'},{d:'2025-03-20',a:200,s:'Pagado',m:'Efectivo'}]}
+  ],
+  reqs:[
+    {id:'r1',cid:'c1',title:'Cómo ganar dinero con IA en 2025',desc:'Miniatura impactante, fondo oscuro, cara de sorpresa.',style:'Oscuro, rojo y blanco',deadline:'2025-03-15',notes:'',status:'En revisión',date:'2025-03-01',refs:[],clientImgs:[],versions:[{img:'https://img.youtube.com/vi/9bZkp7q19f0/maxresdefault.jpg',date:'6 mar 2025',status:'pendiente',comment:'',annotation:null}]},
+    {id:'r2',cid:'c1',title:'Los mejores plugins de Premiere Pro',desc:'Icono de Premiere, colores morados, texto llamativo.',style:'Morado y negro',deadline:'2025-03-10',notes:'Urgente',status:'Aprobado',date:'2025-02-28',refs:[],clientImgs:[],versions:[{img:'https://img.youtube.com/vi/OPf0YbXqDm0/maxresdefault.jpg',date:'2 mar 2025',status:'aprobado',comment:'Quedó perfecta, exactamente lo que necesitaba.',annotation:null}]},
+    {id:'r3',cid:'c2',title:'Receta viral de pasta italiana',desc:'Plato de pasta, colores cálidos, tipografía manuscrita.',style:'Cálido, beige y rojo',deadline:'2025-03-12',notes:'',status:'Pendiente',date:'2025-03-03',refs:[],clientImgs:[],versions:[]},
+    {id:'r4',cid:'c3',title:'Tutorial Final Cut Pro completo',desc:'Logo FCP, fondo azul, cara mirando pantalla.',style:'Azul y blanco',deadline:'2025-03-20',notes:'',status:'Pendiente',date:'2025-03-05',refs:[],clientImgs:[],versions:[]}
+  ]
+};
+
+/* ═══════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════ */
+const gc=id=>S.clients.find(c=>c.id===id);
+const gr=cid=>S.reqs.filter(r=>r.cid===cid);
+const ini=n=>n.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+const fd=d=>{if(!d)return'-';const[y,m,dy]=d.split('-');return`${dy}/${m}/${y}`;};
+const sb=s=>{const m={Pendiente:'by','En progreso':'bb',Entregado:'bg','En revisión':'bb',Aprobado:'bg'};return`<span class="badge ${m[s]||'bm'}">${s}</span>`;};
+const pb=s=>{const m={'Al día':'bg',Pendiente:'by',Vencido:'br'};return`<span class="badge ${m[s]||'bm'}">${s}</span>`;};
+function toast(msg='✓ Guardado'){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+/* ═══ LIGHTBOX ═══ */
+function openLightbox(imgUrl, title, ytUrl){
+  document.getElementById('lightbox-img').src = imgUrl;
+  document.getElementById('lightbox-title').textContent = title || '';
+  document.getElementById('lightbox-dl').href = imgUrl;
+  const openBtn = document.getElementById('lightbox-open');
+  if(ytUrl){ openBtn.href = ytUrl; openBtn.style.display=''; }
+  else { openBtn.style.display='none'; }
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); }
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeLightbox(); });
+
+/* ═══ NOTIFICACIONES ═══ */
+let notifications = [];
+let unreadCount = 0;
+
+function urgencyChip(deadline){
+  if(!deadline) return '';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dl = new Date(deadline); dl.setHours(0,0,0,0);
+  const diff = Math.round((dl-today)/(1000*60*60*24));
+  if(diff < 0) return '<span class="chip-urgente">⚡ Vencido</span>';
+  if(diff === 0) return '<span class="chip-urgente">🔥 Hoy</span>';
+  if(diff === 1) return '<span class="chip-urgente">⚡ Urgente</span>';
+  if(diff <= 3) return '<span class="chip-hoy">⏰ Pronto</span>';
+  return '';
+}
+
+function urgencyLabel(deadline){
+  if(!deadline) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dl = new Date(deadline); dl.setHours(0,0,0,0);
+  const diff = Math.round((dl-today)/(1000*60*60*24));
+  if(diff < 0) return '⚡ Vencido';
+  if(diff === 0) return '🔥 Para hoy';
+  if(diff === 1) return '⚡ Para mañana — Urgente';
+  if(diff <= 3) return '⏰ En '+diff+' días';
+  return null;
+}
+
+function addNotification(icon, title, sub, onClickRid){
+  const n = { id: Date.now(), icon, title, sub, read: false, rid: onClickRid };
+  notifications.unshift(n);
+  if(notifications.length > 50) notifications.pop();
+  unreadCount++;
+  renderNotifPanel();
+}
+
+function renderNotifPanel(){
+  const dot = document.getElementById('notif-dot');
+  const list = document.getElementById('notif-list');
+  if(!dot||!list) return;
+  dot.classList.toggle('show', unreadCount > 0);
+  if(notifications.length === 0){
+    list.innerHTML = '<div class="notif-empty">Sin notificaciones nuevas</div>';
+    return;
+  }
+  list.innerHTML = notifications.map(n=>`
+    <div class="notif-item ${n.read?'':'unread'}" onclick="clickNotif('${n.id}','${n.rid||''}')">
+      <div class="notif-icon">${n.icon}</div>
+      <div class="notif-txt">
+        <div class="notif-title">${n.title}</div>
+        <div class="notif-sub">${n.sub}</div>
+      </div>
+    </div>`).join('');
+}
+
+function clickNotif(nid, rid){
+  const n = notifications.find(x=>x.id==nid);
+  if(n) n.read = true;
+  unreadCount = notifications.filter(x=>!x.read).length;
+  renderNotifPanel();
+  closeNotifPanel();
+  if(rid) openReqMo(rid);
+}
+
+function markAllRead(){
+  notifications.forEach(n=>n.read=true);
+  unreadCount = 0;
+  renderNotifPanel();
+}
+
+function toggleNotifPanel(){
+  const p = document.getElementById('notif-panel');
+  p.classList.toggle('open');
+}
+function closeNotifPanel(){
+  document.getElementById('notif-panel')?.classList.remove('open');
+}
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#notif-btn')&&!e.target.closest('#notif-panel')) closeNotifPanel();
+});
+
+/* ═══ TIEMPO REAL — Supabase Realtime ═══ */
+let realtimeChannel = null;
+function startRealtime(){
+  if(!sb_client) return;
+
+  if(role === 'admin'){
+    realtimeChannel = sb_client
+      .channel('thumbflow-admin')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'requests' }, payload=>{
+        const r = payload.new;
+        const c = S.clients.find(x=>x.id===r.client_id);
+        const clientName = c?.name || 'Un cliente';
+        addNotification('📋', 'Nuevo pedido', `${clientName} pidió "${r.title||'miniatura'}"`, r.id);
+        loadAdminData().then(()=>{ renderADash(); renderAClients(); renderAReqs(); renderAPays(); });
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'requests' }, payload=>{
+        const r = payload.new;
+        const idx = S.reqs.findIndex(x=>x.id===r.id);
+        if(idx>=0){ S.reqs[idx].status=r.status; S.reqs[idx].title=r.title; }
+        renderADash(); renderAReqs();
+      })
+      .subscribe();
+  }
+
+  if(role === 'client' && user?.clientId){
+    realtimeChannel = sb_client
+      .channel('thumbflow-client-'+user.clientId)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'requests',
+          filter: `client_id=eq.${user.clientId}` }, payload=>{
+        const r = payload.new;
+        const idx = S.reqs.findIndex(x=>x.id===r.id);
+        if(idx>=0){ S.reqs[idx].status = r.status; }
+        // Re-render tracking en vivo
+        renderTracking(user.clientId);
+        renderCReqs(user.clientId);
+        // Notificar si pasó a "Listo para revisar"
+        if(r.status === 'Listo para revisar'){
+          toast('🎉 ¡Tu miniatura está lista para revisar!');
+        }
+      })
+      .subscribe();
+  }
+
+  console.log('[ThumbFlow] Realtime activo ✓');
+}
+function stopRealtime(){
+  if(realtimeChannel) sb_client?.removeChannel(realtimeChannel);
+}
+
+/* ═══════════════════════════════════════════════════
+   AUTH — Supabase + Google Login
+═══════════════════════════════════════════════════ */
+
+async function checkSession(){
+  if(!sb_client) return;
+  // Solo auto-loguear si hay un hash de OAuth en la URL (viene de redirect de Google)
+  const isOAuthRedirect = window.location.hash.includes('access_token') || 
+                          window.location.search.includes('code=');
+  if(isOAuthRedirect){
+    const { data: { session } } = await sb_client.auth.getSession();
+    if(session) await handleSession(session);
+  }
+  // Si no es redirect de OAuth, mostrar pantalla de login siempre
+  // El usuario elige cuándo entrar
+  sb_client.auth.onAuthStateChange(async(event, session) => {
+    if(event === 'SIGNED_IN' && session) await handleSession(session);
+    if(event === 'SIGNED_OUT') showScreen('screen-login');
+  });
+}
+
+async function handleSession(session){
+  const email = session.user.email;
+  const meta = session.user.user_metadata || {};
+  const name = meta.full_name || meta.name || meta.display_name || email.split('@')[0];
+  isSupabaseMode = true;
+
+  if(email === ADMIN_EMAIL){
+    role = 'admin';
+    user = { name, role, email, id: session.user.id };
+    await loadAdminData();
+    showScreen('screen-admin');
+    document.getElementById('admin-av').textContent = name[0].toUpperCase();
+    document.getElementById('admin-un').textContent = name.split(' ')[0];
+    renderADash(); renderAClients(); renderAReqs(); renderAPays();
+    startRealtime();
+    // Notificar pedidos urgentes al cargar
+    setTimeout(()=>{
+      S.reqs.filter(r=>r.status!=='Entregado'&&r.status!=='Aprobado').forEach(r=>{
+        const lbl = urgencyLabel(r.deadline);
+        if(lbl){ const c=gc(r.cid); addNotification('⏰','Pedido urgente',`${c?.name||''}: "${r.title}" — ${lbl}`,r.id); }
+      });
+    }, 500);
+  } else {
+    role = 'client';
+    user = { name, role, email, id: session.user.id };
+    await loadClientData(session.user.id);
+    showScreen('screen-client');
+  }
+}
+
+// Login real con Google via Supabase OAuth
+async function loginWithGoogle(){
+  if(!sb_client){
+    // Modo demo
+    login(role==='admin'?'Diseñador Pro':'Marcos Rueda');
+    return;
+  }
+  const { error } = await sb_client.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.href,
+      queryParams: { prompt: 'select_account' }
+    }
+  });
+  if(error) toast('❌ Error al iniciar sesión: ' + error.message);
+}
+
+async function logout(){
+  stopRealtime();
+  if(sb_client) await sb_client.auth.signOut();
+  user=null; isSupabaseMode=false; role='admin';
+  window.history.replaceState({}, document.title, window.location.pathname);
+  showScreen('screen-login');
+}
+
+// Demo login (sin Supabase)
+function selectRole(r,btn){role=r;document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function demoLogin(r){role=r;login(r==='admin'?'Diseñador Pro':'Marcos Rueda');}
+function login(name){
+  user={name,role};
+  showScreen(role==='admin'?'screen-admin':'screen-client');
+  if(role==='admin'){
+    document.getElementById('admin-av').textContent=name[0];
+    document.getElementById('admin-un').textContent=name;
+    renderADash();renderAClients();renderAReqs();renderAPays();
+  }else{
+    const c=gc('c1');
+    document.getElementById('cl-av').textContent=c.name[0];
+    document.getElementById('cl-un').textContent=c.name;
+    document.getElementById('cl-welcome').textContent=`Hola, ${c.name.split(' ')[0]} 👋`;
+    renderCDash('c1');
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   DATA LOADERS — Supabase → state local S
+═══════════════════════════════════════════════════ */
+
+async function loadAdminData(){
+  if(!sb_client) return;
+  try{
+    const {data:clients,error:ce}=await sb_client.from('clients').select('*').order('created_at');
+    if(ce) throw ce;
+    const {data:reqs,error:re}=await sb_client.from('requests').select('*, versions(*)').order('created_at',{ascending:false});
+    if(re) throw re;
+    const {data:pays,error:pe}=await sb_client.from('payments').select('*').order('paid_at',{ascending:false});
+    if(pe) throw pe;
+
+    // Mantener datos demo + agregar datos reales de Supabase
+    const realClients = clients.map(c=>({
+      id:c.id, name:c.name, email:c.email, ch:c.channel||'',
+      pack:c.pack, used:c.used, price:c.price, pay:c.pay_status,
+      notes:c.notes||'',
+      payments: pays.filter(p=>p.client_id===c.id).map(p=>({d:p.paid_at,a:p.amount,s:p.status,m:p.method}))
+    }));
+
+    const realReqs = reqs.map(r=>({
+      id:r.id, cid:r.client_id, title:r.title,
+      desc:r.description||'', style:r.style||'',
+      deadline:r.deadline||'', notes:r.notes||'',
+      status:r.status, date:r.created_at?.split('T')[0]||'',
+      refs:r.yt_refs||[], clientImgs:r.client_imgs||[],
+      versions:(r.versions||[]).map(v=>({
+        id:v.id, img:v.img_url, date:v.created_at?.split('T')[0]||'',
+        status:v.status, comment:v.comment||'', annotation:v.annotation
+      }))
+    }));
+
+    // Combinar: demo primero, reales después
+    // Filtrar demos del state original para no duplicar
+    const demoClients = S.clients.filter(c=>c.name.startsWith('[DEMO]'));
+    const demoReqs = S.reqs.filter(r=>demoClients.find(c=>c.id===r.cid));
+    S.clients = [...demoClients, ...realClients];
+    S.reqs = [...demoReqs, ...realReqs];
+
+    console.log('[ThumbFlow] Cargado:', realClients.length, 'clientes reales,', realReqs.length, 'pedidos reales');
+  }catch(e){
+    console.error('[ThumbFlow] Error cargando datos:', e);
+    toast('⚠ Error cargando datos de Supabase');
+  }
+}
+
+async function loadClientData(userId){
+  if(!sb_client) return;
+  try{
+    // Buscar el cliente por su user_id
+    let {data:clients,error}=await sb_client
+      .from('clients').select('*').eq('user_id',userId).limit(1);
+    if(error) throw error;
+
+    // Si no encontró por user_id, buscar por email y vincular automáticamente
+    if(!clients||!clients.length){
+      const { data:{ user } } = await sb_client.auth.getUser();
+      if(user?.email){
+        const {data:byEmail} = await sb_client
+          .from('clients').select('*').eq('email',user.email).is('user_id',null).limit(1);
+        if(byEmail&&byEmail.length){
+          // Vincular el user_id automáticamente
+          await sb_client.from('clients').update({user_id:userId}).eq('id',byEmail[0].id);
+          clients = byEmail;
+          toast('✓ Cuenta vinculada correctamente');
+        }
+      }
+    }
+
+    if(!clients||!clients.length){
+      // Cliente nuevo — mostrar pantalla de espera
+      showScreen('screen-client');
+      document.getElementById('cl-welcome').textContent = `Hola 👋`;
+      document.getElementById('cl-stats').innerHTML=`
+        <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)">
+          <div style="font-size:48px;margin-bottom:16px">⏳</div>
+          <div style="font-size:16px;font-weight:600;margin-bottom:8px">Tu cuenta está siendo configurada</div>
+          <div style="font-size:13px">El diseñador va a activar tu acceso en breve.<br>Volvé a intentar en unos minutos.</div>
+        </div>`;
+      return;
+    }
+
+    const c = clients[0];
+    // Cargar pedidos del cliente
+    const {data:reqs}=await sb_client
+      .from('requests').select('*, versions(*)')
+      .eq('client_id',c.id).order('created_at',{ascending:false});
+
+    // Mapear al formato interno
+    S.clients = [{
+      id:c.id, name:c.name, email:c.email, ch:c.channel||'',
+      pack:c.pack, used:c.used, price:c.price, pay:c.pay_status,
+      notes:'', payments:[]
+    }];
+
+    S.reqs = (reqs||[]).map(r=>({
+      id:r.id, cid:r.client_id, title:r.title,
+      desc:r.description||'', style:r.style||'',
+      deadline:r.deadline||'', notes:r.notes||'',
+      status:r.status, date:r.created_at?.split('T')[0]||'',
+      refs:r.yt_refs||[], clientImgs:r.client_imgs||[],
+      versions:(r.versions||[]).map(v=>({
+        id:v.id, img:v.img_url, date:v.created_at?.split('T')[0]||'',
+        status:v.status, comment:v.comment||'', annotation:v.annotation
+      }))
+    }));
+
+    document.getElementById('cl-av').textContent=c.name[0].toUpperCase();
+    document.getElementById('cl-un').textContent=c.name.split(' ')[0];
+    document.getElementById('cl-welcome').textContent=`Hola, ${c.name.split(' ')[0]} 👋`;
+    if(user) user.clientId = c.id;
+    renderCDash(c.id);
+    startRealtime();
+
+  }catch(e){
+    console.error('[ThumbFlow] Error cargando cliente:', e);
+    toast('⚠ Error cargando tus datos');
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   DB WRITERS — guardar cambios en Supabase
+═══════════════════════════════════════════════════ */
+
+async function dbAddClient(data){
+  if(!sb_client) return null;
+  // Buscar el user_id en auth.users por email si no viene
+  let userId = data.user_id || null;
+  if(!userId && data.email){
+    const {data:users} = await sb_client.from('clients').select('user_id').eq('email',data.email).limit(1);
+    // Intentar buscar en la lista de usuarios autenticados
+    try{
+      const {data:authUsers} = await sb_client.auth.admin?.listUsers?.() || {};
+      if(authUsers?.users){
+        const match = authUsers.users.find(u=>u.email===data.email);
+        if(match) userId = match.id;
+      }
+    }catch(e){}
+  }
+  const {data:res,error}=await sb_client.from('clients').insert([{
+    name:data.name, email:data.email, channel:data.ch,
+    pack:data.pack, price:data.price, pay_status:data.pay, 
+    notes:data.notes, user_id: userId
+  }]).select().single();
+  if(error){toast('❌ Error: '+error.message);return null;}
+  return res;
+}
+
+async function dbUpdateClient(id, changes){
+  if(!sb_client) return;
+  const map={pay:'pay_status',pack:'pack',notes:'notes',ch:'channel'};
+  const upd={};
+  Object.entries(changes).forEach(([k,v])=>{ upd[map[k]||k]=v; });
+  await sb_client.from('clients').update(upd).eq('id',id);
+}
+
+async function dbAddRequest(data, clientId){
+  if(!sb_client) return null;
+  const {data:res,error}=await sb_client.from('requests').insert([{
+    client_id:clientId, title:data.title,
+    description:data.desc, style:data.style,
+    deadline:data.deadline||null, notes:data.notes,
+    yt_refs:data.refs, client_imgs:data.clientImgs
+  }]).select().single();
+  if(error){toast('❌ Error al guardar pedido: '+error.message);return null;}
+  return res;
+}
+
+async function dbUpdateRequest(id, changes){
+  if(!sb_client) return;
+  const map={title:'title',desc:'description',style:'style',deadline:'deadline',notes:'notes',status:'status'};
+  const upd={};
+  Object.entries(changes).forEach(([k,v])=>{ upd[map[k]||k]=v; });
+  await sb_client.from('requests').update(upd).eq('id',id);
+}
+
+async function dbAddVersion(requestId, imgUrl){
+  if(!sb_client) return null;
+  const {data:res,error}=await sb_client.from('versions').insert([{
+    request_id:requestId, img_url:imgUrl, status:'pendiente'
+  }]).select().single();
+  if(error){toast('❌ Error al subir versión: '+error.message);return null;}
+  return res;
+}
+
+async function dbUpdateVersion(id, changes){
+  if(!sb_client) return;
+  await sb_client.from('versions').update(changes).eq('id',id);
+}
+
+async function dbUploadImage(file, path){
+  if(!sb_client) return null;
+  const {data,error}=await sb_client.storage
+    .from('thumbflow').upload(path, file, {upsert:true});
+  if(error){toast('❌ Error subiendo imagen: '+error.message);return null;}
+  const {data:{publicUrl}}=sb_client.storage.from('thumbflow').getPublicUrl(path);
+  return publicUrl;
+}
+
+async function dbAddPayment(clientId, amount, method){
+  if(!sb_client) return;
+  await sb_client.from('payments').insert([{
+    client_id:clientId, amount, method, status:'Pagado'
+  }]);
+}
+
+
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function showPanel(sc,name,btn){
+  document.querySelectorAll(`#screen-${sc} .panel`).forEach(p=>p.classList.remove('active'));
+  const el=document.getElementById(`${sc}-panel-${name}`);if(el)el.classList.add('active');
+  if(btn){document.querySelectorAll(`#screen-${sc} .nav-item`).forEach(n=>n.classList.remove('active'));btn.classList.add('active');}
+  if(sc==='client'&&name==='nuevo')resetForm();
+}
+function openMo(id){document.getElementById(id).classList.add('open');}
+function closeMo(id){document.getElementById(id).classList.remove('open');}
+
+/* ADMIN */
+function renderADash(){
+  const pending=S.reqs.filter(r=>r.status!=='Completado').length;
+  const dp=document.getElementById('dash-p');if(dp)dp.textContent=pending;
+  document.getElementById('a-recent').innerHTML=[...S.reqs].reverse().slice(0,3).map(r=>{
+    const c=gc(r.cid);
+    return`<div class="rc"><div><div class="rt" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">${r.title} ${urgencyChip(r.deadline)}</div><div class="rm"><span>👤 ${c?.name}</span><span>📅 ${fd(r.deadline)}</span>${sb(r.status)}</div></div><button class="btn btn-g btn-sm" onclick="openReqMo('${r.id}')">Ver</button></div>`;
+  }).join('');
+  document.getElementById('a-cl-sum').innerHTML=S.clients.map(c=>`
+    <tr><td><strong>${c.name}</strong><br><small style="color:var(--muted)">${c.ch}</small></td>
+    <td>${c.pack===99?'Ilimitado':c.pack+' mins.'}</td>
+    <td>${c.pack===99?'∞':`${c.used}/${c.pack}`}${c.pack!==99?`<div class="pbar"><div class="pbar-fill" style="width:${Math.min(100,(c.used/c.pack)*100)}%;background:${c.used>=c.pack?'var(--red)':'var(--accent)'}"></div></div>`:''}</td>
+    <td>${pb(c.pay)}</td>
+    <td><button class="btn btn-g btn-sm" onclick="openClMo('${c.id}')">Ver</button></td></tr>`).join('');
+  updateAdminWorkload();
+}
+function renderAClients(){
+  document.getElementById('a-cl-grid').innerHTML=S.clients.map(c=>{
+    const p=gr(c.id).filter(r=>r.status!=='Entregado').length;
+    return`<div class="cc" onclick="openClMo('${c.id}')">
+      <div class="cch"><div class="cav">${ini(c.name)}</div><div><div class="cn">${c.name}</div><div class="cp">${c.ch} · ${c.pack===99?'Ilimitado':'Pack '+c.pack}</div></div><div style="margin-left:auto">${pb(c.pay)}</div></div>
+      <div class="cs"><div class="csv"><div class="csn ${c.used>=c.pack&&c.pack!==99?'c-red':'c-green'}">${c.pack===99?'∞':c.pack-c.used}</div><div class="csl">Disponibles</div></div><div class="csv"><div class="csn c-yellow">${p}</div><div class="csl">Pendientes</div></div></div>
+    </div>`;}).join('');
+  document.getElementById('badge-cl').textContent=S.clients.length;
+}
+function renderAReqs(){
+  const f=document.getElementById('filter-st')?.value||'';
+  const list=f?S.reqs.filter(r=>r.status===f):S.reqs;
+  document.getElementById('badge-pe').textContent=S.reqs.filter(r=>r.status!=='Entregado').length;
+  const el=document.getElementById('a-reqs');if(!el)return;
+  el.innerHTML=list.length?list.map(r=>{
+    const c=gc(r.cid),hr=r.refs&&r.refs.length>0;
+    return`<div class="rc"><div><div class="rt" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">${r.title}${hr?` <span style="font-size:11px;color:var(--accent)">📸 ${r.refs.length} ref.</span>`:''} ${urgencyChip(r.deadline)}</div><div class="rm"><span>👤 ${c?.name}</span><span>🎨 ${r.style||'-'}</span><span>📅 ${fd(r.deadline)}</span>${sb(r.status)}</div></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <select onchange="chStatus('${r.id}',this.value)" style="width:auto;padding:6px 10px;font-size:12px" onclick="event.stopPropagation()">
+        <option ${r.status==='No iniciado'?'selected':''}>No iniciado</option>
+        <option ${r.status==='En progreso'?'selected':''}>En progreso</option>
+        <option ${r.status==='Listo para revisar'?'selected':''}>Listo para revisar</option>
+        <option ${r.status==='Completado'?'selected':''}>Completado</option>
+      </select>
+      <button class="btn btn-g btn-sm" onclick="openReqMo('${r.id}')">Ver</button>
+    </div></div>`;}).join(''):`<div class="es"><div style="font-size:48px;opacity:.4">📭</div><p>No hay pedidos.</p></div>`;
+}
+function renderAPays(){
+  document.getElementById('a-pays').innerHTML=S.clients.map(c=>`
+    <div class="card"><div class="card-title"><div style="display:flex;align-items:center;gap:12px"><div class="cav" style="width:36px;height:36px;font-size:13px">${ini(c.name)}</div>${c.name} ${pb(c.pay)}</div><div style="font-size:14px;color:var(--muted);font-weight:400">$${c.price}/ciclo</div></div>
+    ${c.payments.map(p=>`<div class="pay-row"><div><strong>${fd(p.d)}</strong><span style="color:var(--muted);margin-left:8px;font-size:12px">${p.m}</span></div><div style="display:flex;align-items:center;gap:16px"><strong>$${p.a}</strong>${pb(p.s==='Vencido'?'Vencido':p.s==='Pendiente'?'Pendiente':'Al día')}</div></div>`).join('')}
+    <div style="margin-top:14px;display:flex;gap:8px">
+      <button class="btn btn-p btn-sm" onclick="regPay('${c.id}')">+ Registrar pago</button>
+      <button class="btn btn-g btn-sm" onclick="updPay('${c.id}','Al día')">Marcar al día</button>
+    </div></div>`).join('');
+}
+
+/* CLIENT */
+function updateCreditsUI(c){
+  // Panel cliente — pill de créditos
+  const pill = document.getElementById('cl-credits-pill');
+  const usedEl = document.getElementById('cl-credits-used');
+  const totalEl = document.getElementById('cl-credits-total');
+  if(pill && c){
+    const remaining = c.pack===99 ? '∞' : c.pack - c.used;
+    const total = c.pack===99 ? '∞' : c.pack;
+    usedEl.textContent = remaining;
+    totalEl.textContent = total;
+    // Color según disponibles
+    usedEl.style.color = (c.pack!==99 && c.used>=c.pack) ? 'var(--red)' : (c.pack!==99 && (c.pack-c.used)<=2) ? 'var(--yellow)' : 'var(--green)';
+    pill.style.display = 'flex';
+  }
+}
+
+function updateAdminWorkload(){
+  const el = document.getElementById('admin-workload');
+  const num = document.getElementById('admin-workload-num');
+  if(!el) return;
+  const active = S.reqs.filter(r=>r.status!=='Completado'&&!r.name?.startsWith('[DEMO]')).length;
+  num.textContent = active;
+  num.style.color = active>=5 ? 'var(--red)' : active>=3 ? 'var(--yellow)' : 'var(--accent)';
+  el.style.display = 'flex';
+}
+
+function getTrackingConfig(status){
+  const steps = [
+    { key:'No iniciado', icon:'📋', label:'Recibido' },
+    { key:'En progreso', icon:'🎨', label:'Diseñando' },
+    { key:'Listo para revisar', icon:'✨', label:'Listo' },
+    { key:'Completado', icon:'✅', label:'Completado' },
+  ];
+  const msgs = {
+    'No iniciado': { icon:'📬', title:'Pedido recibido', sub:'Tu diseñador ya lo vio. En breve empieza a trabajar en tu miniatura.' },
+    'En progreso': { icon:'🎨', title:'¡Tu miniatura está siendo diseñada!', sub:'El diseñador está trabajando en tu pedido ahora mismo. Te avisamos cuando esté lista para revisar.' },
+    'Listo para revisar': { icon:'🎉', title:'¡Tu miniatura está lista!', sub:'Revisá la miniatura y aprobala o pedí cambios desde el detalle del pedido.' },
+    'Completado': { icon:'🏆', title:'¡Miniatura completada!', sub:'Tu diseñador marcó este pedido como finalizado. ¡A publicar!' },
+  };
+  const idx = steps.findIndex(s=>s.key===status);
+  return { steps, msgs, idx: idx>=0?idx:0 };
+}
+
+function renderTracking(cid){
+  const el = document.getElementById('cl-tracking-section');
+  if(!el) return;
+  const rqs = gr(cid);
+  const active = rqs.filter(r=>r.status!=='Completado')
+    .sort((a,b)=>{
+      if(!a.deadline) return 1;
+      if(!b.deadline) return -1;
+      return new Date(a.deadline)-new Date(b.deadline);
+    });
+  if(!active.length){ el.innerHTML=''; return; }
+
+  const primary = active[0];
+  const rest = active.slice(1);
+
+  const {steps, msgs, idx} = getTrackingConfig(primary.status);
+  const msg = msgs[primary.status] || msgs['No iniciado'];
+  const pct = idx===0?0:idx===1?33:idx===2?66:100;
+  const stepsHtml = steps.map((s,i)=>{
+    const cls = i<idx?'done':i===idx?'active':'';
+    return `<div class="ts ${cls}">
+      <div class="ts-dot ${cls}">${i<idx?'✓':s.icon}</div>
+      <div class="ts-lbl">${s.label}</div>
+    </div>`;
+  }).join('');
+
+  // Widget compacto para pedidos secundarios
+  const restHtml = rest.length ? `
+    <div style="margin-bottom:20px">
+      ${rest.map(r=>{
+        const {idx:ri, steps:rs} = getTrackingConfig(r.status);
+        const step = rs[ri];
+        return `<div class="tracking-mini" onclick="this.classList.toggle('open')">
+          <div class="tracking-mini-header">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:16px">${step.icon}</span>
+              <div>
+                <div style="font-size:13px;font-weight:600">${r.title}</div>
+                <div style="font-size:11px;color:var(--muted)">${r.status} · 📅 ${r.deadline?fd(r.deadline):'Sin fecha'} ${urgencyChip(r.deadline)}</div>
+              </div>
+            </div>
+            <span class="tracking-mini-arrow">›</span>
+          </div>
+          <div class="tracking-mini-body">
+            <div class="tracking-steps" style="margin-bottom:16px;margin-top:8px">
+              <div class="tracking-progress-line" style="width:calc(${ri===0?0:ri===1?33:ri===2?66:100}% * (100% - 60px) / 100)"></div>
+              ${rs.map((s,i)=>{
+                const cls=i<ri?'done':i===ri?'active':'';
+                return `<div class="ts ${cls}"><div class="ts-dot ${cls}" style="width:32px;height:32px;font-size:14px">${i<ri?'✓':s.icon}</div><div class="ts-lbl">${s.label}</div></div>`;
+              }).join('')}
+            </div>
+            <button class="btn btn-g btn-sm" onclick="event.stopPropagation();openReqMo('${r.id}')">Ver detalle</button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>` : '';
+
+  el.innerHTML = `
+    <div class="tracking-card">
+      <div class="tracking-header">
+        <div>
+          <div class="tracking-title">${primary.title}</div>
+          <div class="tracking-sub">📅 ${primary.deadline?fd(primary.deadline):'Sin fecha'} ${urgencyChip(primary.deadline)}</div>
+        </div>
+        <button class="btn btn-g btn-sm" onclick="openReqMo('${primary.id}')">Ver detalle</button>
+      </div>
+      <div class="tracking-steps">
+        <div class="tracking-progress-line" style="width:calc(${pct}% * (100% - 60px) / 100)"></div>
+        ${stepsHtml}
+      </div>
+      <div class="tracking-msg">
+        <div class="tmsg-icon">${msg.icon}</div>
+        <div class="tmsg-text">
+          <div class="tmsg-title">${msg.title}</div>
+          <div class="tmsg-sub">${msg.sub}</div>
+        </div>
+      </div>
+    </div>
+    ${restHtml}`;
+}
+
+function renderCDash(cid){
+  const c=gc(cid),rqs=gr(cid),pending=rqs.filter(r=>r.status!=='Completado').length;
+  const av=c.pack===99?'∞':c.pack-c.used;
+  document.getElementById('cl-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-lbl">Disponibles</div><div class="stat-val ${typeof av==='number'&&av<=1?'c-red':'c-green'}">${av}</div><div class="stat-sub">${c.pack===99?'Ilimitado':`de ${c.pack} en tu pack`}</div>${c.pack!==99?`<div class="pbar"><div class="pbar-fill" style="width:${Math.min(100,(c.used/c.pack)*100)}%"></div></div>`:''}</div>
+    <div class="stat-card"><div class="stat-lbl">En proceso</div><div class="stat-val c-yellow">${pending}</div><div class="stat-sub">Pedidos activos</div></div>
+    <div class="stat-card"><div class="stat-lbl">Entregadas</div><div class="stat-val c-blue">${c.used}</div><div class="stat-sub">Total histórico</div></div>
+    <div class="stat-card"><div class="stat-lbl">Estado de pago</div><div style="margin-top:8px">${pb(c.pay)}</div><div class="stat-sub" style="margin-top:8px">$${c.price}/ciclo</div></div>`;
+  renderTracking(cid);
+  updateCreditsUI(c);
+  const rec=[...rqs].reverse().slice(0,3);
+  document.getElementById('cl-recent').innerHTML=rec.length?rec.map(r=>`<div class="rc"><div><div class="rt">${r.title}</div><div class="rm">${sb(r.status)}<span>📅 ${fd(r.deadline)}</span></div></div><button class="btn btn-g btn-sm" onclick="openReqMo('${r.id}')">Ver / Editar</button></div>`).join(''):`<div class="es"><div style="font-size:48px;opacity:.4">📭</div><p>No tenés pedidos aún.</p><button class="btn btn-p" onclick="showPanel('client','nuevo',document.getElementById('nav-nuevo'))">Hacer primer pedido</button></div>`;
+  renderCReqs(cid);renderCPack(c);
+}
+function renderCReqs(cid){
+  const el=document.getElementById('cl-all-reqs');if(!el)return;
+  const rqs=gr(cid);
+  el.innerHTML=rqs.length?[...rqs].reverse().map(r=>`<div class="rc"><div><div class="rt">${r.title}${r.refs&&r.refs.length?` <span style="font-size:11px;color:var(--accent)">📸 ${r.refs.length} ref.</span>`:''}</div><div class="rm">${sb(r.status)}<span>🎨 ${r.style||'-'}</span><span>📅 ${fd(r.deadline)}</span></div></div><button class="btn btn-g btn-sm" onclick="openReqMo('${r.id}')">Ver / Editar</button></div>`).join(''):`<div class="es"><div style="font-size:48px;opacity:.4">📋</div><p>No tenés pedidos aún.</p></div>`;
+}
+function renderCPack(c){
+  const el=document.getElementById('cl-pack');if(!el)return;
+  const pct=c.pack===99?30:Math.min(100,(c.used/c.pack)*100);
+  el.innerHTML=`<div class="card"><div class="card-title">Tu plan actual</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+      <div><div class="stat-lbl" style="margin-bottom:6px">Pack</div><div style="font-size:18px;font-weight:700">${c.pack===99?'Ilimitado':'Pack de '+c.pack+' miniaturas'}</div></div>
+      <div><div class="stat-lbl" style="margin-bottom:6px">Precio</div><div style="font-size:18px;font-weight:700">$${c.price}<span style="color:var(--muted);font-size:13px">/ciclo</span></div></div>
+    </div>
+    <div class="pbar" style="height:10px"><div class="pbar-fill" style="width:${pct}%;background:${pct>80?'var(--red)':pct>50?'var(--yellow)':'var(--green)'}"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin-top:8px"><span style="color:var(--muted)">Usadas: <strong style="color:var(--text)">${c.used}</strong></span><span style="color:var(--muted)">Total: <strong style="color:var(--text)">${c.pack===99?'∞':c.pack}</strong></span></div>
+    <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">${pb(c.pay)}<p style="color:${c.pay==='Al día'?'var(--green)':'var(--red)'};font-size:13px;margin-top:8px">${c.pay==='Al día'?'✓ Tus pagos están al día.':'⚠️ Tenés un pago pendiente. Contactá al diseñador.'}</p></div>
+  </div>`;
+}
+
+/* MODALS */
+
+function openReqMo(rid){
+  const r=S.reqs.find(x=>x.id===rid);if(!r)return;
+  viewRid=rid;const c=gc(r.cid),isA=role==='admin';
+
+  const versionsHtml = buildVersionsHtml(r, isA);
+
+  // Referencias YouTube — clicables para lightbox
+  const refsHtml=r.refs&&r.refs.length?`
+    <div style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1">
+      <label>Referencias YouTube (${r.refs.length})</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+        ${r.refs.map(rf=>`<img src="${rf.t}" class="ref-thumb" onclick="openLightbox('${rf.t}','${(rf.title||'').replace(/'/g,"\\'")}','${rf.url||''}')" title="${rf.title||''}">`).join('')}
+      </div>
+    </div>`:''
+
+  const clientImgsHtml = r.clientImgs&&r.clientImgs.length?`
+    <div style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1">
+      <label>Imágenes del cliente (${r.clientImgs.length})</label>
+      <div class="img-preview-grid" style="margin-top:4px">
+        ${r.clientImgs.map(src=>`<div class="img-preview" onclick="openLightbox('${src}','Imagen de referencia','')"><img src="${src}" style="cursor:pointer"></div>`).join('')}
+      </div>
+    </div>`:''
+
+  // Admin ve solo lectura, cliente puede editar
+  if(isA){
+    document.getElementById('mo-req-body').innerHTML=`
+      ${versionsHtml}
+      <div class="fg">
+        <div style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1">
+          <label>Cliente</label>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:14px;display:flex;align-items:center;gap:8px">
+            <span style="font-size:18px">👤</span><strong>${c?.name||'—'}</strong>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1">
+          <label>Título</label>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:14px">${r.title}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1">
+          <label>Descripción</label>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--muted);line-height:1.6;min-height:60px">${r.desc||'—'}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label>Estilo / Colores</label>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:14px">${r.style||'—'}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label>Fecha límite</label>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:14px;display:flex;align-items:center;gap:8px">
+            📅 ${r.deadline?fd(r.deadline):'—'} ${urgencyChip(r.deadline)}
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label>Estado</label>
+          <select id="mr-st" onchange="chStatus('${r.id}',this.value)" style="font-size:14px">
+            <option ${r.status==='No iniciado'?'selected':''}>No iniciado</option>
+            <option ${r.status==='En progreso'?'selected':''}>En progreso</option>
+            <option ${r.status==='Listo para revisar'?'selected':''}>Listo para revisar</option>
+            <option ${r.status==='Completado'?'selected':''}>Completado</option>
+          </select>
+        </div>
+        ${r.notes?`<div style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1">
+          <label>Notas del cliente</label>
+          <div style="background:rgba(245,200,66,.06);border:1px solid rgba(245,200,66,.2);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--text);line-height:1.6">${r.notes}</div>
+        </div>`:''}
+        ${refsHtml}
+        ${clientImgsHtml}
+      </div>`;
+    document.getElementById('mo-save-btn').style.display='none';
+    // Admin puede borrar solo si no está Completado
+    const delBtn = document.getElementById('mo-delete-btn');
+    delBtn.style.display = r.status!=='Completado' ? '' : 'none';
+    delBtn.onclick = ()=>deleteReq(rid);
+  } else {
+    const isLocked = r.status==='En progreso'||r.status==='Listo para revisar'||r.status==='Completado';
+    const isCompleted = r.status==='Completado';
+
+    if(isLocked){
+      // Mostrar vista de solo lectura con mensaje según estado
+      const lockMsg = isCompleted
+        ? `<div style="background:rgba(45,202,115,.08);border:1px solid rgba(45,202,115,.2);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px;grid-column:1/-1;margin-bottom:4px">
+            <span style="font-size:22px">✅</span>
+            <div><div style="font-weight:700;font-size:13px;margin-bottom:2px">Pedido completado</div><div style="font-size:12px;color:var(--muted)">Este pedido ya fue aprobado y no puede modificarse.</div></div>
+          </div>`
+        : `<div style="background:rgba(255,77,0,.08);border:1px solid rgba(255,77,0,.25);border-radius:12px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;grid-column:1/-1;margin-bottom:4px">
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:22px">🎨</span>
+              <div><div style="font-weight:700;font-size:13px;margin-bottom:2px">Tu diseñador ya está trabajando en esto</div><div style="font-size:12px;color:var(--muted)">Si necesitás hacer un cambio, avisale por WhatsApp.</div></div>
+            </div>
+            <a href="https://wa.me/?text=Hola!%20Quiero%20hacer%20un%20cambio%20en%20mi%20pedido%3A%20${encodeURIComponent(r.title)}" target="_blank" class="btn btn-p btn-sm" style="white-space:nowrap;flex-shrink:0">💬 WhatsApp</a>
+          </div>`;
+
+      document.getElementById('mo-req-body').innerHTML=`
+        ${versionsHtml}
+        <div class="fg">
+          ${lockMsg}
+          <div style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1"><label>Título</label><div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:14px">${r.title}</div></div>
+          <div style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1"><label>Descripción</label><div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--muted);line-height:1.6;min-height:60px">${r.desc||'—'}</div></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><label>Estilo / Colores</label><div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:14px">${r.style||'—'}</div></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><label>Fecha límite</label><div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:14px">📅 ${r.deadline?fd(r.deadline):'—'}</div></div>
+          ${refsHtml}${clientImgsHtml}
+        </div>`;
+      document.getElementById('mo-save-btn').style.display='none';
+    } else {
+      // Cliente puede editar — No iniciado
+      document.getElementById('mo-req-body').innerHTML=`
+        ${versionsHtml}
+        <div class="fg">
+          <div style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1"><label>Título</label><input id="mr-t" type="text" value="${r.title}"></div>
+          <div style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1"><label>Descripción</label><textarea id="mr-d">${r.desc}</textarea></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><label>Estilo / Colores</label><input id="mr-s" type="text" value="${r.style}"></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><label>Fecha límite</label><input id="mr-dl" type="date" value="${r.deadline}"></div>
+          <div style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1"><label>Notas</label><textarea id="mr-n">${r.notes}</textarea></div>
+          ${refsHtml}${clientImgsHtml}
+        </div>`;
+      document.getElementById('mo-save-btn').style.display='';
+      document.getElementById('mo-save-btn').onclick=()=>saveReq(rid);
+    }
+
+    // Botón eliminar para cliente — solo si No iniciado
+    const delBtn = document.getElementById('mo-delete-btn');
+    delBtn.style.display = r.status==='No iniciado' ? '' : 'none';
+    if(r.status==='No iniciado') delBtn.onclick = ()=>deleteReq(rid);
+  }
+  openMo('mo-req');
+}
+async function deleteReq(rid){
+  const r = S.reqs.find(x=>x.id===rid); if(!r) return;
+  if(r.status==='Completado'){ toast('❌ No se puede eliminar un pedido completado'); return; }
+  if(!confirm(`¿Eliminar "${r.title}"? Esta acción no se puede deshacer.`)) return;
+  if(isSupabaseMode){
+    const {error} = await sb_client.from('requests').delete().eq('id',rid);
+    if(error){ toast('❌ Error al eliminar'); return; }
+  }
+  S.reqs = S.reqs.filter(x=>x.id!==rid);
+  closeMo('mo-req');
+  toast('🗑 Pedido eliminado');
+  if(role==='admin'){ renderADash(); renderAReqs(); renderAClients(); }
+  else { const cid=user?.clientId||S.clients[0]?.id; renderCDash(cid); }
+}
+async function saveReq(rid){
+  const r=S.reqs.find(x=>x.id===rid);if(!r)return;
+  r.title=document.getElementById('mr-t').value;
+  r.desc=document.getElementById('mr-d').value;
+  r.style=document.getElementById('mr-s').value;
+  r.deadline=document.getElementById('mr-dl').value;
+  r.notes=document.getElementById('mr-n').value;
+  if(role==='admin')r.status=document.getElementById('mr-st').value;
+  if(isSupabaseMode) await dbUpdateRequest(rid,{title:r.title,desc:r.desc,style:r.style,deadline:r.deadline,notes:r.notes,status:r.status});
+  closeMo('mo-req');toast('✓ Pedido actualizado');
+  const cid=isSupabaseMode&&role==='client'?S.clients[0].id:'c1';
+  if(role==='admin'){renderADash();renderAReqs();}else{renderCDash(cid);}
+}
+function openClMo(cid){
+  viewCid=cid;const c=gc(cid);if(!c)return;
+  const rqs=gr(cid);
+  document.getElementById('mo-cl-title').textContent=c.name;
+  document.getElementById('mo-cl-body').innerHTML=`
+    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+      <div class="stat-card"><div class="stat-lbl">Pack</div><div class="stat-val c-blue" style="font-size:22px">${c.pack===99?'∞':c.pack}</div><div class="stat-sub">miniaturas</div></div>
+      <div class="stat-card"><div class="stat-lbl">Usadas</div><div class="stat-val ${c.used>=c.pack&&c.pack!==99?'c-red':'c-green'}" style="font-size:22px">${c.used}</div><div class="stat-sub">de ${c.pack===99?'∞':c.pack}</div></div>
+      <div class="stat-card"><div class="stat-lbl">Pago</div><div style="margin-top:6px">${pb(c.pay)}</div><div class="stat-sub">$${c.price}/ciclo</div></div>
+    </div>
+    <div class="fg" style="margin-bottom:16px">
+      <div style="display:flex;flex-direction:column;gap:6px"><label>Email</label><input value="${c.email}" disabled style="opacity:.5"></div>
+      <div style="display:flex;flex-direction:column;gap:6px"><label>Canal</label><input value="${c.ch}" disabled style="opacity:.5"></div>
+      <div style="display:flex;flex-direction:column;gap:6px"><label>Pack</label><select id="ep"><option value="4" ${c.pack==4?'selected':''}>Básico (4)</option><option value="8" ${c.pack==8?'selected':''}>Estándar (8)</option><option value="16" ${c.pack==16?'selected':''}>Pro (16)</option><option value="99" ${c.pack==99?'selected':''}>Ilimitado</option></select></div>
+      <div style="display:flex;flex-direction:column;gap:6px"><label>Pago</label><select id="eps"><option ${c.pay==='Al día'?'selected':''}>Al día</option><option ${c.pay==='Pendiente'?'selected':''}>Pendiente</option><option ${c.pay==='Vencido'?'selected':''}>Vencido</option></select></div>
+    </div>
+    <div class="nb" style="margin-bottom:20px"><label>🔒 Notas internas</label><textarea id="en">${c.notes}</textarea></div>
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:12px">Pedidos (${rqs.length})</div>
+    ${rqs.slice(0,4).map(r=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px"><div><strong>${r.title}</strong><span style="color:var(--muted);margin-left:8px;font-size:12px">${fd(r.deadline)}</span></div>${sb(r.status)}</div>`).join('')}`;
+  openMo('mo-cl');
+}
+async function saveClientNotes(){
+  const c=gc(viewCid);if(!c)return;
+  c.notes=document.getElementById('en')?.value||c.notes;
+  const ps=document.getElementById('eps')?.value;if(ps)c.pay=ps;
+  const pk=document.getElementById('ep')?.value;if(pk)c.pack=parseInt(pk);
+  if(isSupabaseMode) await dbUpdateClient(viewCid,{notes:c.notes,pay:c.pay,pack:c.pack});
+  closeMo('mo-cl');toast('✓ Cliente actualizado');
+  renderADash();renderAClients();renderAPays();
+}
+async function addClient(){
+  const name=document.getElementById('nc-name').value.trim();if(!name){alert('Nombre obligatorio');return;}
+  const newC={
+    name, email:document.getElementById('nc-email').value,
+    ch:document.getElementById('nc-ch').value||'@nuevo',
+    pack:parseInt(document.getElementById('nc-pack').value),
+    used:0, price:parseInt(document.getElementById('nc-price').value)||0,
+    pay:document.getElementById('nc-ps').value,
+    notes:document.getElementById('nc-notes').value,
+    payments:[]
+  };
+  // Guardar en Supabase si está configurado
+  if(isSupabaseMode){
+    const res=await dbAddClient(newC);
+    if(!res)return;
+    newC.id=res.id;
+  } else {
+    newC.id='c'+Date.now();
+  }
+  S.clients.push(newC);
+  closeMo('mo-nc');toast('✓ Cliente creado');
+  ['nc-name','nc-email','nc-ch','nc-notes','nc-price','nc-uid'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  renderADash();renderAClients();renderAPays();
+}
+async function chStatus(rid,status){
+  const r=S.reqs.find(x=>x.id===rid);if(!r)return;
+  if(status==='Entregado'&&r.status!=='Entregado'){const c=gc(r.cid);if(c){c.used++;if(isSupabaseMode)await dbUpdateClient(c.id,{used:c.used});}}
+  r.status=status;
+  if(isSupabaseMode) await dbUpdateRequest(rid,{status});
+  renderADash();renderAReqs();renderAClients();toast('✓ Estado actualizado');
+}
+async function regPay(cid){
+  const c=gc(cid);if(!c)return;
+  const today=new Date().toISOString().split('T')[0];
+  c.payments.push({d:today,a:c.price,s:'Pagado',m:'Registrado'});
+  c.pay='Al día';
+  if(isSupabaseMode){await dbAddPayment(cid,c.price,'Registrado');await dbUpdateClient(cid,{pay:'Al día'});}
+  toast('✓ Pago registrado');renderAPays();renderADash();renderAClients();
+}
+async function updPay(cid,val){
+  const c=gc(cid);if(c)c.pay=val;
+  if(isSupabaseMode) await dbUpdateClient(cid,{pay:val});
+  if(!document.getElementById('mo-cl').classList.contains('open')){renderADash();renderAClients();renderAPays();toast('✓ Estado actualizado');}
+}
+
+/* ════════════════════════
+   YOUTUBE DATA API v3
+   CORS habilitado — funciona desde archivo local (file://)
+════════════════════════ */
+
+async function ytSearch(){
+  const q=document.getElementById('yt-q').value.trim();
+  if(!q)return;
+
+  // Validar que hay API key configurada
+  if(!YT_API_KEY){
+    document.getElementById('yt-grid').innerHTML=`
+      <div class="yt-ph" style="grid-column:1/-1;padding:24px">
+        <div class="phi">🔑</div>
+        <div style="margin-bottom:16px">Necesitás configurar tu API key de YouTube para usar la búsqueda.<br>
+        <small style="opacity:.6">Abrí el archivo HTML con un editor de texto y buscá la línea:<br><code style="background:var(--surface);padding:2px 8px;border-radius:4px;font-family:monospace">const YT_API_KEY = ''</code><br>y pegá tu key entre las comillas.</small></div>
+        <a href="https://console.cloud.google.com/" target="_blank" style="color:var(--accent);font-size:13px;font-weight:600">→ Obtener API key gratis en Google Cloud</a>
+      </div>`;
+    return;
+  }
+
+  const btn=document.getElementById('yt-btn'),grid=document.getElementById('yt-grid');
+  btn.disabled=true;
+  btn.innerHTML='<div class="spinner"></div> Buscando...';
+  grid.innerHTML='<div class="yt-ph"><div class="phi">⏳</div>Buscando en YouTube...</div>';
+
+  try{
+    // YouTube Data API v3 — search.list
+    // CORS habilitado por Google, funciona desde cualquier origen
+    const url=`https://www.googleapis.com/youtube/v3/search?`+
+      `part=snippet`+
+      `&q=${encodeURIComponent(q)}`+
+      `&type=video`+
+      `&maxResults=20`+
+      `&relevanceLanguage=es`+
+      `&key=${YT_API_KEY}`;
+
+    const res=await fetch(url);
+
+    if(!res.ok){
+      const err=await res.json();
+      const msg=err?.error?.message||'Error desconocido';
+      // Errores comunes
+      if(res.status===400) throw new Error('API key inválida. Verificá que la copiaste bien.');
+      if(res.status===403) throw new Error('API key sin permisos o cuota agotada. Verificá que habilitaste YouTube Data API v3 en Google Cloud.');
+      throw new Error(msg);
+    }
+
+    const data=await res.json();
+    const items=data.items||[];
+
+    if(!items.length){
+      grid.innerHTML=`<div class="yt-ph" style="grid-column:1/-1"><div class="phi">🔍</div>No se encontraron resultados para "${q}"</div>`;
+      return;
+    }
+
+    const results=items.map(item=>({
+      videoId: item.id.videoId,
+      title:   item.snippet.title,
+      channel: item.snippet.channelTitle,
+      thumb_hq: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.medium?.url,
+    }));
+
+    renderYT(results);
+
+  }catch(e){
+    console.error('[ThumbFlow YT]', e);
+    grid.innerHTML=`
+      <div class="yt-ph" style="grid-column:1/-1">
+        <div class="phi">⚠️</div>
+        <div style="margin-bottom:8px"><strong>Error al buscar:</strong> ${e.message}</div>
+        <small style="opacity:.6">Revisá que la API key sea correcta y que YouTube Data API v3 esté habilitada en Google Cloud Console.</small>
+      </div>`;
+  }finally{
+    btn.disabled=false;
+    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Buscar';
+  }
+}
+
+function renderYT(results){
+  const grid=document.getElementById('yt-grid');
+  grid.innerHTML=results.slice(0,20).map((r,i)=>{
+    const thumb = r.thumb_hq || `https://img.youtube.com/vi/${r.videoId}/hqdefault.jpg`;
+    const title=(r.title||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return`<div class="yt-card" id="ytc-${i}"
+        data-vid="${r.videoId}"
+        data-thumb="${thumb}"
+        data-title="${title.replace(/"/g,'&quot;')}"
+        onclick="toggleRef(${i})">
+      <img src="${thumb}" loading="lazy" alt="${title}">
+      <div class="yt-check">✓</div>
+      <div class="yt-ov">
+        <div class="yt-ttl">${title}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Restaurar selección previa
+  refs.forEach(rf=>{
+    document.querySelectorAll('.yt-card').forEach(el=>{
+      if(el.dataset.vid===rf.id) el.classList.add('sel');
+    });
+  });
+}
+
+function toggleRef(i){
+  const el=document.getElementById('ytc-'+i);
+  const thumb=el.dataset.thumb, title=el.dataset.title, vid=el.dataset.vid;
+  const idx=refs.findIndex(r=>r.id===vid);
+  if(idx>=0){refs.splice(idx,1);el.classList.remove('sel');}
+  else{if(refs.length>=3){toast('⚠ Máximo 3 referencias');return;}refs.push({t:thumb,ttl:title,id:vid});el.classList.add('sel');}
+  updateRefsStrip();
+}
+
+function updateRefsStrip(){
+  const wrap=document.getElementById('refs-wrap'),row=document.getElementById('refs-row');
+  if(!refs.length){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  row.innerHTML=refs.map((r,i)=>`<div class="ref-chip"><img src="${r.t}" onerror="this.style.display='none'">Ref. ${i+1}<button class="ref-rm" onclick="removeRef(${i})">✕</button></div>`).join('');
+}
+
+function removeRef(i){
+  refs.splice(i,1);updateRefsStrip();
+  // deselect all and re-select remaining
+  document.querySelectorAll('.yt-card').forEach(el=>el.classList.remove('sel'));
+  refs.forEach(rf=>{
+    document.querySelectorAll('.yt-card').forEach(el=>{
+      if(el.id&&el.innerHTML.includes(rf.id))el.classList.add('sel');
+    });
+  });
+}
+
+/* FORM STEPS */
+function resetForm(){
+  goStep(1,true);refs=[];updateRefsStrip();clientRefImgs=[];renderRefPreviews();
+  ['req-title','req-desc','req-style','req-deadline','req-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  const yq=document.getElementById('yt-q');if(yq)yq.value='';
+  const yg=document.getElementById('yt-grid');if(yg)yg.innerHTML='<div class="yt-ph"><div class="phi">🎬</div>Escribí un tema y presioná <strong>Buscar</strong></div>';
+}
+
+function goStep(n,silent=false){
+  step=n;
+  [1,2,3].forEach(i=>{
+    document.getElementById('fs-'+i).style.display=i===n?'block':'none';
+    const s=document.getElementById('st-'+i);
+    s.classList.remove('act','done');
+    if(i<n)s.classList.add('done');
+    if(i===n)s.classList.add('act');
+  });
+  if(n===3&&!silent)renderConfirm();
+}
+
+function renderConfirm(){
+  const title=document.getElementById('req-title').value||'(sin título)';
+  const desc=document.getElementById('req-desc').value||'-';
+  const style=document.getElementById('req-style').value||'-';
+  const dl=document.getElementById('req-deadline').value;
+  const notes=document.getElementById('req-notes').value||'-';
+  document.getElementById('confirm-sum').innerHTML=`
+    <div style="display:grid;gap:14px">
+      <div style="background:var(--surface2);border-radius:12px;padding:16px"><div class="stat-lbl" style="margin-bottom:6px">Título</div><div style="font-size:15px;font-weight:600">${title}</div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div style="background:var(--surface2);border-radius:12px;padding:16px"><div class="stat-lbl" style="margin-bottom:6px">Estilo / Colores</div><div style="font-size:13px">${style}</div></div>
+        <div style="background:var(--surface2);border-radius:12px;padding:16px"><div class="stat-lbl" style="margin-bottom:6px">Fecha límite</div><div style="font-size:13px">${fd(dl)}</div></div>
+      </div>
+      <div style="background:var(--surface2);border-radius:12px;padding:16px"><div class="stat-lbl" style="margin-bottom:6px">Descripción</div><div style="font-size:13px;line-height:1.5">${desc}</div></div>
+      ${refs.length?`<div style="background:var(--surface2);border-radius:12px;padding:16px"><div class="stat-lbl" style="margin-bottom:10px">Referencias visuales de YouTube (${refs.length})</div><div style="display:flex;gap:10px">${refs.map(r=>`<img src="${r.t}" style="width:130px;height:73px;object-fit:cover;border-radius:8px;border:2px solid var(--accent)">`).join('')}</div></div>`:`<div style="background:var(--surface2);border-radius:12px;padding:14px;font-size:13px;color:var(--muted)">Sin referencias visuales adjuntas.</div>`}
+      ${notes!=='-'?`<div style="background:rgba(245,200,66,.06);border:1px solid rgba(245,200,66,.2);border-radius:12px;padding:14px"><div class="stat-lbl" style="color:var(--yellow);margin-bottom:4px">Notas</div><div style="font-size:13px">${notes}</div></div>`:''}
+    </div>`;
+}
+
+async function submitReq(){
+  const title=document.getElementById('req-title').value.trim();if(!title){alert('El título es obligatorio');goStep(1);return;}
+  
+  // Obtener el clientId correcto
+  const clientId = isSupabaseMode 
+    ? (user?.clientId || S.clients.find(c=>!c.name.startsWith('[DEMO]'))?.id)
+    : 'c1';
+  if(!clientId){toast('❌ Error: no se encontró tu cuenta');return;}
+  
+  const c=gc(clientId);
+  if(c.pack!==99&&c.used>=c.pack){alert('No tenés créditos disponibles.');return;}
+
+  // Subir imágenes propias a Supabase Storage si aplica
+  let uploadedImgs = [...clientRefImgs];
+  if(isSupabaseMode && clientRefImgs.length){
+    toast('⏳ Subiendo imágenes...');
+    uploadedImgs = [];
+    for(let i=0;i<clientRefImgs.length;i++){
+      const base64=clientRefImgs[i];
+      const blob=await(await fetch(base64)).blob();
+      const path=`client-refs/${clientId}/${Date.now()}-${i}.jpg`;
+      const url=await dbUploadImage(blob,path);
+      if(url) uploadedImgs.push(url);
+    }
+  }
+
+  const newReq={
+    id:'r'+Date.now(), cid:clientId, title,
+    desc:document.getElementById('req-desc').value,
+    style:document.getElementById('req-style').value,
+    deadline:document.getElementById('req-deadline').value,
+    notes:document.getElementById('req-notes').value,
+    status:'No iniciado', date:new Date().toISOString().split('T')[0],
+    refs:[...refs], clientImgs:uploadedImgs, versions:[]
+  };
+
+  if(isSupabaseMode){
+    const res=await dbAddRequest({...newReq,clientImgs:uploadedImgs}, clientId);
+    if(!res)return;
+    newReq.id=res.id;
+  }
+
+  S.reqs.push(newReq);
+  clientRefImgs=[];
+  refs=[];
+  toast('✓ Pedido enviado al diseñador');
+  renderCDash(clientId);
+  showPanel('client','inicio',document.querySelector('#screen-client .nav-item'));
+}
+
+/* ════════════════════════════════════
+   IMÁGENES DE REFERENCIA DEL CLIENTE
+════════════════════════════════════ */
+let clientRefImgs = []; // base64 array
+let deliverFile = null;
+let currentDeliverRid = null;
+
+function handleRefFiles(files){
+  [...files].forEach(f=>{
+    if(clientRefImgs.length>=5){toast('⚠ Máximo 5 imágenes');return;}
+    const reader=new FileReader();
+    reader.onload=e=>{clientRefImgs.push(e.target.result);renderRefPreviews();};
+    reader.readAsDataURL(f);
+  });
+  // reset input so same file can be re-selected
+  document.querySelector('#ref-upload-zone input').value='';
+}
+
+function handleRefDrop(e){
+  e.preventDefault();
+  document.getElementById('ref-upload-zone').classList.remove('drag');
+  handleRefFiles(e.dataTransfer.files);
+}
+
+function renderRefPreviews(){
+  const grid=document.getElementById('ref-img-previews');if(!grid)return;
+  grid.innerHTML=clientRefImgs.map((src,i)=>`
+    <div class="img-preview">
+      <img src="${src}">
+      <button class="img-preview-rm" onclick="removeRefImg(${i})">✕</button>
+    </div>`).join('');
+}
+
+function removeRefImg(i){clientRefImgs.splice(i,1);renderRefPreviews();}
+
+/* ════════════════════════════════════
+   SISTEMA DE ENTREGA (DISEÑADOR)
+════════════════════════════════════ */
+function buildVersionsHtml(r, isAdmin){
+  const versions = r.versions||[];
+  if(!versions.length && !isAdmin) return '';
+
+  const lastVersion = versions[versions.length-1];
+  const pendingReview = lastVersion && lastVersion.status==='pendiente';
+
+  let html = `<div class="delivery-section" style="margin-bottom:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${versions.length?'14px':'0'}">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px">🎨 Miniaturas entregadas</span>
+        ${versions.length?`<span style="background:rgba(45,202,115,.15);color:var(--green);font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px">${versions.length} versión${versions.length>1?'es':''}</span>`:''}
+      </div>
+      ${isAdmin?`<button class="btn btn-p btn-sm" onclick="openDeliverMo('${r.id}')">+ Subir versión</button>`:''}
+    </div>`;
+
+  if(!versions.length){
+    html+=`<div style="font-size:13px;color:var(--muted);padding:${isAdmin?'0':'8px 0'}">
+      ${isAdmin?'Aún no subiste ninguna versión de esta miniatura.':'El diseñador aún no subió la miniatura terminada.'}
+    </div>`;
+  } else {
+    html+=`<div class="version-list">
+      ${[...versions].reverse().map((v,ri)=>{
+        const vnum=versions.length-ri;
+        const statusHtml = v.status==='aprobado'
+          ?`<span class="badge bg">✓ Aprobado</span>`
+          :v.status==='cambios'
+          ?`<span class="badge by">Cambios pedidos</span>`
+          :`<span class="badge bb">⏳ Esperando revisión</span>`;
+        return`<div class="version-item">
+          <div class="version-thumb" onclick="openReview('${r.id}',${versions.length-1-ri})">
+            <img src="${v.img}" alt="v${vnum}">
+          </div>
+          <div>
+            <div class="version-num">Versión ${vnum}</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">${v.date}</div>
+            ${statusHtml}
+            ${v.comment?`<div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4">"${v.comment.substring(0,80)}${v.comment.length>80?'...':''}"</div>`:''}
+          </div>
+          <button class="btn btn-g btn-sm" onclick="openReview('${r.id}',${versions.length-1-ri})">
+            ${!isAdmin&&v.status==='pendiente'?'✎ Revisar':'Ver'}
+          </button>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+    // Si hay versión pendiente de revisión y es el cliente
+    if(!isAdmin && pendingReview){
+      html+=`<div style="background:rgba(77,159,255,.08);border:1px solid rgba(77,159,255,.25);border-radius:10px;padding:14px;font-size:13px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px">👆</span>
+        <div>Tu diseñador subió una nueva versión. <strong style="color:var(--blue)">Revisala y dejá tu feedback.</strong></div>
+        <button class="btn btn-p btn-sm" onclick="openReview('${r.id}',${versions.length-1})" style="margin-left:auto;white-space:nowrap">Revisar ahora</button>
+      </div>`;
+    }
+  }
+
+  html+='</div>';
+  return html;
+}
+
+function openDeliverMo(rid){
+  currentDeliverRid=rid;
+  deliverFile=null;
+  document.getElementById('deliver-preview').style.display='none';
+  document.getElementById('deliver-submit-btn').disabled=true;
+  document.getElementById('deliver-submit-btn').style.opacity='.5';
+  const zone=document.getElementById('deliver-zone');
+  zone.querySelector('input').value='';
+  openMo('mo-deliver');
+}
+
+function handleDeliverFile(file){
+  if(!file||!file.type.startsWith('image/'))return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    deliverFile=e.target.result;
+    const prev=document.getElementById('deliver-preview');
+    document.getElementById('deliver-preview-img').src=deliverFile;
+    prev.style.display='block';
+    document.getElementById('deliver-submit-btn').disabled=false;
+    document.getElementById('deliver-submit-btn').style.opacity='1';
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleDeliverDrop(e){
+  e.preventDefault();
+  document.getElementById('deliver-zone').classList.remove('drag');
+  handleDeliverFile(e.dataTransfer.files[0]);
+}
+
+async function submitDelivery(){
+  if(!deliverFile||!currentDeliverRid)return;
+  const r=S.reqs.find(x=>x.id===currentDeliverRid);if(!r)return;
+  if(!r.versions)r.versions=[];
+
+  let imgUrl=deliverFile;
+
+  if(isSupabaseMode){
+    const btn=document.getElementById('deliver-submit-btn');
+    btn.textContent='Subiendo...';btn.disabled=true;
+    const blob=await(await fetch(deliverFile)).blob();
+    const path=`deliveries/${currentDeliverRid}/${Date.now()}.jpg`;
+    imgUrl=await dbUploadImage(blob,path);
+    if(!imgUrl){btn.textContent='Enviar al cliente';btn.disabled=false;return;}
+    const res=await dbAddVersion(currentDeliverRid,imgUrl);
+    if(res) await dbUpdateRequest(currentDeliverRid,{status:'En revisión'});
+  }
+
+  r.versions.push({
+    img:imgUrl,
+    date:new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric'}),
+    status:'pendiente',comment:'',annotation:null
+  });
+  r.status='En revisión';
+  closeMo('mo-deliver');closeMo('mo-req');
+  toast('✓ Miniatura enviada al cliente');
+  renderADash();renderAReqs();
+  setTimeout(()=>openReqMo(currentDeliverRid),300);
+}
+
+async function submitReview(decision){
+  const r=S.reqs.find(x=>x.id===reviewingRid);if(!r)return;
+  const v=r.versions[reviewingVidx];if(!v)return;
+  v.status=decision;
+  v.comment=document.getElementById('rev-comment').value;
+  v.annotation=annStrokes.length?JSON.stringify(annStrokes):null;
+  if(decision==='aprobado') r.status='Aprobado';
+  else r.status='En progreso';
+
+  if(isSupabaseMode){
+    if(v.id) await dbUpdateVersion(v.id,{status:decision,comment:v.comment,annotation:v.annotation});
+    await dbUpdateRequest(reviewingRid,{status:r.status});
+  }
+
+  closeMo('mo-review');
+  toast(decision==='aprobado'?'✓ ¡Miniatura aprobada!':'✎ Feedback enviado al diseñador');
+  const cid=isSupabaseMode?S.clients[0]?.id:'c1';
+  renderCDash(cid);
+}
+
+/* ════════════════════════
+   INIT
+════════════════════════ */
+document.querySelectorAll('.mo').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+window.addEventListener('resize',()=>{if(document.getElementById('mo-review').classList.contains('open'))initCanvas();});
+// Iniciar Supabase (si está configurado), sino queda en modo demo
+initSupabase();
+let annCtx=null, annStrokes=[], isDrawing=false, currentTool='pen', currentColor='#ff4d4d';
+let startX=0,startY=0,tempStrokes=[];
+let reviewingRid=null, reviewingVidx=null;
+
+function openReview(rid, vidx){
+  reviewingRid=rid; reviewingVidx=vidx;
+  const r=S.reqs.find(x=>x.id===rid);if(!r||!r.versions)return;
+  const v=r.versions[vidx];
+  const vnum=vidx+1;
+  const isA=role==='admin';
+
+  document.getElementById('rev-title').textContent=`${r.title} — Versión ${vnum}`;
+  document.getElementById('rev-version-label').textContent=`Subida el ${v.date} · ${v.status==='aprobado'?'✓ Aprobada':v.status==='cambios'?'✎ Cambios solicitados':'⏳ Esperando revisión'}`;
+
+  const img=document.getElementById('review-img');
+  img.src=v.img;
+  annStrokes=[];tempStrokes=[];
+
+  // Show/hide client vs admin view
+  document.getElementById('rev-client-actions').style.display=(!isA&&v.status==='pendiente')?'block':'none';
+  document.getElementById('rev-admin-view').style.display=isA?'block':'none';
+  document.getElementById('canvas-toolbar').style.display=(!isA&&v.status==='pendiente')?'flex':'none';
+
+  // If annotation exists, load it
+  if(v.annotation) annStrokes=JSON.parse(v.annotation);
+
+  // Build feedback history for admin
+  if(isA){
+    const all=r.versions.map((vv,i)=>{
+      if(!vv.comment&&vv.status==='pendiente')return'';
+      const st=vv.status==='aprobado'?'<span class="badge bg">Aprobado</span>':vv.status==='cambios'?'<span class="badge by">Cambios</span>':'<span class="badge bb">Sin respuesta</span>';
+      return`<div class="fb-item">
+        <div class="fb-header"><span class="fb-version">Versión ${i+1}</span>${st}</div>
+        ${vv.comment?`<div style="color:var(--muted)">"${vv.comment}"</div>`:'<div style="color:var(--muted);font-style:italic">Sin comentario</div>'}
+        ${vv.annotation?`<img src="${drawAnnotationPreview(vv)}" style="width:100%;border-radius:6px;margin-top:8px;border:1px solid var(--border)">`:'' }
+      </div>`;
+    }).filter(Boolean).join('');
+    document.getElementById('rev-feedback-list').innerHTML=all||'<div style="color:var(--muted);font-size:13px">Aún no hay feedback del cliente.</div>';
+  }
+
+  document.getElementById('rev-comment').value='';
+  openMo('mo-review');
+
+  // Init canvas after image loads
+  img.onload=()=>initCanvas();
+  if(img.complete)initCanvas();
+}
+
+function initCanvas(){
+  const img=document.getElementById('review-img');
+  const canvas=document.getElementById('ann-canvas');
+  canvas.width=img.offsetWidth;
+  canvas.height=img.offsetHeight;
+  annCtx=canvas.getContext('2d');
+  redrawCanvas();
+
+  // Events
+  canvas.onmousedown=startDraw;
+  canvas.onmousemove=draw;
+  canvas.onmouseup=endDraw;
+  canvas.onmouseleave=endDraw;
+  // Touch
+  canvas.ontouchstart=e=>{e.preventDefault();const t=e.touches[0],r=canvas.getBoundingClientRect();startDraw({clientX:t.clientX,clientY:t.clientY,target:canvas});};
+  canvas.ontouchmove=e=>{e.preventDefault();const t=e.touches[0];draw({clientX:t.clientX,clientY:t.clientY});};
+  canvas.ontouchend=endDraw;
+}
+
+function getPos(e){
+  const r=document.getElementById('ann-canvas').getBoundingClientRect();
+  const scaleX=document.getElementById('ann-canvas').width/r.width;
+  const scaleY=document.getElementById('ann-canvas').height/r.height;
+  return{x:(e.clientX-r.left)*scaleX,y:(e.clientY-r.top)*scaleY};
+}
+
+function startDraw(e){
+  if(role!=='client')return;
+  isDrawing=true;
+  const p=getPos(e);startX=p.x;startY=p.y;
+  if(currentTool==='pen'){annStrokes.push({tool:'pen',color:currentColor,pts:[{x:p.x,y:p.y}]});}
+}
+
+function draw(e){
+  if(!isDrawing||role!=='client')return;
+  const p=getPos(e);
+  if(currentTool==='pen'){
+    const s=annStrokes[annStrokes.length-1];s.pts.push({x:p.x,y:p.y});
+    redrawCanvas();
+  } else {
+    redrawCanvas();
+    annCtx.strokeStyle=currentColor;annCtx.lineWidth=2.5;annCtx.setLineDash([]);
+    if(currentTool==='rect'){
+      annCtx.strokeRect(startX,startY,p.x-startX,p.y-startY);
+    } else if(currentTool==='arrow'){
+      drawArrow(annCtx,startX,startY,p.x,p.y);
+    }
+  }
+}
+
+function endDraw(e){
+  if(!isDrawing||role!=='client')return;
+  isDrawing=false;
+  if(currentTool!=='pen'){
+    const p=getPos(e||{clientX:startX,clientY:startY});
+    annStrokes.push({tool:currentTool,color:currentColor,x1:startX,y1:startY,x2:p.x,y2:p.y});
+    redrawCanvas();
+  }
+}
+
+function redrawCanvas(){
+  if(!annCtx)return;
+  const c=document.getElementById('ann-canvas');
+  annCtx.clearRect(0,0,c.width,c.height);
+  annStrokes.forEach(s=>{
+    annCtx.strokeStyle=s.color;annCtx.lineWidth=2.5;annCtx.setLineDash([]);
+    if(s.tool==='pen'&&s.pts.length>1){
+      annCtx.beginPath();annCtx.moveTo(s.pts[0].x,s.pts[0].y);
+      s.pts.slice(1).forEach(p=>annCtx.lineTo(p.x,p.y));
+      annCtx.stroke();
+    } else if(s.tool==='rect'){
+      annCtx.strokeRect(s.x1,s.y1,s.x2-s.x1,s.y2-s.y1);
+    } else if(s.tool==='arrow'){
+      drawArrow(annCtx,s.x1,s.y1,s.x2,s.y2);
+    }
+  });
+}
+
+function drawArrow(ctx,x1,y1,x2,y2){
+  const angle=Math.atan2(y2-y1,x2-x1),len=14;
+  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-len*Math.cos(angle-0.4),y2-len*Math.sin(angle-0.4));
+  ctx.lineTo(x2-len*Math.cos(angle+0.4),y2-len*Math.sin(angle+0.4));
+  ctx.closePath();ctx.fillStyle=ctx.strokeStyle;ctx.fill();
+}
+
+function drawAnnotationPreview(v){
+  // Returns a tiny data URL showing the annotation overlay (for admin history)
+  return v.img; // simplified — returns the original img; full impl would merge canvas
+}
+
+function setTool(t){
+  currentTool=t;
+  ['pen','arrow','rect'].forEach(id=>{
+    const b=document.getElementById('tool-'+id);
+    if(b)b.classList.toggle('act',id===t);
+  });
+}
+
+function setColor(c){currentColor=c;}
+function undoStroke(){annStrokes.pop();redrawCanvas();}
+function clearCanvas(){annStrokes=[];redrawCanvas();}
+
+
+</script>
+
+
+</body></html>
