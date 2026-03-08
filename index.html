@@ -122,7 +122,8 @@
   .rc{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin-bottom:12px;transition:all .2s;}
   .rc:hover{border-color:rgba(255,77,0,.3);}
   .rt{font-weight:600;font-size:14px;margin-bottom:4px;}
-  .rm{font-size:12px;color:var(--muted);display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+  .rm{font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .rm .chip-pair{display:inline-flex;align-items:center;gap:5px;flex-shrink:0;flex-wrap:nowrap;}
   .nb{background:rgba(245,200,66,.06);border:1px solid rgba(245,200,66,.2);border-radius:12px;padding:16px;}
   .nb label{color:var(--yellow);}
   .nb textarea{background:none;border:none;padding:8px 0 0;font-size:13px;color:var(--text);resize:none;min-height:80px;}
@@ -979,7 +980,17 @@ const gc=id=>S.clients.find(c=>c.id===id);
 const gr=cid=>S.reqs.filter(r=>r.cid===cid);
 const ini=n=>n.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
 const fd=d=>{if(!d)return'-';const[y,m,dy]=d.split('-');return`${dy}/${m}/${y}`;};
-const sb=s=>{const m={Pendiente:'by','En progreso':'bb',Entregado:'bg','En revisión':'bb',Aprobado:'bg'};return`<span class="badge ${m[s]||'bm'}">${s}</span>`;};
+const sb=s=>{
+  const m={
+    'No iniciado':'bm',
+    'En progreso':'bb',
+    'Listo para revisar':'bb',
+    'Completado':'bg',
+    // legacy
+    'Pendiente':'by','Entregado':'bg','En revisión':'bb','Aprobado':'bg'
+  };
+  return`<span class="badge ${m[s]||'bm'}">${s}</span>`;
+};
 const pb=s=>{const m={'Al día':'bg',Pendiente:'by',Vencido:'br'};return`<span class="badge ${m[s]||'bm'}">${s}</span>`;};
 function toast(msg='✓ Guardado'){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
@@ -1214,6 +1225,8 @@ async function loginWithGoogle(){
 }
 
 async function logout(){
+  const ok = await appConfirm('¿Cerrar sesión?','¿Seguro que querés salir de ThumbFlow?','Salir','Cancelar','🚪');
+  if(!ok) return;
   stopRealtime();
   if(sb_client) await sb_client.auth.signOut();
   user=null; isSupabaseMode=false; role='admin';
@@ -1274,12 +1287,9 @@ async function loadAdminData(){
       }))
     }));
 
-    // Combinar: demo primero, reales después
-    // Filtrar demos del state original para no duplicar
-    const demoClients = S.clients.filter(c=>c.name.startsWith('[DEMO]'));
-    const demoReqs = S.reqs.filter(r=>demoClients.find(c=>c.id===r.cid));
-    S.clients = [...demoClients, ...realClients];
-    S.reqs = [...demoReqs, ...realReqs];
+    // En modo Supabase: solo datos reales, sin demos
+    S.clients = realClients;
+    S.reqs = realReqs;
 
     console.log('[ThumbFlow] Cargado:', realClients.length, 'clientes reales,', realReqs.length, 'pedidos reales');
   }catch(e){
@@ -1465,7 +1475,7 @@ function renderADash(){
   const dp=document.getElementById('dash-p');if(dp)dp.textContent=pending;
   document.getElementById('a-recent').innerHTML=[...S.reqs].reverse().slice(0,3).map(r=>{
     const c=gc(r.cid);
-    return`<div class="rc"><div><div class="rt" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">${r.title} ${urgencyChip(r.deadline)}</div><div class="rm"><span>👤 ${c?.name}</span><span>📅 ${fd(r.deadline)}</span>${sb(r.status)}</div></div><button class="btn btn-g btn-sm" onclick="openReqMo('${r.id}')">Ver</button></div>`;
+    return`<div class="rc"><div><div class="rt">${r.title}</div><div class="rm"><span>👤 ${c?.name}</span><span>📅 ${fd(r.deadline)}</span><span class="chip-pair">${sb(r.status)}${urgencyChip(r.deadline)}</span></div></div><button class="btn btn-g btn-sm" onclick="openReqMo('${r.id}')">Ver</button></div>`;
   }).join('');
   document.getElementById('a-cl-sum').innerHTML=S.clients.filter(c=>!c.archived).map(c=>`
     <tr><td data-label="Cliente"><strong>${c.name}</strong><br><small style="color:var(--muted)">${c.ch}</small></td>
@@ -1514,7 +1524,7 @@ function renderAReqs(){
   el.innerHTML=list.length?list.map(r=>{
     const c=gc(r.cid),hr=r.refs&&r.refs.length>0;
     const unread = (r.messages||[]).filter(m=>m.sender_role!=='admin'&&!m.read_at).length;
-    return`<div class="rc"><div><div class="rt" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">${r.title}${hr?` <span style="font-size:11px;color:var(--accent)">📸 ${r.refs.length} ref.</span>`:''} ${urgencyChip(r.deadline)}</div><div class="rm"><span>👤 ${c?.name}</span><span>🎨 ${r.style||'-'}</span><span>📅 ${fd(r.deadline)}</span>${sb(r.status)}</div></div>
+    return`<div class="rc"><div><div class="rt">${r.title}${hr?` <span style="font-size:11px;color:var(--accent)">📸 ${r.refs.length} ref.</span>`:''}</div><div class="rm"><span>👤 ${c?.name}</span><span>🎨 ${r.style||'-'}</span><span>📅 ${fd(r.deadline)}</span><span class="chip-pair">${sb(r.status)}${urgencyChip(r.deadline)}</span></div></div>
     <div style="display:flex;gap:8px;align-items:center">
       <button class="btn btn-g btn-sm chat-fab" onclick="openChat('${r.id}',event)" title="Chat" style="position:relative;padding:7px 10px">
         💬${unread?`<span style="position:absolute;top:3px;right:3px;width:7px;height:7px;border-radius:50%;background:#ff3b3b;border:1.5px solid var(--surface)"></span>`:''}
@@ -1788,7 +1798,7 @@ function renderCDash(cid){
   renderTracking(cid);
   updateCreditsUI(c);
   const rec=[...rqs].reverse().slice(0,3);
-  document.getElementById('cl-recent').innerHTML=rec.length?rec.map(r=>`<div class="rc"><div><div class="rt">${r.title}</div><div class="rm">${sb(r.status)}<span>📅 ${fd(r.deadline)}</span></div></div><button class="btn btn-g btn-sm" onclick="openReqMo('${r.id}')">Ver / Editar</button></div>`).join(''):`<div class="es"><div style="font-size:48px;opacity:.4">📭</div><p>No tenés pedidos aún.</p><button class="btn btn-p" onclick="showPanel('client','nuevo',document.getElementById('nav-nuevo'))">Hacer primer pedido</button></div>`;
+  document.getElementById('cl-recent').innerHTML=rec.length?rec.map(r=>`<div class="rc"><div><div class="rt">${r.title}</div><div class="rm"><span class="chip-pair">${sb(r.status)}${urgencyChip(r.deadline)}</span><span>📅 ${fd(r.deadline)}</span></div></div><button class="btn btn-g btn-sm" onclick="openReqMo('${r.id}')">Ver / Editar</button></div>`).join(''):`<div class="es"><div style="font-size:48px;opacity:.4">📭</div><p>No tenés pedidos aún.</p><button class="btn btn-p" onclick="showPanel('client','nuevo',document.getElementById('nav-nuevo'))">Hacer primer pedido</button></div>`;
   renderCReqs(cid);renderCPack(c);
 }
 function renderCReqs(cid){
@@ -1796,7 +1806,7 @@ function renderCReqs(cid){
   const rqs=gr(cid);
   el.innerHTML=rqs.length?[...rqs].reverse().map(r=>{
     const unread = (r.messages||[]).filter(m=>m.sender_role!=='client'&&!m.read_at).length;
-    return`<div class="rc"><div><div class="rt">${r.title}${r.refs&&r.refs.length?` <span style="font-size:11px;color:var(--accent)">📸 ${r.refs.length} ref.</span>`:''}</div><div class="rm">${sb(r.status)}<span>🎨 ${r.style||'-'}</span><span>📅 ${fd(r.deadline)}</span></div></div>
+    return`<div class="rc"><div><div class="rt">${r.title}${r.refs&&r.refs.length?` <span style="font-size:11px;color:var(--accent)">📸 ${r.refs.length} ref.</span>`:''}</div><div class="rm"><span class="chip-pair">${sb(r.status)}${urgencyChip(r.deadline)}</span><span>🎨 ${r.style||'-'}</span><span>📅 ${fd(r.deadline)}</span></div></div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-g btn-sm chat-fab" onclick="openChat('${r.id}',event)" title="Chat" style="position:relative;padding:7px 10px">
         💬${unread?`<span style="position:absolute;top:3px;right:3px;width:7px;height:7px;border-radius:50%;background:#ff3b3b;border:1.5px solid var(--surface)"></span>`:''}
