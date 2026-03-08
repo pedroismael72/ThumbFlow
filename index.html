@@ -2554,8 +2554,9 @@ function openDeliverMo(rid){
   currentDeliverRid=rid;
   deliverFile=null;
   document.getElementById('deliver-preview').style.display='none';
-  document.getElementById('deliver-submit-btn').disabled=true;
-  document.getElementById('deliver-submit-btn').style.opacity='.5';
+  document.getElementById('deliver-progress-wrap').style.display='none';
+  document.getElementById('deliver-progress-bar').style.width='0%';
+  document.getElementById('deliver-progress-pct').textContent='0%';
   const zone=document.getElementById('deliver-zone');
   zone.querySelector('input').value='';
   openMo('mo-deliver');
