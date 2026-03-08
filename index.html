@@ -19,6 +19,22 @@
     --red: #ff4d4d;
     --blue: #4d9fff;
   }
+  .light-mode {
+    --bg: #f4f3f0;
+    --surface: #ffffff;
+    --surface2: #ededea;
+    --border: #d8d7d2;
+    --text: #1a1a20;
+    --muted: #888880;
+  }
+
+  /* THEME SWITCH */
+  .theme-switch{display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none;}
+  .theme-switch-track{width:36px;height:20px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);position:relative;transition:background .2s,border-color .2s;flex-shrink:0;}
+  .theme-switch-thumb{position:absolute;top:3px;left:3px;width:12px;height:12px;border-radius:50%;background:var(--muted);transition:transform .2s,background .2s;}
+  .light-mode .theme-switch-track{background:#e8e7e3;border-color:#c8c7c2;}
+  .light-mode .theme-switch-thumb{transform:translateX(16px);background:var(--accent);}
+  .theme-switch-icon{font-size:13px;line-height:1;}
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
   h1,h2,h3,h4{font-family:'Syne',sans-serif;}
@@ -540,10 +556,12 @@
         </div>
         <div class="avatar" id="admin-av">D</div><span id="admin-un">Diseñador</span>
       </div>
+      <label class="theme-switch" onclick="toggleTheme()" title="Cambiar tema">
+        <span class="theme-switch-icon" id="theme-icon-a">🌙</span>
+        <div class="theme-switch-track"><div class="theme-switch-thumb"></div></div>
+        <span class="theme-switch-icon" id="theme-icon-b">☀️</span>
+      </label>
       <button class="logout-btn" onclick="logout()">Salir</button>
-    </div>
-    <div class="sidebar">
-      <span class="nav-lbl">Principal</span>
       <button class="nav-item active" onclick="showPanel('admin','dashboard',this)"><span class="nav-icon">◼</span> Dashboard</button>
       <button class="nav-item" onclick="showPanel('admin','clientes',this)"><span class="nav-icon">👥</span> Clientes <span class="nav-badge" id="badge-cl">3</span></button>
       <button class="nav-item" onclick="showPanel('admin','pedidos',this)"><span class="nav-icon">📋</span> Pedidos <span class="nav-badge" id="badge-pe">2</span></button>
@@ -606,6 +624,11 @@
         </div>
         <div class="avatar" id="cl-av">C</div><span id="cl-un">Cliente</span>
       </div>
+      <label class="theme-switch" onclick="toggleTheme()" title="Cambiar tema">
+        <span class="theme-switch-icon">🌙</span>
+        <div class="theme-switch-track"><div class="theme-switch-thumb"></div></div>
+        <span class="theme-switch-icon">☀️</span>
+      </label>
       <button class="logout-btn" onclick="logout()">Salir</button>
     </div>
     <div class="sidebar">
@@ -2436,9 +2459,17 @@ function renderRefPreviews(){
 
 function removeRefImg(i){clientRefImgs.splice(i,1);renderRefPreviews();}
 
-/* ════════════════════════════════════
-   COMENTARIOS POR PEDIDO
-════════════════════════════════════ */
+/* ════ TEMA ════ */
+function toggleTheme(){
+  const isLight = document.body.classList.toggle('light-mode');
+  localStorage.setItem('tf-theme', isLight ? 'light' : 'dark');
+}
+function applyTheme(){
+  if(localStorage.getItem('tf-theme') === 'light') document.body.classList.add('light-mode');
+}
+applyTheme();
+
+
 
 // Abre el modal del pedido y hace scroll a los comentarios
 function openReqMoComments(rid, e){
