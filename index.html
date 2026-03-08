@@ -264,22 +264,8 @@
   .tmsg-sub{font-size:12px;color:var(--muted);line-height:1.5;}
   @keyframes trackingPulse{0%,100%{box-shadow:0 0 0 6px rgba(255,77,0,.15);}50%{box-shadow:0 0 0 14px rgba(255,77,0,.04);}}
   @keyframes trackingFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
-  @keyframes liveDot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
-
-  /* ════ CHAT ════ */
-  .msg-row{display:flex;flex-direction:column;max-width:78%;gap:3px;}
-  .msg-row.me{align-self:flex-end;align-items:flex-end;}
-  .msg-row.them{align-self:flex-start;align-items:flex-start;}
-  .msg-bubble{padding:9px 13px;border-radius:14px;font-size:13px;line-height:1.5;word-break:break-word;}
-  .msg-row.me .msg-bubble{background:var(--accent);color:white;border-bottom-right-radius:4px;}
-  .msg-row.them .msg-bubble{background:var(--surface2);color:var(--text);border-bottom-left-radius:4px;}
-  .msg-meta{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);}
-  .msg-ticks{font-size:12px;letter-spacing:-1px;}
-  .msg-ticks.delivered{color:var(--muted);}
-  .msg-ticks.read{color:#4d9fff;}
-  .chat-date-sep{text-align:center;font-size:10px;color:var(--muted);padding:4px 0;text-transform:uppercase;letter-spacing:.8px;}
-  #chat-messages::-webkit-scrollbar{width:4px;}
-  #chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+  @keyframes liveDot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}.msg-row.me
+  .msg-row.them
   .tracking-mini{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;cursor:pointer;transition:border-color .2s;}
   .tracking-mini:hover{border-color:rgba(255,77,0,.3);}
   .tracking-mini.open{border-color:rgba(255,77,0,.4);}
@@ -532,16 +518,6 @@
       <div class="topbar-spacer"></div>
       <div style="display:flex;align-items:center;gap:6px">
         <div style="position:relative">
-          <button class="notif-btn" onclick="toggleInboxPanel()" id="inbox-btn" title="Bandeja de entrada" style="font-size:16px">📥<span class="notif-dot" id="inbox-dot"></span></button>
-          <div class="notif-panel" id="inbox-panel" style="display:none">
-            <div class="notif-head">
-              <span class="notif-head-title">Mensajes</span>
-              <button class="btn btn-g btn-sm" onclick="markAllChatsRead()">Todo leído</button>
-            </div>
-            <div class="notif-list" id="inbox-list"><div class="notif-empty">Sin mensajes nuevos</div></div>
-          </div>
-        </div>
-        <div style="position:relative">
           <button class="notif-btn" onclick="toggleNotifPanel()" id="notif-btn">🔔<span class="notif-dot" id="notif-dot"></span></button>
           <div class="notif-panel" id="notif-panel">
             <div class="notif-head">
@@ -609,17 +585,8 @@
     <div class="topbar">
       <div class="topbar-logo">Thumb<span>Flow</span></div>
       <div class="topbar-spacer"></div>
-      <div style="position:relative">
-        <button class="notif-btn" onclick="toggleInboxPanel()" id="inbox-btn-cl" title="Mensajes" style="font-size:16px">📥<span class="notif-dot" id="inbox-dot-cl"></span></button>
-        <div class="notif-panel" id="inbox-panel-cl" style="display:none">
-          <div class="notif-head">
-            <span class="notif-head-title">Mensajes</span>
-            <button class="btn btn-g btn-sm" onclick="markAllChatsRead()">Todo leído</button>
-          </div>
-          <div class="notif-list" id="inbox-list-cl"><div class="notif-empty">Sin mensajes nuevos</div></div>
-        </div>
-      </div>
-      <div class="topbar-user">
+      
+      <div class="topbar-user"><div class="topbar-user">
         <div id="cl-credits-pill" style="display:none;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 12px 5px 8px;font-size:12px;font-weight:600;">
           <span style="font-size:15px">🎬</span>
           <span id="cl-credits-used" style="color:var(--muted)">0</span>
@@ -1531,12 +1498,9 @@ function renderAReqs(){
   const el=document.getElementById('a-reqs');if(!el)return;
   el.innerHTML=list.length?list.map(r=>{
     const c=gc(r.cid),hr=r.refs&&r.refs.length>0;
-    const unread = (r.comments||[]).filter(c=>c.authorRole==='client'&&!(c.readBy||[]).includes('admin')).length;
     return`<div class="rc"><div><div class="rt">${r.title}${hr?` <span style="font-size:11px;color:var(--accent)">📸 ${r.refs.length} ref.</span>`:''}</div><div class="rm"><span>👤 ${c?.name}</span><span>🎨 ${r.style||'-'}</span><span>📅 ${fd(r.deadline)}</span><span class="chip-pair">${sb(r.status)}${urgencyChip(r.deadline)}</span></div></div>
     <div style="display:flex;gap:8px;align-items:center">
-      <button class="btn btn-g btn-sm chat-fab" onclick="openReqMoComments('${r.id}',event)" title="Chat" style="position:relative;padding:7px 10px">
-        💬${unread?`<span style="position:absolute;top:3px;right:3px;width:7px;height:7px;border-radius:50%;background:#ff3b3b;border:1.5px solid var(--surface)"></span>`:''}
-      </button>
+
       </button>
       <select onchange="chStatus('${r.id}',this.value)" style="width:auto;padding:6px 10px;font-size:12px" onclick="event.stopPropagation()">
         <option ${r.status==='No iniciado'?'selected':''}>No iniciado</option>
@@ -1620,24 +1584,10 @@ function updateSaveBtn(){
     }
   });
 
-  const needsMiniatura = newStatus === 'Listo para revisar';
-  const hasMiniatura = r.versions && r.versions.length > 0;
-  const blocked = needsMiniatura && !hasMiniatura;
-
-  if(blocked){
-    saveBtn.disabled = true;
-    saveBtn.style.opacity = '0.4';
-    saveBtn.style.cursor = 'not-allowed';
-    saveBtn.onmouseenter = ()=>{ if(tooltip) tooltip.style.display='block'; };
-    saveBtn.onmouseleave = ()=>{ if(tooltip) tooltip.style.display='none'; };
-  } else {
-    saveBtn.disabled = false;
-    saveBtn.style.opacity = '';
-    saveBtn.style.cursor = '';
-    saveBtn.onmouseenter = null;
-    saveBtn.onmouseleave = null;
-    if(tooltip) tooltip.style.display='none';
-  }
+  saveBtn.disabled = false;
+  saveBtn.style.opacity = '';
+  saveBtn.style.cursor = '';
+  if(tooltip) tooltip.style.display='none';
 }
 
 function cancelReqMo(){
@@ -1813,12 +1763,9 @@ function renderCReqs(cid){
   const el=document.getElementById('cl-all-reqs');if(!el)return;
   const rqs=gr(cid);
   el.innerHTML=rqs.length?[...rqs].reverse().map(r=>{
-    const unread = (r.comments||[]).filter(c=>c.authorRole==='admin'&&!(c.readBy||[]).includes('client')).length;
     return`<div class="rc"><div><div class="rt">${r.title}${r.refs&&r.refs.length?` <span style="font-size:11px;color:var(--accent)">📸 ${r.refs.length} ref.</span>`:''}</div><div class="rm"><span class="chip-pair">${sb(r.status)}${urgencyChip(r.deadline)}</span><span>🎨 ${r.style||'-'}</span><span>📅 ${fd(r.deadline)}</span></div></div>
     <div style="display:flex;gap:8px">
-      <button class="btn btn-g btn-sm chat-fab" onclick="openReqMoComments('${r.id}',event)" title="Chat" style="position:relative;padding:7px 10px">
-        💬${unread?`<span style="position:absolute;top:3px;right:3px;width:7px;height:7px;border-radius:50%;background:#ff3b3b;border:1.5px solid var(--surface)"></span>`:''}
-      </button>
+
       </button>
       <button class="btn btn-g btn-sm" onclick="openReqMo('${r.id}')">Ver / Editar</button>
     </div></div>`;}).join(''):`<div class="es"><div style="font-size:48px;opacity:.4">📋</div><p>No tenés pedidos aún.</p></div>`;
@@ -1936,8 +1883,6 @@ function openReqMo(rid){
       ${versionsHtml}
 
       <!-- Comentarios -->
-      <div style="height:1px;background:var(--border);margin:20px 0"></div>
-      ${buildCommentsHtml(r)}
     `;
 
     // Admin siempre ve el botón guardar
@@ -1978,9 +1923,7 @@ function openReqMo(rid){
           <div style="display:flex;flex-direction:column;gap:6px"><label>Estilo / Colores</label><div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:14px">${r.style||'—'}</div></div>
           <div style="display:flex;flex-direction:column;gap:6px"><label>Fecha límite</label><div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:14px">📅 ${r.deadline?fd(r.deadline):'—'}</div></div>
           ${refsHtml}${clientImgsHtml}
-        </div>
-        <div style="height:1px;background:var(--border);margin:20px 0"></div>
-        ${buildCommentsHtml(r)}`;
+        </div>`;
       document.getElementById('mo-save-btn').style.display='none';
     } else {
       // Cliente puede editar — No iniciado
@@ -1993,9 +1936,7 @@ function openReqMo(rid){
           <div style="display:flex;flex-direction:column;gap:6px"><label>Fecha límite</label><input id="mr-dl" type="date" value="${r.deadline}"></div>
           <div style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1"><label>Notas</label><textarea id="mr-n">${r.notes}</textarea></div>
           ${refsHtml}${clientImgsHtml}
-        </div>
-        <div style="height:1px;background:var(--border);margin:20px 0"></div>
-        ${buildCommentsHtml(r)}`;
+        </div>`;
       document.getElementById('mo-save-btn').style.display='';
       document.getElementById('mo-save-btn').onclick=()=>saveReq(rid);
     }
@@ -2474,236 +2415,6 @@ applyTheme();
 
 
 
-// Abre el modal del pedido y hace scroll a los comentarios
-function openReqMoComments(rid, e){
-  if(e) e.stopPropagation();
-  openReqMo(rid);
-  setTimeout(()=>{
-    const el = document.getElementById('comments-section');
-    if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
-  }, 200);
-}
-
-function buildCommentsHtml(r){
-  const comments = r.comments || [];
-  const topLevel = comments.filter(c => !c.replyTo);
-
-  const renderComment = (c, isReply=false) => {
-    const replies = comments.filter(x => x.replyTo === c.id);
-    const isMe = c.authorRole === role;
-    const label = c.authorRole === 'admin' ? '✏️ Diseñador' : '👤 ' + (gc(r.cid)?.name || 'Cliente');
-    const dt = new Date(c.createdAt);
-    const time = dt.toLocaleDateString('es-AR',{day:'2-digit',month:'short'}) + ' ' + dt.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-
-    return `<div style="display:flex;flex-direction:column;gap:6px;${isReply?'margin-left:28px;border-left:2px solid var(--border);padding-left:14px':''}">
-      <div style="background:${isMe?'rgba(255,77,0,.07)':'var(--surface2)'};border:1px solid ${isMe?'rgba(255,77,0,.2)':'var(--border)'};border-radius:12px;padding:12px 14px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <span style="font-size:11px;font-weight:700;color:${isMe?'var(--accent)':'var(--muted)'}">${label}</span>
-          <div style="display:flex;align-items:center;gap:10px">
-            <span style="font-size:11px;color:var(--muted)">${time}</span>
-            ${!isReply?`<button onclick="showReplyBox('${c.id}')" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--muted);padding:0;font-family:inherit" title="Responder">↩ Responder</button>`:''}
-          </div>
-        </div>
-        <div style="font-size:13px;color:var(--text);line-height:1.6">${escHtml(c.text)}</div>
-      </div>
-      ${replies.map(rep => renderComment(rep, true)).join('')}
-      <div id="reply-box-${c.id}" style="display:none;margin-left:28px;border-left:2px solid var(--border);padding-left:14px">
-        <div style="display:flex;gap:8px;align-items:flex-end">
-          <textarea placeholder="Escribí tu respuesta…" id="reply-input-${c.id}" style="flex:1;font-size:13px;min-height:60px;resize:vertical" onkeydown="if(event.key==='Enter'&&event.ctrlKey){event.preventDefault();submitComment('${r.id}','${c.id}')}"></textarea>
-          <div style="display:flex;flex-direction:column;gap:6px">
-            <button class="btn btn-p btn-sm" onclick="submitComment('${r.id}','${c.id}')">Enviar</button>
-            <button class="btn btn-g btn-sm" onclick="hideReplyBox('${c.id}')">✕</button>
-          </div>
-        </div>
-      </div>
-    </div>`;
-  };
-
-  return `<div id="comments-section">
-    <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-weight:600;margin-bottom:14px">
-      💬 Comentarios ${comments.length?`<span style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:2px 8px;font-size:10px;margin-left:6px">${comments.length}</span>`:''}
-    </div>
-
-    <div id="comments-list-${r.id}" style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px">
-      ${topLevel.length
-        ? topLevel.map(c => renderComment(c)).join('')
-        : `<div style="text-align:center;padding:24px;color:var(--muted);font-size:13px">Sin comentarios aún.<br>Sé el primero en dejar una nota.</div>`
-      }
-    </div>
-
-    <div style="display:flex;gap:8px;align-items:flex-end">
-      <textarea id="new-comment-input-${r.id}" placeholder="Dejá un comentario sobre esta miniatura… (Ctrl+Enter para enviar)" style="flex:1;font-size:13px;min-height:70px;resize:vertical"
-        onkeydown="if(event.key==='Enter'&&event.ctrlKey){event.preventDefault();submitComment('${r.id}',null)}"></textarea>
-      <button class="btn btn-p" onclick="submitComment('${r.id}',null)" style="flex-shrink:0;align-self:flex-end">Comentar</button>
-    </div>
-  </div>`;
-}
-
-function showReplyBox(commentId){
-  document.querySelectorAll('[id^="reply-box-"]').forEach(el => {
-    if(el.id !== `reply-box-${commentId}`) el.style.display = 'none';
-  });
-  const box = document.getElementById(`reply-box-${commentId}`);
-  if(box){ box.style.display = ''; box.querySelector('textarea')?.focus(); }
-}
-function hideReplyBox(commentId){
-  const box = document.getElementById(`reply-box-${commentId}`);
-  if(box) box.style.display = 'none';
-}
-
-async function submitComment(rid, replyToId){
-  const inputId = replyToId ? `reply-input-${replyToId}` : `new-comment-input-${rid}`;
-  const input = document.getElementById(inputId);
-  const text = input?.value?.trim();
-  if(!text) return;
-
-  const r = S.reqs.find(x=>x.id===rid); if(!r) return;
-  if(!r.comments) r.comments = [];
-
-  const newComment = {
-    id: 'cmt-' + Date.now(),
-    requestId: rid,
-    authorRole: role,
-    authorId: user?.id || role,
-    text,
-    replyTo: replyToId || null,
-    createdAt: new Date().toISOString(),
-    readBy: [role]
-  };
-
-  if(isSupabaseMode){
-    const {data, error} = await sb_client.from('comments').insert({
-      request_id: rid,
-      author_id: user.id,
-      author_role: role,
-      text,
-      reply_to: replyToId || null,
-      read_by: [role]
-    }).select().single();
-    if(error){ toast('❌ Error al comentar'); return; }
-    newComment.id = data.id;
-    newComment.createdAt = data.created_at;
-  }
-
-  r.comments.push(newComment);
-  input.value = '';
-  if(replyToId) hideReplyBox(replyToId);
-
-  // Re-render solo la sección de comentarios
-  const section = document.getElementById('comments-section');
-  if(section) section.outerHTML = buildCommentsHtml(r);
-
-  renderBadges();
-  toast('💬 Comentario agregado');
-}
-
-function renderBadges(){
-  if(role==='admin') renderAReqs();
-  else {
-    const cid = user?.clientId || S.clients.find(c=>!c.name.startsWith('[DEMO]'))?.id;
-    if(cid) renderCReqs(cid);
-  }
-  // Actualizar dot de bandeja
-  const otherRole = role==='admin' ? 'client' : 'admin';
-  const hasUnread = S.reqs.some(r=>(r.comments||[]).some(c=>c.authorRole===otherRole&&!(c.readBy||[]).includes(role)));
-  const dotId = role==='admin' ? 'inbox-dot' : 'inbox-dot-cl';
-  const dot = document.getElementById(dotId);
-  if(dot) dot.classList.toggle('show', hasUnread);
-}
-
-function escHtml(t){ return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
-
-
-/* ════ BANDEJA DE ENTRADA ════ */
-function toggleInboxPanel(){
-  ['inbox-panel','inbox-panel-cl'].forEach(id=>{
-    const el=document.getElementById(id); if(!el) return;
-    const opening = el.style.display==='none'||!el.style.display;
-    el.style.display = opening ? 'block' : 'none';
-    if(opening) renderInboxPanel();
-  });
-  // Cerrar panel de notifs si estaba abierto
-  const np=document.getElementById('notif-panel'); if(np) np.style.display='none';
-}
-
-function renderInboxPanel(){
-  const otherRole = role==='admin' ? 'client' : 'admin';
-  const unreadReqs = S.reqs
-    .map(r => ({r, cmts: (r.comments||[]).filter(c=>c.authorRole===otherRole&&!(c.readBy||[]).includes(role))}))
-    .filter(x=>x.cmts.length>0)
-    .sort((a,b)=> new Date(b.cmts[b.cmts.length-1].createdAt) - new Date(a.cmts[a.cmts.length-1].createdAt));
-
-  const listId = role==='admin' ? 'inbox-list' : 'inbox-list-cl';
-  const dotId  = role==='admin' ? 'inbox-dot'  : 'inbox-dot-cl';
-  const el = document.getElementById(listId); if(!el) return;
-  const dot = document.getElementById(dotId);
-  if(dot) dot.classList.toggle('show', unreadReqs.length > 0);
-
-  if(!unreadReqs.length){
-    el.innerHTML = `<div class="notif-empty">Sin comentarios nuevos</div>`;
-    return;
-  }
-  el.innerHTML = unreadReqs.map(({r, cmts})=>{
-    const c = gc(r.cid);
-    const last = cmts[cmts.length-1];
-    const preview = last.text.length>50 ? last.text.slice(0,48)+'…' : last.text;
-    const who = role==='admin' ? c?.name||'Cliente' : 'Tu diseñador';
-    const dt = new Date(last.createdAt);
-    const time = dt.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-    return `<div class="notif-item unread" onclick="openReqMoComments('${r.id}');closeInboxPanel()" style="cursor:pointer">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-        <div>
-          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px">💬 ${who}</div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:3px">${r.title.length>35?r.title.slice(0,33)+'…':r.title}</div>
-          <div style="font-size:12px;color:var(--text)">${preview}</div>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
-          <span style="font-size:10px;color:var(--muted)">${time}</span>
-          <span style="background:#ff3b3b;color:white;font-size:10px;font-weight:800;border-radius:10px;padding:1px 6px">${cmts.length}</span>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function closeInboxPanel(){
-  ['inbox-panel','inbox-panel-cl'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.style.display='none';
-  });
-}
-
-async function markAllChatsRead(){
-  const otherRole = role==='admin' ? 'client' : 'admin';
-  const now = new Date().toISOString();
-  const allIds = [];
-  S.reqs.forEach(r=>{
-    if(!r.comments) return;
-    r.comments.filter(c=>c.authorRole===otherRole&&!(c.readBy||[]).includes(role)).forEach(c=>{
-      if(!c.readBy) c.readBy = [];
-      c.readBy.push(role);
-      allIds.push(c.id);
-    });
-  });
-  if(isSupabaseMode && allIds.length){
-    // Marcar como leídos en Supabase usando array_append
-    for(const id of allIds){
-      await sb_client.from('comments').update({read_by: sb_client.rpc ? undefined : null}).eq('id',id);
-    }
-  }
-  renderInboxPanel();
-  renderBadges();
-}
-
-// Cerrar paneles al click afuera
-document.addEventListener('click', e=>{
-  const inboxIds = ['inbox-btn','inbox-btn-cl','inbox-panel','inbox-panel-cl'];
-  const notifIds = ['notif-btn','notif-panel'];
-  const clickedInbox = inboxIds.some(id=>document.getElementById(id)?.contains(e.target));
-  const clickedNotif = notifIds.some(id=>document.getElementById(id)?.contains(e.target));
-  if(!clickedInbox) closeInboxPanel();
-  if(!clickedNotif){ const np=document.getElementById('notif-panel'); if(np) np.style.display='none'; }
-});
-
 function buildVersionsHtml(r, isAdmin){
   const versions = r.versions||[];
   if(!versions.length && !isAdmin) return '';
@@ -2717,7 +2428,7 @@ function buildVersionsHtml(r, isAdmin){
         <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px">🎨 Miniaturas entregadas</span>
         ${versions.length?`<span style="background:rgba(45,202,115,.15);color:var(--green);font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px">${versions.length} versión${versions.length>1?'es':''}</span>`:''}
       </div>
-      ${isAdmin?`<button class="btn btn-p btn-sm" onclick="openDeliverMo('${r.id}')" ${r.status!=='Listo para revisar'?`disabled title="Cambiá el estado a 'Listo para revisar' para subir la miniatura" style="opacity:.4;cursor:not-allowed"`:''}>+ Subir versión</button>`:''}
+      ${isAdmin?`<button class="btn btn-p btn-sm" onclick="openDeliverMo('${r.id}')">+ Subir versión</button>`:''}
     </div>`;
 
   if(!versions.length){
