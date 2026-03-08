@@ -41,6 +41,11 @@
   .ob-skip{font-size:12px;color:var(--muted);cursor:pointer;position:absolute;top:16px;right:20px;padding:4px 8px;}
   .ob-skip:hover{color:var(--text);}
 
+  /* APPROVAL MODAL */
+  .ap-ver-row{display:flex;align-items:center;gap:12px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px 14px;}
+  .ap-ver-img{width:80px;height:45px;object-fit:cover;border-radius:6px;border:1px solid var(--border);flex-shrink:0;}
+  .ap-ver-dl{margin-left:auto;flex-shrink:0;}
+
   /* CHANNEL AVATAR */
   .ch-avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--border);flex-shrink:0;}
   .ch-avatar-fallback{width:44px;height:44px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:white;flex-shrink:0;}
@@ -913,6 +918,22 @@
     </div>
     <div class="mf" id="deliver-footer">
       <button class="btn btn-g" id="deliver-cancel-btn" onclick="closeMo('mo-deliver')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL APROBACIÓN EXITOSA -->
+<div class="mo" id="mo-approved">
+  <div class="md" style="width:560px;text-align:center">
+    <div style="padding:32px 32px 0">
+      <div style="font-size:56px;margin-bottom:8px">🎉</div>
+      <div style="font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#2dca73;margin-bottom:6px">¡Miniatura aprobada!</div>
+      <div id="ap-subtitle" style="font-size:14px;color:var(--muted);margin-bottom:24px">Tu diseñador va a estar muy contento 🚀</div>
+      <div id="ap-versions" style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;text-align:left"></div>
+    </div>
+    <div class="mf" style="border-top:1px solid var(--border);padding:16px 24px">
+      <button class="btn btn-g" onclick="closeMo('mo-approved')">Cerrar</button>
+      <button id="ap-dl-all" class="btn btn-p" onclick="downloadAllVersions()" style="display:none">⬇ Descargar todas</button>
     </div>
   </div>
 </div>
@@ -2058,17 +2079,23 @@ function _openReqMoRender(rid){
       <div style="margin-bottom:20px">
         <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-weight:600;margin-bottom:10px">Estado del pedido</div>
         <div style="display:flex;flex-wrap:wrap;gap:8px" id="chips-st">
-          ${Object.entries(statusCfg).map(([st, cfg])=>`
-            <div onclick="document.getElementById('mr-st').value='${st}';updateSaveBtn()"
-              data-st="${st}"
-              style="display:inline-flex;align-items:center;gap:7px;padding:7px 16px;border-radius:20px;cursor:pointer;transition:all .18s;
-                border:2px solid ${r.status===st?cfg.hex:'var(--border)'};
-                background:${r.status===st?cfg.bg:'transparent'};
-                font-size:13px;font-weight:600;
-                color:${r.status===st?cfg.color:'var(--muted)'}">
-              ${r.status===st?`<span style="width:7px;height:7px;border-radius:50%;background:${cfg.hex};flex-shrink:0;animation:liveDot 1.8s ease-in-out infinite"></span>`:`<span>${cfg.icon}</span>`}
-              ${st}
-            </div>`).join('')}
+          ${r.status==='Completado'
+            ? `<div style="display:inline-flex;align-items:center;gap:7px;padding:7px 16px;border-radius:20px;border:2px solid #2dca73;background:rgba(45,202,115,.1);font-size:13px;font-weight:600;color:#2dca73">
+                <span style="width:7px;height:7px;border-radius:50%;background:#2dca73;flex-shrink:0"></span>Completado
+               </div>
+               <div style="font-size:12px;color:var(--muted);align-self:center;margin-left:4px">✓ Aprobado por el cliente</div>`
+            : Object.entries(statusCfg).filter(([st])=>st!=='Completado').map(([st, cfg])=>`
+              <div onclick="document.getElementById('mr-st').value='${st}';updateSaveBtn()"
+                data-st="${st}"
+                style="display:inline-flex;align-items:center;gap:7px;padding:7px 16px;border-radius:20px;cursor:pointer;transition:all .18s;
+                  border:2px solid ${r.status===st?cfg.hex:'var(--border)'};
+                  background:${r.status===st?cfg.bg:'transparent'};
+                  font-size:13px;font-weight:600;
+                  color:${r.status===st?cfg.color:'var(--muted)'}">
+                ${r.status===st?`<span style="width:7px;height:7px;border-radius:50%;background:${cfg.hex};flex-shrink:0;animation:liveDot 1.8s ease-in-out infinite"></span>`:`<span>${cfg.icon}</span>`}
+                ${st}
+              </div>`).join('')
+          }
         </div>
         <select id="mr-st" style="display:none">
           <option ${r.status==='No iniciado'?'selected':''}>No iniciado</option>
@@ -2914,7 +2941,9 @@ async function submitReview(decision){
       await dbUpdateRequest(reviewingRid,{status:'Completado'});
     }
     closeMo('mo-review');
-    toast('✓ ¡Miniatura aprobada! 🎉');
+    closeMo('mo-req');
+    // Show approval success modal
+    showApprovalModal(r);
   } else {
     if(isSupabaseMode){
       if(v.id) await dbUpdateVersion(v.id,{status:decision,comment:v.comment,annotation:v.annotation});
@@ -2925,6 +2954,38 @@ async function submitReview(decision){
   const cid=isSupabaseMode?S.clients[0]?.id:'c1';
   renderCDash(cid);
   renderADash(); renderAReqs(); renderAClients();
+}
+
+function showApprovalModal(r){
+  document.getElementById('ap-subtitle').textContent = `"${r.title}" — tu diseñador va a estar muy contento 🚀`;
+  const vers = (r.versions||[]).filter(v=>v.img);
+  const dlAll = document.getElementById('ap-dl-all');
+  dlAll.style.display = vers.length > 1 ? 'inline-flex' : 'none';
+  dlAll.setAttribute('data-rid', r.id);
+  document.getElementById('ap-versions').innerHTML = vers.map((v,i)=>`
+    <div class="ap-ver-row">
+      <img class="ap-ver-img" src="${v.img}" alt="Versión ${i+1}">
+      <div>
+        <div style="font-size:13px;font-weight:600">Versión ${i+1}</div>
+        <div style="font-size:11px;color:var(--muted)">${v.date||''}</div>
+      </div>
+      <a class="btn btn-g btn-sm ap-ver-dl" href="${v.img}" download="miniatura-v${i+1}.jpg" target="_blank">⬇ Descargar</a>
+    </div>`).join('');
+  openMo('mo-approved');
+}
+
+async function downloadAllVersions(){
+  const rid = document.getElementById('ap-dl-all').getAttribute('data-rid');
+  const r = S.reqs.find(x=>x.id===rid); if(!r) return;
+  const vers = (r.versions||[]).filter(v=>v.img);
+  for(let i=0;i<vers.length;i++){
+    const a = document.createElement('a');
+    a.href = vers[i].img;
+    a.download = `miniatura-v${i+1}.jpg`;
+    a.target = '_blank';
+    a.click();
+    await new Promise(res=>setTimeout(res,400));
+  }
 }
 
 /* ════════════════════════
