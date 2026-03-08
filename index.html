@@ -698,13 +698,19 @@
 
 <div class="mo" id="mo-req">
   <div class="md" style="width:620px">
-    <div class="mh"><div class="mt">Detalle del pedido</div><button class="mc" onclick="closeMo('mo-req')">✕</button></div>
+    <div class="mh"><div class="mt">Detalle del pedido</div><button class="mc" onclick="cancelReqMo()">✕</button></div>
     <div id="mo-req-body"></div>
     <div class="mf">
       <button class="btn btn-g" id="mo-delete-btn" style="color:var(--red);border-color:rgba(255,77,77,.3);display:none" onclick="deleteReq()">🗑 Eliminar</button>
       <div style="flex:1"></div>
-      <button class="btn btn-g" onclick="closeMo('mo-req')">Cerrar</button>
-      <button class="btn btn-p" id="mo-save-btn">Guardar cambios</button>
+      <button class="btn btn-g" id="mo-cancel-btn" onclick="cancelReqMo()">Cancelar</button>
+      <div id="mo-save-wrap" style="position:relative;display:inline-block">
+        <button class="btn btn-p" id="mo-save-btn">Guardar cambios</button>
+        <div id="mo-save-tooltip" style="display:none;position:absolute;bottom:calc(100% + 8px);right:0;background:#1a1a24;border:1px solid var(--red);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--red);white-space:nowrap;pointer-events:none;z-index:10">
+          ⚠️ Debés cargar la miniatura primero
+          <div style="position:absolute;bottom:-5px;right:16px;width:8px;height:8px;background:#1a1a24;border-right:1px solid var(--red);border-bottom:1px solid var(--red);transform:rotate(45deg)"></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1501,6 +1507,46 @@ function updateAdminWorkload(){
    MODALES NATIVOS — confirm / alert
 ═══════════════════════════════════ */
 let _confirmResolve=null,_confirmReject=null;
+let _reqOriginalStatus=null;
+
+function updateSaveBtn(){
+  const r = S.reqs.find(x=>x.id===viewRid); if(!r) return;
+  const stEl = document.getElementById('mr-st');
+  const newStatus = stEl ? stEl.value : r.status;
+  const saveBtn = document.getElementById('mo-save-btn');
+  const tooltip = document.getElementById('mo-save-tooltip');
+  if(!saveBtn) return;
+
+  const needsMiniatura = newStatus === 'Listo para revisar';
+  const hasMiniatura = r.versions && r.versions.length > 0;
+  const blocked = needsMiniatura && !hasMiniatura;
+
+  if(blocked){
+    saveBtn.disabled = true;
+    saveBtn.style.opacity = '0.4';
+    saveBtn.style.cursor = 'not-allowed';
+    // Mostrar tooltip al hover
+    saveBtn.onmouseenter = ()=>{ if(tooltip) tooltip.style.display='block'; };
+    saveBtn.onmouseleave = ()=>{ if(tooltip) tooltip.style.display='none'; };
+  } else {
+    saveBtn.disabled = false;
+    saveBtn.style.opacity = '';
+    saveBtn.style.cursor = '';
+    saveBtn.onmouseenter = null;
+    saveBtn.onmouseleave = null;
+    if(tooltip) tooltip.style.display='none';
+  }
+}
+
+function cancelReqMo(){
+  // Revertir el status al original si el admin cambió el select sin guardar
+  if(_reqOriginalStatus !== null){
+    const r = S.reqs.find(x=>x.id===viewRid);
+    if(r) r.status = _reqOriginalStatus;
+    _reqOriginalStatus = null;
+  }
+  closeMo('mo-req');
+}
 function appConfirm({title='¿Estás seguro?', msg='', icon='⚠️', okLabel='Confirmar', okStyle=''}){
   return new Promise((resolve,reject)=>{
     _confirmResolve=resolve; _confirmReject=reject;
@@ -1658,6 +1704,9 @@ function openReqMo(rid){
   const r=S.reqs.find(x=>x.id===rid);if(!r)return;
   viewRid=rid;const c=gc(r.cid),isA=role==='admin';
 
+  // Guardar estado original para poder cancelar
+  _reqOriginalStatus = r.status;
+
   const versionsHtml = buildVersionsHtml(r, isA);
 
   // Referencias YouTube — clicables para lightbox
@@ -1708,7 +1757,7 @@ function openReqMo(rid){
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
           <label>Estado</label>
-          <select id="mr-st" onchange="chStatus('${r.id}',this.value)" style="font-size:14px">
+          <select id="mr-st" onchange="updateSaveBtn()" style="font-size:14px">
             <option ${r.status==='No iniciado'?'selected':''}>No iniciado</option>
             <option ${r.status==='En progreso'?'selected':''}>En progreso</option>
             <option ${r.status==='Listo para revisar'?'selected':''}>Listo para revisar</option>
@@ -1722,11 +1771,16 @@ function openReqMo(rid){
         ${refsHtml}
         ${clientImgsHtml}
       </div>`;
-    document.getElementById('mo-save-btn').style.display='none';
+    // Admin siempre ve el botón guardar
+    const saveBtn = document.getElementById('mo-save-btn');
+    saveBtn.style.display = '';
+    saveBtn.onclick = ()=>saveReq(rid);
     // Admin puede borrar solo si no está Completado
     const delBtn = document.getElementById('mo-delete-btn');
     delBtn.style.display = r.status!=='Completado' ? '' : 'none';
     delBtn.onclick = ()=>deleteReq(rid);
+    // Evaluar si el botón guardar debe estar habilitado
+    updateSaveBtn();
   } else {
     const isLocked = r.status==='En progreso'||r.status==='Listo para revisar'||r.status==='Completado';
     const isCompleted = r.status==='Completado';
@@ -1803,16 +1857,40 @@ async function deleteReq(rid){
 }
 async function saveReq(rid){
   const r=S.reqs.find(x=>x.id===rid);if(!r)return;
-  r.title=document.getElementById('mr-t').value;
-  r.desc=document.getElementById('mr-d').value;
-  r.style=document.getElementById('mr-s').value;
-  r.deadline=document.getElementById('mr-dl').value;
-  r.notes=document.getElementById('mr-n').value;
-  if(role==='admin')r.status=document.getElementById('mr-st').value;
-  if(isSupabaseMode) await dbUpdateRequest(rid,{title:r.title,desc:r.desc,style:r.style,deadline:r.deadline,notes:r.notes,status:r.status});
-  closeMo('mo-req');toast('✓ Pedido actualizado');
-  const cid=isSupabaseMode&&role==='client'?S.clients[0].id:'c1';
-  if(role==='admin'){renderADash();renderAReqs();}else{renderCDash(cid);}
+
+  if(role==='admin'){
+    // Admin: solo modifica el estado (los demás campos son solo lectura)
+    const newStatus = document.getElementById('mr-st')?.value;
+    if(newStatus){
+      // Validación: no puede poner Listo para revisar sin miniatura
+      if(newStatus==='Listo para revisar' && (!r.versions||r.versions.length===0)){
+        toast('⚠️ Subí la miniatura antes de marcarla como lista');
+        return;
+      }
+      const oldStatus = r.status;
+      r.status = newStatus;
+      if(isSupabaseMode) await dbUpdateRequest(rid,{status:r.status});
+      // Notificar por realtime si cambió
+      if(oldStatus !== newStatus) renderADash();
+    }
+  } else {
+    // Cliente: puede editar todos los campos
+    r.title=document.getElementById('mr-t')?.value||r.title;
+    r.desc=document.getElementById('mr-d')?.value||r.desc;
+    r.style=document.getElementById('mr-s')?.value||r.style;
+    r.deadline=document.getElementById('mr-dl')?.value||r.deadline;
+    r.notes=document.getElementById('mr-n')?.value||r.notes;
+    if(isSupabaseMode) await dbUpdateRequest(rid,{title:r.title,desc:r.desc,style:r.style,deadline:r.deadline,notes:r.notes});
+  }
+
+  _reqOriginalStatus = null;
+  closeMo('mo-req');
+  toast('✓ Pedido actualizado');
+  if(role==='admin'){renderADash();renderAReqs();}
+  else{
+    const cid = user?.clientId||S.clients.find(c=>!c.name.startsWith('[DEMO]'))?.id||'c1';
+    renderCDash(cid);
+  }
 }
 function openClMo(cid){
   viewCid=cid;const c=gc(cid);if(!c)return;
@@ -2328,11 +2406,11 @@ async function submitDelivery(){
     date:new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric'}),
     status:'pendiente',comment:'',annotation:null
   });
-  r.status='En revisión';
-  closeMo('mo-deliver');closeMo('mo-req');
-  toast('✓ Miniatura enviada al cliente');
+  closeMo('mo-deliver');
+  toast('✓ Miniatura subida');
   renderADash();renderAReqs();
-  setTimeout(()=>openReqMo(currentDeliverRid),300);
+  // Reabrir el modal del pedido con la miniatura ya cargada
+  setTimeout(()=>{ openReqMo(currentDeliverRid); }, 300);
 }
 
 async function submitReview(decision){
