@@ -92,7 +92,8 @@
   .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
 
   /* LAYOUT */
-  .app-layout{display:grid;grid-template-columns:240px 1fr;grid-template-rows:56px 1fr;min-height:100vh;}
+  .app-layout{display:grid;grid-template-columns:240px 1fr;grid-template-rows:56px 1fr;min-height:100vh;transition:grid-template-columns .2s ease;}
+  .app-layout.sidebar-collapsed{grid-template-columns:60px 1fr;}
   .topbar{grid-column:1/-1;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:10px;overflow:hidden;}
   .topbar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;flex-shrink:0;}
   .topbar-logo span{color:var(--accent);}
@@ -107,7 +108,13 @@
   .theme-switch-thumb{position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:var(--muted);transition:transform .2s,background .2s;}
   .light-mode .theme-switch-thumb{transform:translateX(14px);background:var(--accent);}
   .theme-switch-icon{font-size:13px;line-height:1;}
-  .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:20px 12px;display:flex;flex-direction:column;gap:4px;}
+  .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:20px 12px;display:flex;flex-direction:column;gap:4px;overflow:hidden;transition:padding .2s ease;}
+  .sidebar-collapsed .sidebar{padding:12px 8px;align-items:center;}
+  .sidebar-toggle{background:none;border:1px solid var(--border);border-radius:8px;padding:5px 8px;cursor:pointer;color:var(--muted);font-size:14px;margin-bottom:8px;width:100%;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+  .sidebar-toggle:hover{background:var(--surface2);color:var(--text);}
+  .sidebar-collapsed .nav-label-text,.sidebar-collapsed .nav-item-text,.sidebar-collapsed .nav-lbl,.sidebar-collapsed .nav-badge{display:none;}
+  .sidebar-collapsed .nav-item{justify-content:center;padding:10px;width:100%;}
+  .sidebar-collapsed .nav-icon{font-size:18px;margin:0;}
   .nav-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);padding:8px 12px 4px;font-weight:600;}
   .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);transition:all .15s;border:none;background:none;width:100%;text-align:left;}
   .nav-item:hover{background:var(--surface2);color:var(--text);}
@@ -571,22 +578,23 @@
       </label>
       <button class="logout-btn" onclick="logout()">Salir</button>
     </div>
-    <div class="sidebar">
+    <div class="sidebar" id="admin-sidebar">
+      <button class="sidebar-toggle" onclick="toggleSidebar('admin')" title="Contraer/expandir">◀</button>
       <span class="nav-lbl">Principal</span>
-      <button class="nav-item active" onclick="showPanel('admin','dashboard',this)"><span class="nav-icon">◼</span> Dashboard</button>
-      <button class="nav-item" onclick="showPanel('admin','clientes',this)"><span class="nav-icon">👥</span> Clientes <span class="nav-badge" id="badge-cl">3</span></button>
-      <button class="nav-item" onclick="showPanel('admin','pedidos',this)"><span class="nav-icon">📋</span> Pedidos <span class="nav-badge" id="badge-pe">2</span></button>
+      <button class="nav-item active" onclick="showPanel('admin','dashboard',this)" title="Dashboard"><span class="nav-icon">◼</span><span class="nav-item-text"> Dashboard</span></button>
+      <button class="nav-item" onclick="showPanel('admin','clientes',this)" title="Clientes"><span class="nav-icon">👥</span><span class="nav-item-text"> Clientes</span> <span class="nav-badge" id="badge-cl">3</span></button>
+      <button class="nav-item" onclick="showPanel('admin','pedidos',this)" title="Pedidos"><span class="nav-icon">📋</span><span class="nav-item-text"> Pedidos</span> <span class="nav-badge" id="badge-pe">2</span></button>
       <span class="nav-lbl">Finanzas</span>
-      <button class="nav-item" onclick="showPanel('admin','pagos',this)"><span class="nav-icon">💰</span> Pagos</button>
+      <button class="nav-item" onclick="showPanel('admin','pagos',this)" title="Pagos"><span class="nav-icon">💰</span><span class="nav-item-text"> Pagos</span></button>
     </div>
     <div class="main-content">
       <div class="panel active" id="admin-panel-dashboard">
         <div class="page-header"><div class="page-title">Dashboard</div><div class="page-sub">Resumen general de tu estudio</div></div>
         <div class="stats-grid">
-          <div class="stat-card"><div class="stat-lbl">Clientes activos</div><div class="stat-val c-blue">3</div><div class="stat-sub">Total registrados</div></div>
-          <div class="stat-card"><div class="stat-lbl">Pedidos pendientes</div><div class="stat-val c-yellow" id="dash-p">2</div><div class="stat-sub">Esperando entrega</div></div>
-          <div class="stat-card"><div class="stat-lbl">Miniaturas entregadas</div><div class="stat-val c-green" id="dash-d">18</div><div class="stat-sub">Este mes: 7</div></div>
-          <div class="stat-card"><div class="stat-lbl">Ingresos totales</div><div class="stat-val" style="font-size:24px">$1.480</div><div class="stat-sub c-green">+$240 este mes</div></div>
+          <div class="stat-card"><div class="stat-lbl">Clientes activos</div><div class="stat-val c-blue" id="dash-cl">—</div><div class="stat-sub">Total registrados</div></div>
+          <div class="stat-card"><div class="stat-lbl">Pedidos pendientes</div><div class="stat-val c-yellow" id="dash-p">—</div><div class="stat-sub">Esperando entrega</div></div>
+          <div class="stat-card"><div class="stat-lbl">Miniaturas entregadas</div><div class="stat-val c-green" id="dash-d">—</div><div class="stat-sub" id="dash-d-sub">Este mes: 0</div></div>
+          <div class="stat-card"><div class="stat-lbl">Ingresos totales</div><div class="stat-val" id="dash-rev" style="font-size:24px">—</div><div class="stat-sub c-green" id="dash-rev-sub">Este mes: $0</div></div>
         </div>
         <div class="card"><div class="card-title">Pedidos recientes <button class="btn btn-p btn-sm" onclick="showPanel('admin','pedidos',null)">Ver todos</button></div><div id="a-recent"></div></div>
         <div class="card"><div class="card-title">Estado de clientes</div><table><thead><tr><th>Cliente</th><th>Pack</th><th>Uso</th><th>Pago</th><th></th></tr></thead><tbody id="a-cl-sum"></tbody></table></div>
@@ -634,13 +642,14 @@
       </label>
       <button class="logout-btn" onclick="logout()">Salir</button>
     </div>
-    <div class="sidebar">
+    <div class="sidebar" id="client-sidebar">
+      <button class="sidebar-toggle" onclick="toggleSidebar('client')" title="Contraer/expandir">◀</button>
       <span class="nav-lbl">Mi cuenta</span>
-      <button class="nav-item active" onclick="showPanel('client','inicio',this)"><span class="nav-icon">◼</span> Inicio</button>
-      <button class="nav-item" onclick="showPanel('client','pedidos',this)"><span class="nav-icon">📋</span> Mis pedidos</button>
-      <button class="nav-item" id="nav-nuevo" onclick="showPanel('client','nuevo',this)"><span class="nav-icon">✚</span> Nuevo pedido</button>
+      <button class="nav-item active" onclick="showPanel('client','inicio',this)" title="Inicio"><span class="nav-icon">◼</span><span class="nav-item-text"> Inicio</span></button>
+      <button class="nav-item" onclick="showPanel('client','pedidos',this)" title="Mis pedidos"><span class="nav-icon">📋</span><span class="nav-item-text"> Mis pedidos</span></button>
+      <button class="nav-item" id="nav-nuevo" onclick="showPanel('client','nuevo',this)" title="Nuevo pedido"><span class="nav-icon">✚</span><span class="nav-item-text"> Nuevo pedido</span></button>
       <span class="nav-lbl">Cuenta</span>
-      <button class="nav-item" onclick="showPanel('client','pack',this)"><span class="nav-icon">📦</span> Mi pack</button>
+      <button class="nav-item" onclick="showPanel('client','pack',this)" title="Mi pack"><span class="nav-icon">📦</span><span class="nav-item-text"> Mi pack</span></button>
     </div>
     <div class="main-content">
       <div class="panel active" id="client-panel-inicio">
@@ -1159,10 +1168,11 @@ function startRealtime(){
         const r = payload.new;
         const idx = S.reqs.findIndex(x=>x.id===r.id);
         if(idx>=0){
-          // No pisar si el modal está abierto O si estamos en período de bloqueo post-upload
           const blocked = viewRid === r.id || Date.now() < _blockRealtimeUntil;
           if(!blocked) S.reqs[idx].status = r.status;
           S.reqs[idx].title = r.title;
+          // Refresh dashboard live when any request changes (e.g. client approves)
+          renderADash(); renderAReqs(); renderAClients();
         }
         renderADash(); renderAReqs();
       })
@@ -1262,6 +1272,7 @@ async function handleSession(session){
     user = { name, role, email, id: session.user.id };
     await loadClientData(session.user.id);
     showScreen('screen-client');
+    restoreSidebar('client');
     setTimeout(()=>obShow(), 800);
   }
 }
@@ -1303,6 +1314,7 @@ function login(name){
     document.getElementById('admin-av').textContent=name[0];
     document.getElementById('admin-un').textContent=name;
     renderADash();renderAClients();renderAReqs();renderAPays();
+    restoreSidebar('admin');
     setTimeout(()=>{ checkReminders(); }, 800);
   }else{
     const c=gc('c1');
@@ -1310,6 +1322,7 @@ function login(name){
     document.getElementById('cl-un').textContent=c.name;
     document.getElementById('cl-welcome').textContent=`Hola, ${c.name.split(' ')[0]} 👋`;
     renderCDash('c1');
+    restoreSidebar('client');
     setTimeout(()=>obShow(), 800);
   }
 }
@@ -1520,6 +1533,24 @@ async function dbAddPayment(clientId, amount, method){
 }
 
 
+function toggleSidebar(panel){
+  const layout = document.querySelector('#screen-'+panel+' .app-layout');
+  if(!layout) return;
+  const collapsed = layout.classList.toggle('sidebar-collapsed');
+  const btn = document.querySelector('#screen-'+panel+' .sidebar-toggle');
+  if(btn) btn.textContent = collapsed ? '▶' : '◀';
+  localStorage.setItem('tf-sidebar-'+panel, collapsed?'1':'0');
+}
+function restoreSidebar(panel){
+  if(localStorage.getItem('tf-sidebar-'+panel)==='1'){
+    const layout = document.querySelector('#screen-'+panel+' .app-layout');
+    if(layout){ layout.classList.add('sidebar-collapsed');
+      const btn = document.querySelector('#screen-'+panel+' .sidebar-toggle');
+      if(btn) btn.textContent = '▶';
+    }
+  }
+}
+
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 function showPanel(sc,name,btn){
   document.querySelectorAll(`#screen-${sc} .panel`).forEach(p=>p.classList.remove('active'));
@@ -1532,8 +1563,28 @@ function closeMo(id){document.getElementById(id).classList.remove('open');}
 
 /* ADMIN */
 function renderADash(){
-  const pending=S.reqs.filter(r=>r.status!=='Completado').length;
+  const activeClients = S.clients.filter(c=>!c.archived).length;
+  const pending = S.reqs.filter(r=>r.status!=='Completado').length;
+  // Miniaturas entregadas = pedidos Completados (cada uno = 1 miniatura)
+  const delivered = S.reqs.filter(r=>r.status==='Completado').length;
+  // Ingresos = suma de pagos registrados con estado 'Pagado'
+  const now = new Date();
+  const thisMonth = now.getMonth(); const thisYear = now.getFullYear();
+  let totalRev = 0, monthRev = 0;
+  S.clients.forEach(cl=>{
+    (cl.payments||[]).forEach(p=>{
+      if(p.s==='Pagado'){ totalRev+=parseFloat(p.a)||0;
+        const pd = new Date(p.d);
+        if(pd.getMonth()===thisMonth&&pd.getFullYear()===thisYear) monthRev+=parseFloat(p.a)||0;
+      }
+    });
+  });
+  const el_cl=document.getElementById('dash-cl'); if(el_cl) el_cl.textContent=activeClients;
   const dp=document.getElementById('dash-p');if(dp)dp.textContent=pending;
+  const dd=document.getElementById('dash-d');if(dd)dd.textContent=delivered;
+  const dds=document.getElementById('dash-d-sub');if(dds) dds.textContent='Total aprobadas';
+  const dr=document.getElementById('dash-rev');if(dr)dr.textContent='$'+totalRev.toLocaleString('es-AR');
+  const drs=document.getElementById('dash-rev-sub');if(drs)drs.textContent='Este mes: $'+monthRev.toLocaleString('es-AR');
   document.getElementById('a-recent').innerHTML=[...S.reqs].reverse().slice(0,3).map(r=>{
     const c=gc(r.cid);
     return`<div class="rc"><div><div class="rt">${r.title}</div><div class="rm"><span>👤 ${c?.name}</span><span>📅 ${fd(r.deadline)}</span><span class="chip-pair">${sb(r.status)}${urgencyChip(r.deadline)}</span></div></div><button class="btn btn-g btn-sm" onclick="openReqMo('${r.id}')">Ver</button></div>`;
