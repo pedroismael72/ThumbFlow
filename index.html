@@ -2620,18 +2620,23 @@ async function submitDelivery(){
     }
     // Completar la barra al 100%
     progressBar.style.width='100%'; progressPct.textContent='100%';
-    await dbAddVersion(currentDeliverRid,imgUrl);
+    const newVer = await dbAddVersion(currentDeliverRid,imgUrl);
     // status no se toca al subir miniatura — el admin lo controla manualmente
+    r.versions.push({
+      id: newVer?.id || null, // guardar id para poder borrar después
+      img:imgUrl,
+      date:new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric'}),
+      status:'pendiente',comment:'',annotation:null
+    });
   } else {
     clearInterval(fakeInterval);
     progressBar.style.width='100%'; progressPct.textContent='100%';
+    r.versions.push({
+      img:imgUrl,
+      date:new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric'}),
+      status:'pendiente',comment:'',annotation:null
+    });
   }
-
-  r.versions.push({
-    img:imgUrl,
-    date:new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric'}),
-    status:'pendiente',comment:'',annotation:null
-  });
   const _ridToReopen = currentDeliverRid;
   const _statusToKeep = r.status; // preservar status
   // Breve pausa para mostrar 100% antes de cerrar
@@ -2673,12 +2678,13 @@ async function submitReview(decision){
   v.status=decision;
   v.comment=document.getElementById('rev-comment').value;
   v.annotation=annStrokes.length?JSON.stringify(annStrokes):null;
-  if(decision==='aprobado') r.status='Aprobado';
-  else r.status='En progreso';
+  if(decision==='aprobado') r.status='Completado';
+  // Con 'cambios' mantenemos el status actual — el admin decide cuándo cambiar
+  // else: no tocamos r.status
 
   if(isSupabaseMode){
     if(v.id) await dbUpdateVersion(v.id,{status:decision,comment:v.comment,annotation:v.annotation});
-    await dbUpdateRequest(reviewingRid,{status:r.status});
+    if(decision==='aprobado') await dbUpdateRequest(reviewingRid,{status:'Completado'});
   }
 
   closeMo('mo-review');
