@@ -1584,6 +1584,23 @@ function updateSaveBtn(){
   const _needsMini = newStatus === 'Listo para revisar';
   const _hasMini = r.versions && r.versions.length > 0;
   const _blocked = _needsMini && !_hasMini;
+
+  // Habilitar/deshabilitar botón "Subir versión" según estado seleccionado en chips
+  const uploadBtn = document.querySelector('.delivery-section .btn-p');
+  if(uploadBtn){
+    if(newStatus === 'Listo para revisar'){
+      uploadBtn.disabled = false;
+      uploadBtn.style.opacity = '';
+      uploadBtn.style.cursor = '';
+      uploadBtn.title = '';
+    } else {
+      uploadBtn.disabled = true;
+      uploadBtn.style.opacity = '0.4';
+      uploadBtn.style.cursor = 'not-allowed';
+      uploadBtn.title = "Cambiá el estado a 'Listo para revisar' para subir la miniatura";
+    }
+  }
+
   if(_blocked){
     saveBtn.disabled = true;
     saveBtn.style.opacity = '0.4';
