@@ -2199,22 +2199,58 @@ async function saveReq(rid){
 function openClMo(cid){
   viewCid=cid;const c=gc(cid);if(!c)return;
   const rqs=gr(cid);
-  document.getElementById('mo-cl-title').textContent=c.name;
+  document.getElementById('mo-cl-title').textContent='Editar cliente';
   document.getElementById('mo-cl-body').innerHTML=`
     <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
       <div class="stat-card"><div class="stat-lbl">Pack</div><div class="stat-val c-blue" style="font-size:22px">${c.pack===99?'∞':c.pack}</div><div class="stat-sub">miniaturas</div></div>
       <div class="stat-card"><div class="stat-lbl">Usadas</div><div class="stat-val ${c.used>=c.pack&&c.pack!==99?'c-red':'c-green'}" style="font-size:22px">${c.used}</div><div class="stat-sub">de ${c.pack===99?'∞':c.pack}</div></div>
       <div class="stat-card"><div class="stat-lbl">Pago</div><div style="margin-top:6px">${pb(c.pay)}</div><div class="stat-sub">$${c.price}/ciclo</div></div>
     </div>
+
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Datos del cliente</div>
     <div class="fg" style="margin-bottom:16px">
-      <div style="display:flex;flex-direction:column;gap:6px"><label>Email</label><input value="${c.email}" disabled style="opacity:.5"></div>
-      <div style="display:flex;flex-direction:column;gap:6px"><label>Canal</label><input value="${c.ch}" disabled style="opacity:.5"></div>
-      <div style="display:flex;flex-direction:column;gap:6px"><label>Pack</label><select id="ep"><option value="4" ${c.pack==4?'selected':''}>Básico (4)</option><option value="8" ${c.pack==8?'selected':''}>Estándar (8)</option><option value="16" ${c.pack==16?'selected':''}>Pro (16)</option><option value="99" ${c.pack==99?'selected':''}>Ilimitado</option></select></div>
-      <div style="display:flex;flex-direction:column;gap:6px"><label>Pago</label><select id="eps"><option ${c.pay==='Al día'?'selected':''}>Al día</option><option ${c.pay==='Pendiente'?'selected':''}>Pendiente</option><option ${c.pay==='Vencido'?'selected':''}>Vencido</option></select></div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label>Nombre</label>
+        <input id="ecl-name" value="${escHtml(c.name)}" placeholder="Nombre completo">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label>Email</label>
+        <input id="ecl-email" type="email" value="${escHtml(c.email||'')}" placeholder="email@ejemplo.com">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label>Canal YouTube</label>
+        <input id="ecl-ch" value="${escHtml(c.ch||'')}" placeholder="@micanal">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label>Precio por ciclo ($)</label>
+        <input id="ecl-price" type="number" value="${c.price||0}" placeholder="120">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label>Pack de miniaturas</label>
+        <select id="ep">
+          <option value="4" ${c.pack==4?'selected':''}>Básico (4)</option>
+          <option value="8" ${c.pack==8?'selected':''}>Estándar (8)</option>
+          <option value="16" ${c.pack==16?'selected':''}>Pro (16)</option>
+          <option value="99" ${c.pack==99?'selected':''}>Ilimitado</option>
+        </select>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label>Estado de pago</label>
+        <select id="eps">
+          <option ${c.pay==='Al día'?'selected':''}>Al día</option>
+          <option ${c.pay==='Pendiente'?'selected':''}>Pendiente</option>
+          <option ${c.pay==='Vencido'?'selected':''}>Vencido</option>
+        </select>
+      </div>
     </div>
-    <div class="nb" style="margin-bottom:20px"><label>🔒 Notas internas</label><textarea id="en">${c.notes}</textarea></div>
+    <div class="nb" style="margin-bottom:20px">
+      <label>🔒 Notas internas <span style="font-size:11px;color:var(--muted);font-weight:400">(solo vos las ves)</span></label>
+      <textarea id="en" placeholder="Preferencias del cliente, acuerdos especiales, recordatorios...">${escHtml(c.notes||'')}</textarea>
+    </div>
     <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:12px">Pedidos (${rqs.length})</div>
-    ${rqs.slice(0,4).map(r=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px"><div><strong>${r.title}</strong><span style="color:var(--muted);margin-left:8px;font-size:12px">${fd(r.deadline)}</span></div>${sb(r.status)}</div>`).join('')}`;
+    ${rqs.slice(0,4).map(r=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px"><div><strong>${escHtml(r.title)}</strong><span style="color:var(--muted);margin-left:8px;font-size:12px">${fd(r.deadline)}</span></div>${sb(r.status)}</div>`).join('')}
+    ${rqs.length>4?`<div style="font-size:12px;color:var(--muted);padding-top:8px">+${rqs.length-4} pedidos más</div>`:''}
+  `;
 
   // Actualizar botones del footer según estado del cliente
   const archBtn = document.getElementById('mo-cl-archive-btn');
@@ -2285,11 +2321,36 @@ async function unarchiveClient(cid){
 }
 async function saveClientNotes(){
   const c=gc(viewCid);if(!c)return;
-  c.notes=document.getElementById('en')?.value||c.notes;
-  const ps=document.getElementById('eps')?.value;if(ps)c.pay=ps;
-  const pk=document.getElementById('ep')?.value;if(pk)c.pack=parseInt(pk);
-  if(isSupabaseMode) await dbUpdateClient(viewCid,{notes:c.notes,pay:c.pay,pack:c.pack});
-  closeMo('mo-cl');toast('✓ Cliente actualizado');
+  // Todos los campos editables
+  const newName = document.getElementById('ecl-name')?.value.trim();
+  const newEmail = document.getElementById('ecl-email')?.value.trim();
+  const newCh = document.getElementById('ecl-ch')?.value.trim();
+  const newPrice = parseFloat(document.getElementById('ecl-price')?.value)||c.price;
+  const newPay = document.getElementById('eps')?.value;
+  const newPack = parseInt(document.getElementById('ep')?.value);
+  const newNotes = document.getElementById('en')?.value;
+
+  if(newName) c.name = newName;
+  if(newEmail !== undefined) c.email = newEmail;
+  if(newCh !== undefined){ c.ch = newCh; c.ch_avatar = null; c.ch_subs = null; } // reset avatar para refetch
+  c.price = newPrice;
+  if(newPay) c.pay = newPay;
+  if(newPack) c.pack = newPack;
+  if(newNotes !== undefined) c.notes = newNotes;
+
+  if(isSupabaseMode && !c.name.startsWith('[DEMO]')){
+    await dbUpdateClient(viewCid,{
+      name: c.name,
+      email: c.email,
+      channel: c.ch,
+      price: c.price,
+      pay_status: c.pay,
+      pack: c.pack,
+      notes: c.notes
+    });
+  }
+  closeMo('mo-cl');
+  toast('✓ Cliente actualizado');
   renderADash();renderAClients();renderAPays();
 }
 async function addClient(){
