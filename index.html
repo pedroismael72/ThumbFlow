@@ -564,6 +564,40 @@
 
 <div id="toast">✓ Guardado</div>
 
+<!-- Modal de confirmación propio -->
+<div class="mo" id="mo-confirm">
+  <div class="md" style="width:420px;gap:0">
+    <div class="mh" style="border-bottom:none;padding-bottom:8px">
+      <div id="mo-confirm-icon" style="font-size:28px">⚠️</div>
+      <button class="mc" onclick="closeMo('mo-confirm');_confirmReject&&_confirmReject()">✕</button>
+    </div>
+    <div style="padding:0 24px 20px">
+      <div id="mo-confirm-title" style="font-size:16px;font-weight:700;margin-bottom:8px"></div>
+      <div id="mo-confirm-msg" style="font-size:13px;color:var(--muted);line-height:1.6"></div>
+    </div>
+    <div class="mf" style="border-top:1px solid var(--border)">
+      <button class="btn btn-g" onclick="closeMo('mo-confirm');_confirmReject&&_confirmReject()">Cancelar</button>
+      <button class="btn btn-p" id="mo-confirm-ok" style="min-width:120px">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de alerta propio -->
+<div class="mo" id="mo-alert">
+  <div class="md" style="width:380px;gap:0">
+    <div class="mh" style="border-bottom:none;padding-bottom:8px">
+      <div id="mo-alert-icon" style="font-size:28px">ℹ️</div>
+      <button class="mc" onclick="closeMo('mo-alert')">✕</button>
+    </div>
+    <div style="padding:0 24px 20px">
+      <div id="mo-alert-msg" style="font-size:14px;line-height:1.6"></div>
+    </div>
+    <div class="mf" style="border-top:1px solid var(--border)">
+      <button class="btn btn-p" style="min-width:100px" onclick="closeMo('mo-alert')">Entendido</button>
+    </div>
+  </div>
+</div>
+
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <button class="lightbox-close" onclick="closeLightbox()">✕</button>
@@ -1283,6 +1317,29 @@ function updateAdminWorkload(){
   el.style.display = 'flex';
 }
 
+/* ═══════════════════════════════════
+   MODALES NATIVOS — confirm / alert
+═══════════════════════════════════ */
+let _confirmResolve=null,_confirmReject=null;
+function appConfirm({title='¿Estás seguro?', msg='', icon='⚠️', okLabel='Confirmar', okStyle=''}){
+  return new Promise((resolve,reject)=>{
+    _confirmResolve=resolve; _confirmReject=reject;
+    document.getElementById('mo-confirm-icon').textContent=icon;
+    document.getElementById('mo-confirm-title').textContent=title;
+    document.getElementById('mo-confirm-msg').innerHTML=msg;
+    const ok=document.getElementById('mo-confirm-ok');
+    ok.textContent=okLabel;
+    ok.style.cssText=okStyle;
+    ok.onclick=()=>{closeMo('mo-confirm');resolve(true);};
+    openMo('mo-confirm');
+  });
+}
+function appAlert({msg='', icon='ℹ️'}){
+  document.getElementById('mo-alert-icon').textContent=icon;
+  document.getElementById('mo-alert-msg').innerHTML=msg;
+  openMo('mo-alert');
+}
+
 function getTrackingConfig(status){
   const steps = [
     { key:'No iniciado', icon:'📋', label:'Recibido' },
@@ -1545,7 +1602,14 @@ function openReqMo(rid){
 async function deleteReq(rid){
   const r = S.reqs.find(x=>x.id===rid); if(!r) return;
   if(r.status==='Completado'){ toast('❌ No se puede eliminar un pedido completado'); return; }
-  if(!confirm(`¿Eliminar "${r.title}"? Esta acción no se puede deshacer.`)) return;
+  const ok = await appConfirm({
+    title: `Eliminar "${r.title}"`,
+    msg: 'Esta acción no se puede deshacer. El pedido se borrará permanentemente.',
+    icon: '🗑️',
+    okLabel: 'Sí, eliminar',
+    okStyle: 'background:var(--red);border-color:var(--red)'
+  });
+  if(!ok) return;
   if(isSupabaseMode){
     const {error} = await sb_client.from('requests').delete().eq('id',rid);
     if(error){ toast('❌ Error al eliminar'); return; }
@@ -1604,11 +1668,25 @@ async function deleteClient(){
   const c=gc(viewCid);if(!c)return;
   const activeReqs=gr(viewCid).filter(r=>r.status!=='Completado');
   if(activeReqs.length>0){
-    if(!confirm(`⚠️ "${c.name}" tiene ${activeReqs.length} pedido(s) activo(s).\n\nSi eliminás al cliente, se borrarán también todos sus pedidos.\n\n¿Confirmás la eliminación total?`)) return;
+    const ok = await appConfirm({
+      title: `Eliminar a "${c.name}"`,
+      msg: `Este cliente tiene <strong>${activeReqs.length} pedido(s) activo(s)</strong>.<br><br>Si lo eliminás, se borrarán también todos sus pedidos permanentemente.`,
+      icon: '⚠️',
+      okLabel: 'Eliminar todo',
+      okStyle: 'background:var(--red);border-color:var(--red)'
+    });
+    if(!ok) return;
   } else {
-    if(!confirm(`¿Eliminar a "${c.name}" y todos sus pedidos? Esta acción no se puede deshacer.`)) return;
+    const ok = await appConfirm({
+      title: `Eliminar a "${c.name}"`,
+      msg: 'Se borrarán el cliente y todos sus pedidos. Esta acción no se puede deshacer.',
+      icon: '🗑️',
+      okLabel: 'Sí, eliminar',
+      okStyle: 'background:var(--red);border-color:var(--red)'
+    });
+    if(!ok) return;
   }
-  if(isSupabaseMode){
+  if(isSupabaseMode && !c.name.startsWith('[DEMO]')){
     await sb_client.from('requests').delete().eq('client_id',viewCid);
     const {error}=await sb_client.from('clients').delete().eq('id',viewCid);
     if(error){toast('❌ Error al eliminar');return;}
@@ -1621,9 +1699,15 @@ async function deleteClient(){
 }
 async function archiveClient(){
   const c=gc(viewCid);if(!c)return;
-  if(!confirm(`¿Archivar a "${c.name}"?\n\nVas a poder restaurarlo cuando vuelva. Sus pedidos se conservan.`)) return;
+  const ok = await appConfirm({
+    title: `Archivar a "${c.name}"`,
+    msg: 'El cliente se ocultará del panel principal. Podés restaurarlo cuando vuelva — sus pedidos se conservan.',
+    icon: '📦',
+    okLabel: 'Archivar'
+  });
+  if(!ok) return;
   c.archived=true;
-  if(isSupabaseMode) await dbUpdateClient(viewCid,{archived:true});
+  if(isSupabaseMode && !c.name.startsWith('[DEMO]')) await dbUpdateClient(viewCid,{archived:true});
   closeMo('mo-cl');
   toast('📦 Cliente archivado');
   renderADash();renderAClients();renderAPays();
@@ -1631,7 +1715,7 @@ async function archiveClient(){
 async function unarchiveClient(cid){
   const c=gc(cid||viewCid);if(!c)return;
   c.archived=false;
-  if(isSupabaseMode) await dbUpdateClient(c.id,{archived:false});
+  if(isSupabaseMode && !c.name.startsWith('[DEMO]')) await dbUpdateClient(c.id,{archived:false});
   closeMo('mo-cl');
   toast('✅ Cliente restaurado');
   renderADash();renderAClients();renderAPays();
@@ -1646,7 +1730,7 @@ async function saveClientNotes(){
   renderADash();renderAClients();renderAPays();
 }
 async function addClient(){
-  const name=document.getElementById('nc-name').value.trim();if(!name){alert('Nombre obligatorio');return;}
+  const name=document.getElementById('nc-name').value.trim();if(!name){appAlert({msg:'El nombre del cliente es obligatorio.',icon:'⚠️'});return;}
   const newC={
     name, email:document.getElementById('nc-email').value,
     ch:document.getElementById('nc-ch').value||'@nuevo',
@@ -1862,7 +1946,7 @@ function renderConfirm(){
 }
 
 async function submitReq(){
-  const title=document.getElementById('req-title').value.trim();if(!title){alert('El título es obligatorio');goStep(1);return;}
+  const title=document.getElementById('req-title').value.trim();if(!title){appAlert({msg:'El título del pedido es obligatorio.',icon:'⚠️'});goStep(1);return;}
   
   // Obtener el clientId correcto
   const clientId = isSupabaseMode 
@@ -1871,7 +1955,7 @@ async function submitReq(){
   if(!clientId){toast('❌ Error: no se encontró tu cuenta');return;}
   
   const c=gc(clientId);
-  if(c.pack!==99&&c.used>=c.pack){alert('No tenés créditos disponibles.');return;}
+  if(c.pack!==99&&c.used>=c.pack){appAlert({msg:'No tenés créditos disponibles en tu pack actual. Contactá al diseñador para renovar.',icon:'🎬'});return;}
 
   // Subir imágenes propias a Supabase Storage si aplica
   let uploadedImgs = [...clientRefImgs];
