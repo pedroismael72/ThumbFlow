@@ -936,7 +936,7 @@ function _initSupabaseClient(){
 /* ═══════════════════════════════════════════════════
    STATE LOCAL (demo + cache)
 ═══════════════════════════════════════════════════ */
-let role='admin', user=null, viewCid=null, viewRid=null;
+let role='admin', user=null, viewCid=null, viewRid=null, _blockRealtimeUntil=0;
 let refs=[];
 let step=1;
 let isSupabaseMode = false;
@@ -1090,9 +1090,9 @@ function startRealtime(){
         const r = payload.new;
         const idx = S.reqs.findIndex(x=>x.id===r.id);
         if(idx>=0){
-          // Solo pisar el status si el modal NO está abierto para este pedido
-          // (evita que realtime revierta cambios locales no guardados aún)
-          if(viewRid !== r.id) S.reqs[idx].status = r.status;
+          // No pisar si el modal está abierto O si estamos en período de bloqueo post-upload
+          const blocked = viewRid === r.id || Date.now() < _blockRealtimeUntil;
+          if(!blocked) S.reqs[idx].status = r.status;
           S.reqs[idx].title = r.title;
         }
         renderADash(); renderAReqs();
@@ -1107,7 +1107,7 @@ function startRealtime(){
           filter: `client_id=eq.${user.clientId}` }, payload=>{
         const r = payload.new;
         const idx = S.reqs.findIndex(x=>x.id===r.id);
-        if(idx>=0 && viewRid !== r.id){ S.reqs[idx].status = r.status; }
+        if(idx>=0 && viewRid !== r.id && Date.now() >= _blockRealtimeUntil){ S.reqs[idx].status = r.status; }
         // Re-render tracking en vivo
         renderTracking(user.clientId);
         renderCReqs(user.clientId);
@@ -2647,6 +2647,7 @@ async function submitDelivery(){
   progressBar.style.width='0%'; progressPct.textContent='0%';
   if(btn){ btn.disabled=false; btn.style.opacity='1'; }
   if(cancelBtn){ cancelBtn.disabled=false; cancelBtn.style.opacity='1'; }
+  _blockRealtimeUntil = Date.now() + 5000; // ignorar realtime por 5s post-upload
   toast('✓ Miniatura subida');
   renderADash();renderAReqs();
   // Reabrir el modal manteniendo el status actual
