@@ -2600,18 +2600,14 @@ async function submitDelivery(){
 
 async function deleteVersion(rid, vidx){
   const r = S.reqs.find(x=>x.id===rid); if(!r||!r.versions) return;
-  const ok = await appConfirm({
-    title:'Eliminar versión',
-    msg:'¿Querés eliminar esta miniatura? No se puede deshacer.',
-    icon:'🗑️', okLabel:'Sí, eliminar', okStyle:'background:var(--red);border-color:var(--red)'
-  });
-  if(!ok) return;
+  if(!confirm('¿Eliminar esta miniatura? No se puede deshacer.')) return;
   if(isSupabaseMode && r.versions[vidx]?.id){
     await supabase.from('versions').delete().eq('id', r.versions[vidx].id);
   }
   r.versions.splice(vidx, 1);
   renderADash(); renderAReqs();
   openReqMo(rid);
+  toast('🗑 Versión eliminada');
 }
 
 async function submitReview(decision){
