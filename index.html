@@ -1225,18 +1225,20 @@ async function handleSession(session){
     document.getElementById('admin-un').textContent = name.split(' ')[0];
     renderADash(); renderAClients(); renderAReqs(); renderAPays();
     startRealtime();
-    // Notificar pedidos urgentes al cargar
+    // Notificar pedidos urgentes + onboarding + recordatorios al cargar
     setTimeout(()=>{
       S.reqs.filter(r=>r.status!=='Entregado'&&r.status!=='Aprobado').forEach(r=>{
         const lbl = urgencyLabel(r.deadline);
         if(lbl){ const c=gc(r.cid); addNotification('⏰','Pedido urgente',`${c?.name||''}: "${r.title}" — ${lbl}`,r.id); }
       });
-    }, 500);
+      checkReminders();
+    }, 800);
   } else {
     role = 'client';
     user = { name, role, email, id: session.user.id };
     await loadClientData(session.user.id);
     showScreen('screen-client');
+    setTimeout(()=>obShow(), 800);
   }
 }
 
@@ -1277,13 +1279,14 @@ function login(name){
     document.getElementById('admin-av').textContent=name[0];
     document.getElementById('admin-un').textContent=name;
     renderADash();renderAClients();renderAReqs();renderAPays();
-    setTimeout(()=>{ checkReminders(); obShow(); }, 800);
+    setTimeout(()=>{ checkReminders(); }, 800);
   }else{
     const c=gc('c1');
     document.getElementById('cl-av').textContent=c.name[0];
     document.getElementById('cl-un').textContent=c.name;
     document.getElementById('cl-welcome').textContent=`Hola, ${c.name.split(' ')[0]} 👋`;
     renderCDash('c1');
+    setTimeout(()=>obShow(), 800);
   }
 }
 
@@ -1521,13 +1524,13 @@ function renderADash(){
 }
 /* ════ ONBOARDING ════ */
 const OB_STEPS = [
-  { icon:'🎨', title:'Bienvenido a ThumbFlow', desc:'Tu sistema de gestión de miniaturas YouTube. Desde acá controlás todos tus pedidos, clientes y entregas en un solo lugar.' },
-  { icon:'📋', title:'Cómo funciona', desc:'Tus clientes cargan pedidos con referencias y detalles. Vos los ves en el panel de Pedidos, subís la miniatura terminada y ellos la aprueban directamente.' },
-  { icon:'🔔', title:'Recordatorios automáticos', desc:'ThumbFlow te avisa cuando un pedido lleva más de 3 días sin moverse. Así nunca perdés el ritmo con tus clientes.' }
+  { icon:'👋', title:'¡Bienvenido a ThumbFlow!', desc:'Desde acá podés ver el estado de tus miniaturas en tiempo real, dejar feedback y aprobar el trabajo de tu diseñador.' },
+  { icon:'📋', title:'Cargá tu pedido', desc:'Entrá a "Nuevo pedido", escribí el título de tu video, agregá referencias de YouTube y contale a tu diseñador el estilo que buscás.' },
+  { icon:'✨', title:'Revisá y aprobá', desc:'Cuando tu diseñador termine, vas a ver la miniatura acá. Podés marcar cambios directamente sobre la imagen o aprobarla con un clic.' }
 ];
 
 function obShow(){
-  const key = 'tf-ob-done-' + (ADMIN_EMAIL||'demo');
+  const key = 'tf-ob-done-client-' + (user?.email||'demo');
   if(localStorage.getItem(key)) return;
   _obStep = 0;
   obRender();
@@ -1548,7 +1551,7 @@ function obNav(dir){
 }
 function obSkip(){
   document.getElementById('ob-overlay').style.display = 'none';
-  localStorage.setItem('tf-ob-done-'+(ADMIN_EMAIL||'demo'), '1');
+  localStorage.setItem('tf-ob-done-client-'+(user?.email||'demo'), '1');
 }
 
 /* ════ RECORDATORIOS (pedidos sin moverse X días) ════ */
