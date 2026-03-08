@@ -586,7 +586,7 @@
       <div class="topbar-logo">Thumb<span>Flow</span></div>
       <div class="topbar-spacer"></div>
       
-      <div class="topbar-user"><div class="topbar-user">
+      <div class="topbar-user">
         <div id="cl-credits-pill" style="display:none;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 12px 5px 8px;font-size:12px;font-weight:600;">
           <span style="font-size:15px">🎬</span>
           <span id="cl-credits-used" style="color:var(--muted)">0</span>
@@ -738,10 +738,7 @@
       <button class="btn btn-g" id="mo-cancel-btn" onclick="cancelReqMo()">Cancelar</button>
       <div id="mo-save-wrap" style="position:relative;display:inline-block">
         <button class="btn btn-p" id="mo-save-btn">Guardar cambios</button>
-        <div id="mo-save-tooltip" style="display:none;position:absolute;bottom:calc(100% + 8px);right:0;background:#1a1a24;border:1px solid var(--red);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--red);white-space:nowrap;pointer-events:none;z-index:10">
-          ⚠️ Debés cargar la miniatura primero
-          <div style="position:absolute;bottom:-5px;right:16px;width:8px;height:8px;background:#1a1a24;border-right:1px solid var(--red);border-bottom:1px solid var(--red);transform:rotate(45deg)"></div>
-        </div>
+
       </div>
     </div>
   </div>
@@ -1976,11 +1973,6 @@ async function saveReq(rid){
     // Admin: solo modifica el estado (los demás campos son solo lectura)
     const newStatus = document.getElementById('mr-st')?.value;
     if(newStatus){
-      // Validación: no puede poner Listo para revisar sin miniatura
-      if(newStatus==='Listo para revisar' && (!r.versions||r.versions.length===0)){
-        toast('⚠️ Subí la miniatura antes de marcarla como lista');
-        return;
-      }
       const oldStatus = r.status;
       r.status = newStatus;
       if(isSupabaseMode) await dbUpdateRequest(rid,{status:r.status});
@@ -2411,6 +2403,16 @@ function toggleTheme(){
 function applyTheme(){
   if(localStorage.getItem('tf-theme') === 'light') document.body.classList.add('light-mode');
 }
+
+function renderBadges(){
+  const cl = document.getElementById('badge-cl');
+  const pe = document.getElementById('badge-pe');
+  if(cl) cl.textContent = S.clients.filter(x=>!x.archived).length;
+  if(pe) pe.textContent = S.reqs.filter(r=>r.status!=='Completado').length;
+}
+
+function escHtml(t){ return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+
 applyTheme();
 
 
