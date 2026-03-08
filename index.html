@@ -1821,10 +1821,19 @@ function openReqMo(rid){
   const r=S.reqs.find(x=>x.id===rid);if(!r)return;
   // Si es cliente en modo Supabase, refrescar versiones antes de abrir
   if(role==='client' && isSupabaseMode){
-    sb_client.from('versions').select('*').eq('request_id',rid).then(({data})=>{
-      if(data) r.versions = data.map(v=>({id:v.id,img:v.img_url,date:new Date(v.created_at).toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric'}),status:v.status||'pendiente',comment:v.comment||'',annotation:v.annotation||null}));
-      _openReqMoRender(rid);
-    });
+    sb_client.from('versions').select('*').eq('request_id',rid)
+      .then(({data, error})=>{
+        if(data && data.length) r.versions = data.map(v=>({
+          id:v.id,
+          img:v.img_url,
+          date:new Date(v.created_at).toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric'}),
+          status:v.status||'pendiente',
+          comment:v.comment||'',
+          annotation:v.annotation||null
+        }));
+        _openReqMoRender(rid);
+      })
+      .catch(()=>{ _openReqMoRender(rid); }); // fallback si falla el fetch
     return;
   }
   _openReqMoRender(rid);
