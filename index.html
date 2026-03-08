@@ -1069,6 +1069,9 @@ function addNotification(icon, title, sub, onClickRid){
   if(notifications.length > 50) notifications.pop();
   unreadCount++;
   renderNotifPanel();
+  // Ensure dot is visible even if panel not open yet
+  const dot = document.getElementById('notif-dot');
+  if(dot) dot.classList.add('show');
 }
 
 function renderNotifPanel(){
@@ -2382,7 +2385,7 @@ async function addClient(){
 }
 async function chStatus(rid,status){
   const r=S.reqs.find(x=>x.id===rid);if(!r)return;
-  if(status==='Entregado'&&r.status!=='Entregado'){const c=gc(r.cid);if(c){c.used++;if(isSupabaseMode)await dbUpdateClient(c.id,{used:c.used});}}
+  if(status==='Completado'&&r.status!=='Completado'){const cl=gc(r.cid);if(cl){cl.used++;if(isSupabaseMode)await dbUpdateClient(cl.id,{used:cl.used});}}
   r.status=status;
   if(isSupabaseMode) await dbUpdateRequest(rid,{status});
   renderADash();renderAReqs();renderAClients();toast('✓ Estado actualizado');
@@ -2899,19 +2902,29 @@ async function submitReview(decision){
   v.status=decision;
   v.comment=document.getElementById('rev-comment').value;
   v.annotation=annStrokes.length?JSON.stringify(annStrokes):null;
-  if(decision==='aprobado') r.status='Completado';
-  // Con 'cambios' mantenemos el status actual — el admin decide cuándo cambiar
-  // else: no tocamos r.status
-
-  if(isSupabaseMode){
-    if(v.id) await dbUpdateVersion(v.id,{status:decision,comment:v.comment,annotation:v.annotation});
-    if(decision==='aprobado') await dbUpdateRequest(reviewingRid,{status:'Completado'});
+  if(decision==='aprobado'){
+    r.status='Completado';
+    // Incrementar contador usado del cliente
+    const _cl = gc(r.cid);
+    if(_cl){ _cl.used++; if(isSupabaseMode) await dbUpdateClient(_cl.id,{used:_cl.used}); }
+    // Notificación al admin
+    addNotification('🎉','¡Miniatura aprobada!',`"${r.title}" fue aprobada por el cliente. ¡Excelente trabajo! 🚀`,r.id);
+    if(isSupabaseMode){
+      if(v.id) await dbUpdateVersion(v.id,{status:decision,comment:v.comment,annotation:v.annotation});
+      await dbUpdateRequest(reviewingRid,{status:'Completado'});
+    }
+    closeMo('mo-review');
+    toast('✓ ¡Miniatura aprobada! 🎉');
+  } else {
+    if(isSupabaseMode){
+      if(v.id) await dbUpdateVersion(v.id,{status:decision,comment:v.comment,annotation:v.annotation});
+    }
+    closeMo('mo-review');
+    toast('✎ Feedback enviado al diseñador');
   }
-
-  closeMo('mo-review');
-  toast(decision==='aprobado'?'✓ ¡Miniatura aprobada!':'✎ Feedback enviado al diseñador');
   const cid=isSupabaseMode?S.clients[0]?.id:'c1';
   renderCDash(cid);
+  renderADash(); renderAReqs(); renderAClients();
 }
 
 /* ════════════════════════
