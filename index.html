@@ -1608,9 +1608,9 @@ function updateSaveBtn(){
     saveBtn.disabled = true;
     saveBtn.style.opacity = '0.4';
     saveBtn.style.cursor = 'not-allowed';
-    if(tooltip) tooltip.style.display='block';
+    if(tooltip) tooltip.style.display='none';
     saveBtn.onmouseenter = ()=>{ if(tooltip) tooltip.style.display='block'; };
-    saveBtn.onmouseleave = ()=>{ /* keep visible while blocked */ };
+    saveBtn.onmouseleave = ()=>{ if(tooltip) tooltip.style.display='none'; };
   } else {
     saveBtn.disabled = false;
     saveBtn.style.opacity = '';
@@ -1818,6 +1818,18 @@ function renderCPack(c){
 /* MODALS */
 
 function openReqMo(rid){
+  const r=S.reqs.find(x=>x.id===rid);if(!r)return;
+  // Si es cliente en modo Supabase, refrescar versiones antes de abrir
+  if(role==='client' && isSupabaseMode){
+    supabase.from('versions').select('*').eq('request_id',rid).then(({data})=>{
+      if(data) r.versions = data.map(v=>({id:v.id,img:v.img_url,date:new Date(v.created_at).toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric'}),status:v.status||'pendiente',comment:v.comment||'',annotation:v.annotation||null}));
+      _openReqMoRender(rid);
+    });
+    return;
+  }
+  _openReqMoRender(rid);
+}
+function _openReqMoRender(rid){
   const r=S.reqs.find(x=>x.id===rid);if(!r)return;
   viewRid=rid;const c=gc(r.cid),isA=role==='admin';
 
@@ -2492,9 +2504,12 @@ function buildVersionsHtml(r, isAdmin){
             ${statusHtml}
             ${v.comment?`<div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4">"${v.comment.substring(0,80)}${v.comment.length>80?'...':''}"</div>`:''}
           </div>
-          <button class="btn btn-g btn-sm" onclick="openReview('${r.id}',${versions.length-1-ri})">
-            ${!isAdmin&&v.status==='pendiente'?'✎ Revisar':'Ver'}
-          </button>
+          <div style="display:flex;gap:6px;align-items:center">
+            ${isAdmin?`<button class="btn btn-g btn-sm" onclick="deleteVersion('${r.id}',${versions.length-1-ri})" style="color:var(--red);border-color:rgba(255,77,77,.3);padding:6px 8px" title="Eliminar versión">🗑</button>`:''}
+            <button class="btn btn-g btn-sm" onclick="openReview('${r.id}',${versions.length-1-ri})">
+              ${!isAdmin&&v.status==='pendiente'?'✎ Revisar':'Ver'}
+            </button>
+          </div>
         </div>`;
       }).join('')}
     </div>`;
@@ -2567,11 +2582,36 @@ async function submitDelivery(){
     date:new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric'}),
     status:'pendiente',comment:'',annotation:null
   });
+  const _ridToReopen = currentDeliverRid;
+  const _statusToKeep = r.status; // preservar status
   closeMo('mo-deliver');
   toast('✓ Miniatura subida');
   renderADash();renderAReqs();
-  // Reabrir el modal del pedido con la miniatura ya cargada
-  setTimeout(()=>{ openReqMo(currentDeliverRid); }, 300);
+  // Reabrir el modal manteniendo el status actual
+  setTimeout(()=>{
+    openReqMo(_ridToReopen);
+    // Re-seleccionar el chip correcto después de que el modal se renderice
+    setTimeout(()=>{
+      const st = document.getElementById('mr-st');
+      if(st){ st.value = _statusToKeep; updateSaveBtn(); }
+    }, 50);
+  }, 300);
+}
+
+async function deleteVersion(rid, vidx){
+  const r = S.reqs.find(x=>x.id===rid); if(!r||!r.versions) return;
+  const ok = await appConfirm({
+    title:'Eliminar versión',
+    msg:'¿Querés eliminar esta miniatura? No se puede deshacer.',
+    icon:'🗑️', okLabel:'Sí, eliminar', okStyle:'background:var(--red);border-color:var(--red)'
+  });
+  if(!ok) return;
+  if(isSupabaseMode && r.versions[vidx]?.id){
+    await supabase.from('versions').delete().eq('id', r.versions[vidx].id);
+  }
+  r.versions.splice(vidx, 1);
+  renderADash(); renderAReqs();
+  openReqMo(rid);
 }
 
 async function submitReview(decision){
