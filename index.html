@@ -938,7 +938,7 @@ const S={
     {id:'c3',name:'[DEMO] Diego Torres',email:'diego@gmail.com',ch:'@diegotorres',pack:16,used:9,price:200,pay:'Al día',notes:'Cliente Pro. Siempre manda referencias. Muy organizado.',payments:[{d:'2025-01-20',a:200,s:'Pagado',m:'Efectivo'},{d:'2025-02-20',a:200,s:'Pagado',m:'Efectivo'},{d:'2025-03-20',a:200,s:'Pagado',m:'Efectivo'}]}
   ],
   reqs:[
-    {id:'r1',cid:'c1',title:'Cómo ganar dinero con IA en 2025',desc:'Miniatura impactante, fondo oscuro, cara de sorpresa.',style:'Oscuro, rojo y blanco',deadline:'2025-03-15',notes:'',status:'En revisión',date:'2025-03-01',refs:[],clientImgs:[],versions:[{img:'https://img.youtube.com/vi/9bZkp7q19f0/maxresdefault.jpg',date:'6 mar 2025',status:'pendiente',comment:'',annotation:null}]},
+    {id:'r1',cid:'c1',title:'Cómo ganar dinero con IA en 2025',desc:'Miniatura impactante, fondo oscuro, cara de sorpresa.',style:'Oscuro, rojo y blanco',deadline:'2025-03-15',notes:'',status:'Listo para revisar',date:'2025-03-01',refs:[],clientImgs:[],versions:[{img:'https://img.youtube.com/vi/9bZkp7q19f0/maxresdefault.jpg',date:'6 mar 2025',status:'pendiente',comment:'',annotation:null}]},
     {id:'r2',cid:'c1',title:'Los mejores plugins de Premiere Pro',desc:'Icono de Premiere, colores morados, texto llamativo.',style:'Morado y negro',deadline:'2025-03-10',notes:'Urgente',status:'Aprobado',date:'2025-02-28',refs:[],clientImgs:[],versions:[{img:'https://img.youtube.com/vi/OPf0YbXqDm0/maxresdefault.jpg',date:'2 mar 2025',status:'aprobado',comment:'Quedó perfecta, exactamente lo que necesitaba.',annotation:null}]},
     {id:'r3',cid:'c2',title:'Receta viral de pasta italiana',desc:'Plato de pasta, colores cálidos, tipografía manuscrita.',style:'Cálido, beige y rojo',deadline:'2025-03-12',notes:'',status:'Pendiente',date:'2025-03-03',refs:[],clientImgs:[],versions:[]},
     {id:'r4',cid:'c3',title:'Tutorial Final Cut Pro completo',desc:'Logo FCP, fondo azul, cara mirando pantalla.',style:'Azul y blanco',deadline:'2025-03-20',notes:'',status:'Pendiente',date:'2025-03-05',refs:[],clientImgs:[],versions:[]}
@@ -1581,10 +1581,24 @@ function updateSaveBtn(){
     }
   });
 
-  saveBtn.disabled = false;
-  saveBtn.style.opacity = '';
-  saveBtn.style.cursor = '';
-  if(tooltip) tooltip.style.display='none';
+  const _needsMini = newStatus === 'Listo para revisar';
+  const _hasMini = r.versions && r.versions.length > 0;
+  const _blocked = _needsMini && !_hasMini;
+  if(_blocked){
+    saveBtn.disabled = true;
+    saveBtn.style.opacity = '0.4';
+    saveBtn.style.cursor = 'not-allowed';
+    if(tooltip){ tooltip.style.display=''; tooltip.style.visibility='visible'; }
+    saveBtn.onmouseenter = ()=>{ if(tooltip) tooltip.style.display='block'; };
+    saveBtn.onmouseleave = ()=>{ if(tooltip) tooltip.style.display='none'; };
+  } else {
+    saveBtn.disabled = false;
+    saveBtn.style.opacity = '';
+    saveBtn.style.cursor = '';
+    saveBtn.onmouseenter = null;
+    saveBtn.onmouseleave = null;
+    if(tooltip) tooltip.style.display='none';
+  }
 }
 
 function cancelReqMo(){
@@ -2432,7 +2446,10 @@ function buildVersionsHtml(r, isAdmin){
         <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px">🎨 Miniaturas entregadas</span>
         ${versions.length?`<span style="background:rgba(45,202,115,.15);color:var(--green);font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px">${versions.length} versión${versions.length>1?'es':''}</span>`:''}
       </div>
-      ${isAdmin?`<button class="btn btn-p btn-sm" onclick="openDeliverMo('${r.id}')">+ Subir versión</button>`:''}
+      ${isAdmin?(r.status==='Listo para revisar'
+          ?`<button class="btn btn-p btn-sm" onclick="openDeliverMo('${r.id}')">+ Subir versión</button>`
+          :`<button class="btn btn-p btn-sm" disabled title="Cambiá el estado a 'Listo para revisar' para subir la miniatura" style="opacity:.4;cursor:not-allowed">+ Subir versión</button>`)
+        :''}
     </div>`;
 
   if(!versions.length){
@@ -2525,7 +2542,7 @@ async function submitDelivery(){
     imgUrl=await dbUploadImage(blob,path);
     if(!imgUrl){btn.textContent='Enviar al cliente';btn.disabled=false;return;}
     const res=await dbAddVersion(currentDeliverRid,imgUrl);
-    if(res) await dbUpdateRequest(currentDeliverRid,{status:'En revisión'});
+    // status no se toca al subir miniatura — el admin lo controla manualmente
   }
 
   r.versions.push({
