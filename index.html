@@ -738,7 +738,10 @@
       <button class="btn btn-g" id="mo-cancel-btn" onclick="cancelReqMo()">Cancelar</button>
       <div id="mo-save-wrap" style="position:relative;display:inline-block">
         <button class="btn btn-p" id="mo-save-btn">Guardar cambios</button>
-
+        <div id="mo-save-tooltip" style="display:none;position:absolute;bottom:calc(100% + 8px);right:0;background:#1a1a24;border:1px solid var(--red);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--red);white-space:nowrap;pointer-events:none;z-index:10">
+          ⚠️ Primero debés subir la miniatura
+          <div style="position:absolute;bottom:-5px;right:16px;width:8px;height:8px;background:#1a1a24;border-right:1px solid var(--red);border-bottom:1px solid var(--red);transform:rotate(45deg)"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1586,17 +1589,17 @@ function updateSaveBtn(){
   const _blocked = _needsMini && !_hasMini;
 
   // Habilitar/deshabilitar botón "Subir versión" según estado seleccionado en chips
-  const uploadBtn = document.querySelector('.delivery-section .btn-p');
+  const uploadBtn = document.getElementById('upload-ver-btn');
   if(uploadBtn){
     if(newStatus === 'Listo para revisar'){
-      uploadBtn.disabled = false;
       uploadBtn.style.opacity = '';
       uploadBtn.style.cursor = '';
+      uploadBtn.style.pointerEvents = '';
       uploadBtn.title = '';
     } else {
-      uploadBtn.disabled = true;
       uploadBtn.style.opacity = '0.4';
       uploadBtn.style.cursor = 'not-allowed';
+      uploadBtn.style.pointerEvents = 'none';
       uploadBtn.title = "Cambiá el estado a 'Listo para revisar' para subir la miniatura";
     }
   }
@@ -1605,9 +1608,9 @@ function updateSaveBtn(){
     saveBtn.disabled = true;
     saveBtn.style.opacity = '0.4';
     saveBtn.style.cursor = 'not-allowed';
-    if(tooltip){ tooltip.style.display=''; tooltip.style.visibility='visible'; }
+    if(tooltip) tooltip.style.display='block';
     saveBtn.onmouseenter = ()=>{ if(tooltip) tooltip.style.display='block'; };
-    saveBtn.onmouseleave = ()=>{ if(tooltip) tooltip.style.display='none'; };
+    saveBtn.onmouseleave = ()=>{ /* keep visible while blocked */ };
   } else {
     saveBtn.disabled = false;
     saveBtn.style.opacity = '';
@@ -2463,10 +2466,7 @@ function buildVersionsHtml(r, isAdmin){
         <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px">🎨 Miniaturas entregadas</span>
         ${versions.length?`<span style="background:rgba(45,202,115,.15);color:var(--green);font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px">${versions.length} versión${versions.length>1?'es':''}</span>`:''}
       </div>
-      ${isAdmin?(r.status==='Listo para revisar'
-          ?`<button class="btn btn-p btn-sm" onclick="openDeliverMo('${r.id}')">+ Subir versión</button>`
-          :`<button class="btn btn-p btn-sm" disabled title="Cambiá el estado a 'Listo para revisar' para subir la miniatura" style="opacity:.4;cursor:not-allowed">+ Subir versión</button>`)
-        :''}
+      ${isAdmin?`<button class="btn btn-p btn-sm" id="upload-ver-btn" onclick="openDeliverMo('${r.id}')" style="opacity:.4;cursor:not-allowed;pointer-events:none" title="Cambiá el estado a 'Listo para revisar' para subir la miniatura">+ Subir versión</button>`:''}
     </div>`;
 
   if(!versions.length){
