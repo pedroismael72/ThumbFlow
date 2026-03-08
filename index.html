@@ -2639,6 +2639,18 @@ async function submitDelivery(){
   }
   const _ridToReopen = currentDeliverRid;
   const _statusToKeep = r.status; // preservar status
+
+  // Si el trigger de Supabase cambia el status, lo revertimos explícitamente
+  if(isSupabaseMode){
+    await dbUpdateRequest(_ridToReopen, {status: _statusToKeep});
+  }
+
+  // Bloquear realtime por 8s para que no pise el status recién restaurado
+  _blockRealtimeUntil = Date.now() + 8000;
+  // También actualizar en memoria por las dudas
+  const _rMem = S.reqs.find(x=>x.id===_ridToReopen);
+  if(_rMem) _rMem.status = _statusToKeep;
+
   // Breve pausa para mostrar 100% antes de cerrar
   await new Promise(res=>setTimeout(res,500));
   closeMo('mo-deliver');
@@ -2647,13 +2659,11 @@ async function submitDelivery(){
   progressBar.style.width='0%'; progressPct.textContent='0%';
   if(btn){ btn.disabled=false; btn.style.opacity='1'; }
   if(cancelBtn){ cancelBtn.disabled=false; cancelBtn.style.opacity='1'; }
-  _blockRealtimeUntil = Date.now() + 5000; // ignorar realtime por 5s post-upload
   toast('✓ Miniatura subida');
   renderADash();renderAReqs();
   // Reabrir el modal manteniendo el status actual
   setTimeout(()=>{
     openReqMo(_ridToReopen);
-    // Re-seleccionar el chip correcto después de que el modal se renderice
     setTimeout(()=>{
       const st = document.getElementById('mr-st');
       if(st){ st.value = _statusToKeep; updateSaveBtn(); }
