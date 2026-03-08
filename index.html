@@ -883,9 +883,8 @@
         <div id="deliver-progress-bar" style="height:100%;width:0%;background:var(--accent);border-radius:10px;transition:width .2s ease"></div>
       </div>
     </div>
-    <div class="mf">
+    <div class="mf" id="deliver-footer">
       <button class="btn btn-g" id="deliver-cancel-btn" onclick="closeMo('mo-deliver')">Cancelar</button>
-      <button class="btn btn-p" id="deliver-submit-btn" onclick="submitDelivery()" disabled style="opacity:.5">Subir archivo</button>
     </div>
   </div>
 </div>
@@ -2570,8 +2569,8 @@ function handleDeliverFile(file){
     const prev=document.getElementById('deliver-preview');
     document.getElementById('deliver-preview-img').src=deliverFile;
     prev.style.display='block';
-    document.getElementById('deliver-submit-btn').disabled=false;
-    document.getElementById('deliver-submit-btn').style.opacity='1';
+    // Auto-submit inmediatamente
+    submitDelivery();
   };
   reader.readAsDataURL(file);
 }
@@ -2595,8 +2594,8 @@ async function submitDelivery(){
   const progressWrap=document.getElementById('deliver-progress-wrap');
   const progressBar=document.getElementById('deliver-progress-bar');
   const progressPct=document.getElementById('deliver-progress-pct');
-  btn.disabled=true; btn.style.opacity='0.4';
-  cancelBtn.disabled=true; cancelBtn.style.opacity='0.4';
+  if(btn){ btn.disabled=true; btn.style.opacity='0.4'; }
+  if(cancelBtn){ cancelBtn.disabled=true; cancelBtn.style.opacity='0.4'; }
   progressWrap.style.display='block';
 
   // Simular progreso mientras sube
@@ -2614,8 +2613,8 @@ async function submitDelivery(){
     clearInterval(fakeInterval);
     if(!imgUrl){
       progressWrap.style.display='none';
-      btn.disabled=false; btn.style.opacity='1';
-      cancelBtn.disabled=false; cancelBtn.style.opacity='1';
+      if(btn){ btn.disabled=false; btn.style.opacity='1'; }
+      if(cancelBtn){ cancelBtn.disabled=false; cancelBtn.style.opacity='1'; }
       return;
     }
     // Completar la barra al 100%
@@ -2645,8 +2644,8 @@ async function submitDelivery(){
   // Reset progress bar para próxima vez
   progressWrap.style.display='none';
   progressBar.style.width='0%'; progressPct.textContent='0%';
-  btn.disabled=false; btn.style.opacity='1';
-  cancelBtn.disabled=false; cancelBtn.style.opacity='1';
+  if(btn){ btn.disabled=false; btn.style.opacity='1'; }
+  if(cancelBtn){ cancelBtn.disabled=false; cancelBtn.style.opacity='1'; }
   toast('✓ Miniatura subida');
   renderADash();renderAReqs();
   // Reabrir el modal manteniendo el status actual
