@@ -544,57 +544,6 @@
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
   window.supabaseCreateClient = createClient;
   window.dispatchEvent(new Event('supabase-ready'));
-function toggleClientNotifPanel(){
-  const p = document.getElementById('cl-notif-panel');
-  if(!p) return;
-  const isOpen = p.style.display !== 'none';
-  p.style.display = isOpen ? 'none' : 'block';
-  if(!isOpen) renderClientNotifList();
-}
-
-function renderClientNotifList(){
-  const list = document.getElementById('cl-notif-list');
-  if(!list) return;
-  const notifs = S._clientNotifs || [];
-  if(!notifs.length){
-    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">Sin notificaciones</div>';
-    return;
-  }
-  const NI = {'clipboard':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2v1a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4zM8 4V3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1H8z"/></svg>`,'image':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>`,'sparkle':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L9.5 8.5 2 11l7.5 2.5L12 21l2.5-7.5L22 11l-7.5-2.5L12 1z"/></svg>`,'paint':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>`,'credit':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>`,'flag':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6h-5.6z"/></svg>`};
-  list.innerHTML = notifs.slice(0,20).map(n=>`
-    <div class="notif-item${n.read?'':' unread'}" onclick="${n.rid?`openReqMo('${n.rid}');toggleClientNotifPanel()`:''}" style="cursor:${n.rid?'pointer':'default'}">
-      <div class="notif-icon" style="color:var(--accent)">${NI[n.icon]||NI['clipboard']}</div>
-      <div class="notif-body">
-        <div class="notif-title">${n.title}</div>
-        <div class="notif-sub">${n.sub}</div>
-        <div class="notif-ts">${n.ts}</div>
-      </div>
-    </div>`).join('');
-}
-
-function markClientNotifsRead(){
-  (S._clientNotifs||[]).forEach(n=>n.read=true);
-  updateClientNotifBadge();
-  renderClientNotifList();
-}
-
-function updateClientNotifBadge(){
-  const badge = document.getElementById('cl-notif-badge');
-  if(!badge) return;
-  const unread = (S._clientNotifs||[]).filter(n=>!n.read).length;
-  badge.textContent = unread;
-  badge.style.display = unread ? 'flex' : 'none';
-}
-
-// Cerrar panel al click fuera
-document.addEventListener('click', e=>{
-  const p = document.getElementById('cl-notif-panel');
-  const btn = document.getElementById('cl-notif-btn');
-  if(p && btn && !p.contains(e.target) && !btn.contains(e.target)){
-    p.style.display = 'none';
-  }
-});
-
 </script>
 </head>
 <body>
@@ -1148,6 +1097,56 @@ let role='admin', user=null, viewCid=null, viewRid=null, _blockRealtimeUntil=0, 
 let refs=[];
 let step=1;
 let isSupabaseMode = false;
+
+/* ════ NOTIFICACIONES CLIENTE ════ */
+function toggleClientNotifPanel(){
+  const p = document.getElementById('cl-notif-panel');
+  if(!p) return;
+  const isOpen = p.style.display !== 'none';
+  p.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen) renderClientNotifList();
+}
+
+function renderClientNotifList(){
+  const list = document.getElementById('cl-notif-list');
+  if(!list) return;
+  const notifs = S._clientNotifs || [];
+  if(!notifs.length){
+    list.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:13px">Sin notificaciones</div>';
+    return;
+  }
+  list.innerHTML = notifs.map(n=>`
+    <div class="notif-item${n.read?'':' unread'}" onclick="${n.rid?`openReqMo('${n.rid}');toggleClientNotifPanel()`:'toggleClientNotifPanel()'}" style="cursor:${n.rid?'pointer':'default'}">
+      <div class="notif-icon">${{'image':'🖼️','credit':'💳','check':'✅','flag':'🚩','inbox':'📥'}[n.icon]||'🔔'}</div>
+      <div class="notif-body">
+        <div class="notif-title">${n.title}</div>
+        <div class="notif-sub">${n.sub}</div>
+        <div class="notif-ts">${n.ts}</div>
+      </div>
+    </div>`).join('');
+}
+
+function markClientNotifsRead(){
+  (S._clientNotifs||[]).forEach(n=>n.read=true);
+  updateClientNotifBadge();
+  renderClientNotifList();
+}
+
+function updateClientNotifBadge(){
+  const badge = document.getElementById('cl-notif-badge');
+  if(!badge) return;
+  const unread = (S._clientNotifs||[]).filter(n=>!n.read).length;
+  badge.textContent = unread;
+  badge.style.display = unread ? 'flex' : 'none';
+}
+
+document.addEventListener('click', e=>{
+  const p = document.getElementById('cl-notif-panel');
+  const btn = document.getElementById('cl-notif-btn');
+  if(p && btn && !p.contains(e.target) && !btn.contains(e.target)){
+    p.style.display = 'none';
+  }
+});
 
 // Datos demo (usados cuando Supabase no está configurado)
 const S={
