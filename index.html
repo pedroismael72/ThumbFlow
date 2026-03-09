@@ -544,6 +544,57 @@
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
   window.supabaseCreateClient = createClient;
   window.dispatchEvent(new Event('supabase-ready'));
+function toggleClientNotifPanel(){
+  const p = document.getElementById('cl-notif-panel');
+  if(!p) return;
+  const isOpen = p.style.display !== 'none';
+  p.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen) renderClientNotifList();
+}
+
+function renderClientNotifList(){
+  const list = document.getElementById('cl-notif-list');
+  if(!list) return;
+  const notifs = S._clientNotifs || [];
+  if(!notifs.length){
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">Sin notificaciones</div>';
+    return;
+  }
+  const NI = {'clipboard':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2v1a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4zM8 4V3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1H8z"/></svg>`,'image':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>`,'sparkle':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L9.5 8.5 2 11l7.5 2.5L12 21l2.5-7.5L22 11l-7.5-2.5L12 1z"/></svg>`,'paint':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>`,'credit':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>`,'flag':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6h-5.6z"/></svg>`};
+  list.innerHTML = notifs.slice(0,20).map(n=>`
+    <div class="notif-item${n.read?'':' unread'}" onclick="${n.rid?`openReqMo('${n.rid}');toggleClientNotifPanel()`:''}" style="cursor:${n.rid?'pointer':'default'}">
+      <div class="notif-icon" style="color:var(--accent)">${NI[n.icon]||NI['clipboard']}</div>
+      <div class="notif-body">
+        <div class="notif-title">${n.title}</div>
+        <div class="notif-sub">${n.sub}</div>
+        <div class="notif-ts">${n.ts}</div>
+      </div>
+    </div>`).join('');
+}
+
+function markClientNotifsRead(){
+  (S._clientNotifs||[]).forEach(n=>n.read=true);
+  updateClientNotifBadge();
+  renderClientNotifList();
+}
+
+function updateClientNotifBadge(){
+  const badge = document.getElementById('cl-notif-badge');
+  if(!badge) return;
+  const unread = (S._clientNotifs||[]).filter(n=>!n.read).length;
+  badge.textContent = unread;
+  badge.style.display = unread ? 'flex' : 'none';
+}
+
+// Cerrar panel al click fuera
+document.addEventListener('click', e=>{
+  const p = document.getElementById('cl-notif-panel');
+  const btn = document.getElementById('cl-notif-btn');
+  if(p && btn && !p.contains(e.target) && !btn.contains(e.target)){
+    p.style.display = 'none';
+  }
+});
+
 </script>
 </head>
 <body>
@@ -1126,6 +1177,24 @@ function urgencyLabel(deadline){
   if(diff === 1) return '<span style="display:inline-flex;align-items:center;vertical-align:middle"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span> Para mañana';
   if(diff <= 3) return '<span style="display:inline-flex;align-items:center;vertical-align:middle"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span> En '+diff+' días';
   return null;
+}
+
+function addClientNotif(icon, title, sub, onClickRid){
+  // Notificación destinada al cliente — se guarda en array separado
+  if(!S._clientNotifs) S._clientNotifs = [];
+  S._clientNotifs.unshift({
+    id: Date.now(), icon, title, sub, rid: onClickRid,
+    ts: new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})
+  });
+  // Actualizar badge del cliente si está logueado como cliente
+  const badge = document.getElementById('cl-notif-badge');
+  if(badge){
+    const unread = (S._clientNotifs||[]).filter(n=>!n.read).length;
+    badge.textContent = unread;
+    badge.style.display = unread ? 'flex' : 'none';
+  }
+  // Toast al cliente si está en modo cliente
+  if(S._role === 'client') toast(title);
 }
 
 function addNotification(icon, title, sub, onClickRid){
@@ -2318,12 +2387,15 @@ async function saveReq(rid){
 
   _reqOriginalStatus = null;
   closeMo('mo-req');
-  toast('Pedido actualizado');
-  if(role==='admin'){renderADash();renderAReqs();}
-  else{
+  if(role==='admin'){
+    const _rSave = S.reqs.find(x=>x.id===rid);
+    if(_rSave) addClientNotif('clipboard', 'Tu pedido fue actualizado', `"${_rSave.title}" — el diseñador actualizó los detalles.`, rid);
+    renderADash();renderAReqs();
+  } else {
     const cid = user?.clientId||S.clients.find(c=>!c.name.startsWith('[DEMO]'))?.id||'c1';
     renderCDash(cid);
   }
+  toast('Pedido actualizado');
 }
 function openClMo(cid){
   viewCid=cid;const c=gc(cid);if(!c)return;
@@ -2511,6 +2583,17 @@ async function chStatus(rid,status){
   if(status==='Completado'&&r.status!=='Completado'){const cl=gc(r.cid);if(cl){cl.used++;if(isSupabaseMode)await dbUpdateClient(cl.id,{used:cl.used});}}
   r.status=status;
   if(isSupabaseMode) await dbUpdateRequest(rid,{status});
+  // Notificación al cliente
+  const _rSt = S.reqs.find(x=>x.id===rid);
+  if(_rSt){
+    const _stMsgs = {
+      'En progreso':        { icon:'paint',    title:'Tu pedido está en progreso', sub:`"${_rSt.title}" — el diseñador ya empezó a trabajar.` },
+      'Listo para revisar': { icon:'sparkle',  title:'¡Tu miniatura está lista!',  sub:`"${_rSt.title}" — entrá a revisarla y aprobala.` },
+      'No iniciado':        { icon:'clipboard',title:'Pedido recibido',             sub:`"${_rSt.title}" — en cola, pronto empieza.` },
+    };
+    const _nm = _stMsgs[status];
+    if(_nm) addClientNotif(_nm.icon, _nm.title, _nm.sub, rid);
+  }
   renderADash();renderAReqs();renderAClients();toast('Estado actualizado');
 }
 async function regPay(cid){
@@ -2519,6 +2602,9 @@ async function regPay(cid){
   c.payments.push({d:today,a:c.price,s:'Pagado',m:'Registrado'});
   c.pay='Al día';
   if(isSupabaseMode){await dbAddPayment(cid,c.price,'Registrado');await dbUpdateClient(cid,{pay:'Al día'});}
+  // Notificación al cliente
+  const _clPay = gc(cid);
+  if(_clPay) addClientNotif('credit', 'Pago registrado', `Se registró tu pago de $${_clPay.price}. ¡Gracias!`);
   toast('Pago registrado');renderAPays();renderADash();renderAClients();
 }
 async function updPay(cid,val){
@@ -2995,6 +3081,12 @@ async function submitDelivery(){
   progressBar.style.width='0%'; progressPct.textContent='0%';
   if(btn){ btn.disabled=false; btn.style.opacity='1'; }
   if(cancelBtn){ cancelBtn.disabled=false; cancelBtn.style.opacity='1'; }
+  // Notificación al cliente — diseñador subió miniatura
+  const _rDel = S.reqs.find(x=>x.id===_ridToReopen);
+  if(_rDel){
+    const _clDel = gc(_rDel.cid);
+    addClientNotif('image', '¡Miniatura lista para revisar!', `"${_rDel.title}" — revisala y aprobala o pedí cambios.`, _ridToReopen);
+  }
   toast('Miniatura subida');
   renderADash();renderAReqs();
   // Reabrir el modal manteniendo el status actual
@@ -3044,6 +3136,9 @@ async function submitReview(decision){
     if(isSupabaseMode){
       if(v.id) await dbUpdateVersion(v.id,{status:decision,comment:v.comment,annotation:v.annotation});
     }
+    // Notificación al admin — cliente pidió cambios
+    const _rCambios = S.reqs.find(x=>x.id===reviewingRid);
+    if(_rCambios){ addNotification('flag', 'Cambios solicitados', `"${_rCambios.title}" — el cliente pidió modificaciones.`, reviewingRid); }
     closeMo('mo-review');
     toast('Feedback enviado');
   }
