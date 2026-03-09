@@ -622,6 +622,14 @@ document.addEventListener('click', e=>{
 </div>
 
 <!-- ADMIN -->
+<!-- Panel notificaciones CLIENTE — position:fixed, no afecta el layout grid -->
+<div id="cl-notif-panel" style="display:none;position:fixed;top:56px;right:12px;width:320px;max-height:420px;background:var(--surface);border:1px solid var(--border);border-radius:16px;z-index:9999;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.4)">
+  <div style="padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+    <span class="notif-head-title">Notificaciones</span>
+    <button class="icon-btn" style="font-size:12px;color:var(--muted)" onclick="markClientNotifsRead()">Marcar leídas</button>
+  </div>
+  <div id="cl-notif-list" style="overflow-y:auto;max-height:340px"></div>
+</div>
 <div id="screen-admin" class="screen">
   <div class="app-layout">
     <div class="topbar">
@@ -731,14 +739,6 @@ document.addEventListener('click', e=>{
       </label>
       <button class="logout-btn" onclick="logout()" title="Salir"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg></button>
     </div>
-  <!-- Panel notificaciones CLIENTE -->
-  <div id="cl-notif-panel" style="display:none;position:fixed;top:56px;right:12px;width:320px;max-height:420px;background:var(--surface);border:1px solid var(--border);border-radius:16px;z-index:9999;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.4)">
-    <div style="padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
-      <span class="notif-head-title">Notificaciones</span>
-      <button class="icon-btn" style="font-size:12px;color:var(--muted)" onclick="markClientNotifsRead()">Marcar leídas</button>
-    </div>
-    <div id="cl-notif-list" style="overflow-y:auto;max-height:340px"></div>
-  </div>
     <div class="sidebar" id="client-sidebar">
       <button class="sidebar-toggle" id="client-sidebar-toggle" onclick="toggleSidebar('client')" title="Contraer/expandir"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
       <span class="nav-lbl">Mi cuenta</span>
@@ -1699,6 +1699,67 @@ function closeMo(id){document.getElementById(id).classList.remove('open');}
 
 /* ADMIN */
 function renderADash(){
+  // ── PRIORITY BANNER — qué hacer ahora ─────────────────────────
+  const bannerEl = document.getElementById('admin-priority-banner');
+  if(bannerEl){
+    const toConfirm = S.reqs.filter(r=>r.status==='Listo para revisar');
+    const urgentItems = S.reqs.filter(r=>{
+      if(r.status==='Completado'||r.status==='No iniciado') return false;
+      if(!r.deadline) return false;
+      const diff = Math.round((new Date(r.deadline)-new Date())/(1000*60*60*24));
+      return diff <= 1;
+    });
+    const needsWork = S.reqs.filter(r=>r.status==='No iniciado')
+      .sort((a,b)=>{ if(!a.deadline)return 1;if(!b.deadline)return -1;return new Date(a.deadline)-new Date(b.deadline); });
+
+    let bannerHtml = '';
+
+    if(toConfirm.length){
+      bannerHtml += `<div style="background:rgba(77,159,255,.08);border:1.5px solid rgba(77,159,255,.3);border-radius:14px;padding:14px 20px;display:flex;align-items:center;gap:14px;margin-bottom:10px">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(77,159,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--blue)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:3px">
+            <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--blue);margin-right:5px;animation:liveDot 1.5s ease-in-out infinite;vertical-align:middle"></span>
+            ${toConfirm.length} miniatura${toConfirm.length>1?'s':''} esperando feedback del cliente
+          </div>
+          <div style="font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${toConfirm.map(r=>`"${r.title}"`).join(' · ')}</div>
+        </div>
+      </div>`;
+    }
+
+    if(urgentItems.length){
+      bannerHtml += `<div style="background:rgba(255,77,0,.08);border:1.5px solid rgba(255,77,0,.25);border-radius:14px;padding:14px 20px;display:flex;align-items:center;gap:14px;margin-bottom:10px">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,77,0,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:3px">${urgentItems.length} pedido${urgentItems.length>1?'s':''} urgente${urgentItems.length>1?'s':''} — vence${urgentItems.length===1?'':'n'} hoy o mañana</div>
+          <div style="font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${urgentItems.map(r=>{ const cl=gc(r.cid); return `"${r.title}" (${cl?.name?.split(' ')[0]||''})`; }).join(' · ')}</div>
+        </div>
+      </div>`;
+    }
+
+    if(!bannerHtml && needsWork.length){
+      const next = needsWork[0];
+      const cl = gc(next.cid);
+      bannerHtml = `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:14px 20px;display:flex;align-items:center;gap:14px;margin-bottom:10px">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,77,0,.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:3px">Próximo a empezar</div>
+          <div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">"${next.title}" <span style="color:var(--muted);font-weight:400">· ${cl?.name||''}</span></div>
+        </div>
+        <button class="btn btn-p btn-sm" onclick="openReqMo('${next.id}')">Empezar →</button>
+      </div>`;
+    }
+
+    bannerEl.innerHTML = bannerHtml;
+    bannerEl.style.display = bannerHtml ? 'block' : 'none';
+  }
+
   const activeClients = S.clients.filter(c=>!c.archived).length;
   const pending = S.reqs.filter(r=>r.status!=='Completado').length;
   // Miniaturas entregadas = pedidos Completados (cada uno = 1 miniatura)
@@ -2759,13 +2820,23 @@ async function chStatus(rid,status){
 async function regPay(cid){
   const c=gc(cid);if(!c)return;
   const today=new Date().toISOString().split('T')[0];
+  // Actualizar estado en memoria inmediatamente
   c.payments.push({d:today,a:c.price,s:'Pagado',m:'Registrado'});
   c.pay='Al día';
-  if(isSupabaseMode){await dbAddPayment(cid,c.price,'Registrado');await dbUpdateClient(cid,{pay:'Al día'});}
+  // Renderizar UI de forma inmediata, sin esperar Supabase
+  renderAPays();renderADash();renderAClients();
+  toast('Pago registrado ✓');
   // Notificación al cliente
-  const _clPay = gc(cid);
-  if(_clPay) addClientNotif('credit', 'Pago registrado', `Se registró tu pago de $${_clPay.price}. ¡Gracias!`);
-  toast('Pago registrado');renderAPays();renderADash();renderAClients();
+  addClientNotif('credit','Pago registrado',`Se registró tu pago de $${c.price}. ¡Gracias!`);
+  // Guardar en Supabase en segundo plano
+  if(isSupabaseMode){
+    try {
+      await dbAddPayment(cid,c.price,'Registrado');
+      await dbUpdateClient(cid,{pay:'Al día'});
+    } catch(e) {
+      console.error('Error guardando pago en Supabase:',e);
+    }
+  }
 }
 async function updPay(cid,val){
   const c=gc(cid);if(c)c.pay=val;
@@ -3190,8 +3261,21 @@ async function submitDelivery(){
   },200);
 
   if(isSupabaseMode){
-    const blob=await(await fetch(deliverFile)).blob();
-    const path=`deliveries/${currentDeliverRid}/${Date.now()}.jpg`;
+    // Convertir base64 a Blob sin usar fetch (más compatible)
+    let blob;
+    try {
+      const arr = deliverFile.split(',');
+      const mime = arr[0].match(/:(.*?);/)[1];
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while(n--) u8arr[n] = bstr.charCodeAt(n);
+      blob = new Blob([u8arr], {type: mime});
+    } catch(e) {
+      blob = await(await fetch(deliverFile)).blob();
+    }
+    const ext = blob.type.includes('png') ? 'png' : 'jpg';
+    const path=`deliveries/${currentDeliverRid}/${Date.now()}.${ext}`;
     imgUrl=await dbUploadImage(blob,path);
     clearInterval(fakeInterval);
     if(!imgUrl){
