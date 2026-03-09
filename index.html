@@ -1362,34 +1362,19 @@ function stopRealtime(){
    AUTH — Supabase + Google Login
 ═══════════════════════════════════════════════════ */
 
+let _sessionHandled = false;
+
 async function checkSession(){
   if(!sb_client) return;
 
-  const isOAuthRedirect = window.location.hash.includes('access_token') || 
-                          window.location.search.includes('code=');
-
-  if(isOAuthRedirect){
-    // Viene de redirect de Google — procesar OAuth
-    const { data: { session } } = await sb_client.auth.getSession();
-    if(session){
-      // Limpiar el hash de la URL sin recargar
+  // UN solo listener global — registrado una sola vez
+  sb_client.auth.onAuthStateChange(async(event, session) => {
+    if(event === 'SIGNED_OUT'){ _sessionHandled=false; showScreen('screen-login'); return; }
+    if((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && !_sessionHandled){
+      _sessionHandled = true;
       history.replaceState(null,'',window.location.pathname);
       await handleSession(session);
-      return;
     }
-  }
-
-  // Refresh normal — intentar restaurar sesión existente
-  const { data: { session } } = await sb_client.auth.getSession();
-  if(session){
-    await handleSession(session);
-    return;
-  }
-
-  // Sin sesión — mostrar login
-  sb_client.auth.onAuthStateChange(async(event, session) => {
-    if(event === 'SIGNED_IN' && session) await handleSession(session);
-    if(event === 'SIGNED_OUT') showScreen('screen-login');
   });
 }
 
@@ -1398,11 +1383,6 @@ async function handleSession(session){
   const meta = session.user.user_metadata || {};
   const name = meta.full_name || meta.name || meta.display_name || email.split('@')[0];
   isSupabaseMode = true;
-
-  // Escuchar cambios de sesión (logout, expiración, etc.)
-  sb_client.auth.onAuthStateChange((event, s) => {
-    if(event === 'SIGNED_OUT') showScreen('screen-login');
-  });
 
   if(email === ADMIN_EMAIL){
     role = 'admin';
