@@ -664,6 +664,7 @@ document.addEventListener('click', e=>{
     <div class="main-content">
       <div class="panel active" id="admin-panel-dashboard">
         <div class="page-header"><div class="page-title">Dashboard</div><div class="page-sub">Resumen general de tu estudio</div></div>
+        <div id="admin-priority-banner" style="margin-bottom:20px"></div>
         <div class="stats-grid">
           <div class="stat-card"><div class="stat-card-inner">
             <div class="stat-card-icon"><div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#5E9FFF,#9B59FF);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px #5E9FFF55"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div></div>
@@ -699,11 +700,12 @@ document.addEventListener('click', e=>{
         <div id="a-reqs"></div>
       </div>
       <div class="panel" id="admin-panel-pagos">
-        <div class="page-header"><div class="page-title">Pagos</div><div class="page-sub">Control financiero</div></div>
+        <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div><div class="page-title">Pagos</div><div class="page-sub">Facturación y estado de cuentas</div></div>
+          <div id="pays-summary" style="display:flex;gap:10px;flex-wrap:wrap"></div>
+        </div>
         <div id="a-pays"></div>
       </div>
-    </div>
-  </div>
 </div>
 
 <!-- CLIENT -->
@@ -749,9 +751,18 @@ document.addEventListener('click', e=>{
     <div class="main-content">
       <div class="panel active" id="client-panel-inicio">
         <div class="page-header"><div class="page-title" id="cl-welcome">Hola</div><div class="page-sub">Tu panel de miniaturas</div></div>
+        <div id="cl-hero-action" style="display:none"></div>
         <div class="stats-grid" id="cl-stats"></div>
         <div id="cl-tracking-section"></div>
         <div class="card"><div class="card-title">Pedidos recientes</div><div id="cl-recent"></div></div>
+        <div style="margin-top:12px;text-align:center">
+          <div id="cl-contact-btn" style="display:none">
+            <a id="cl-contact-link" href="#" class="btn btn-g" style="display:inline-flex;align-items:center;gap:8px;font-size:13px">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+              Contactar al diseñador
+            </a>
+          </div>
+        </div>
       </div>
       <div class="panel" id="client-panel-pedidos">
         <div class="page-header"><div class="page-title">Mis pedidos</div><div class="page-sub">Historial completo</div></div>
@@ -763,8 +774,7 @@ document.addEventListener('click', e=>{
         <div class="page-header"><div class="page-title">Nuevo pedido</div><div class="page-sub">Completá los datos paso a paso</div></div>
         <div class="steps">
           <div class="step act" id="st-1"><div class="sn">1</div><div class="sl">Datos</div></div>
-          <div class="step" id="st-2"><div class="sn">2</div><div class="sl">Referencias YT</div></div>
-          <div class="step" id="st-3"><div class="sn">3</div><div class="sl">Confirmar</div></div>
+          <div class="step" id="st-3"><div class="sn">2</div><div class="sl">Confirmar</div></div>
         </div>
 
         <!-- Step 1 -->
@@ -787,40 +797,40 @@ document.addEventListener('click', e=>{
                 <div class="img-preview-grid" id="ref-img-previews"></div>
               </div>
             </div>
+            <!-- Referencias YT colapsables -->
+            <div style="margin-top:16px">
+              <button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.yt-arrow').style.transform=this.nextElementSibling.style.display==='none'?'':'rotate(180deg)'"
+                style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border:1px dashed var(--border);border-radius:10px;background:transparent;color:var(--muted);font-family:inherit;font-size:13px;cursor:pointer;transition:all .2s"
+                onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--text)'"
+                onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+                <span style="display:flex;align-items:center;gap:8px">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  Agregar referencias de YouTube <span style="font-size:11px;background:var(--surface2);padding:2px 7px;border-radius:10px">Opcional</span>
+                </span>
+                <svg class="yt-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div style="display:none;margin-top:10px">
+                <div class="yt-wrap">
+                  <div class="yt-header"><span class="yt-badge"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg> YT</span> Miniaturas de referencia</div>
+                  <div class="yt-row">
+                    <input id="yt-q" type="text" placeholder="Ej: plugins premiere pro, tutorial excel..." onkeydown="if(event.key==='Enter')ytSearch()">
+                    <button class="yt-btn" id="yt-btn" onclick="ytSearch()">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                      Buscar
+                    </button>
+                  </div>
+                  <div class="yt-grid" id="yt-grid" style="max-height:280px;overflow-y:auto">
+                    <div class="yt-ph"><div class="phi"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>Buscá un tema para ver miniaturas de referencia</div>
+                  </div>
+                  <div id="refs-wrap" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+                    <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Seleccionadas</div>
+                    <div class="refs-row" id="refs-row"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div style="margin-top:24px;display:flex;justify-content:flex-end">
-              <button class="btn btn-p" onclick="goStep(2)">Siguiente: Buscar referencias →</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 2: YouTube Search -->
-        <div id="fs-2" style="display:none">
-          <div class="card">
-            <div class="card-title">Referencias visuales de YouTube</div>
-            <p style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6">Buscá un tema relacionado a tu video y seleccioná hasta <strong style="color:var(--text)">3 miniaturas</strong> de la competencia que te gusten como referencia de estilo para el diseñador. Este paso es <em>opcional</em>.</p>
-
-            <div class="yt-wrap">
-              <div class="yt-header"><span class="yt-badge"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> YT</span> Búsqueda de YouTube</div>
-              <div class="yt-row">
-                <input id="yt-q" type="text" placeholder="Ej: plugins premiere pro 2025, tutorial excel, recetas italianas..." onkeydown="if(event.key==='Enter')ytSearch()">
-                <button class="yt-btn" id="yt-btn" onclick="ytSearch()">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                  Buscar
-                </button>
-              </div>
-
-              <div class="yt-grid" id="yt-grid" style="max-height:none">
-                <div class="yt-ph"><div class="phi"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg></div>Escribí un tema de búsqueda y presioná <strong>Buscar</strong><br>para ver las miniaturas de YouTube</div>
-              </div>
-
-              <div id="refs-wrap" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
-                <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Seleccionadas como referencia</div>
-                <div class="refs-row" id="refs-row"></div>
-              </div>
-            </div>
-
-            <div style="margin-top:24px;display:flex;justify-content:space-between">
-              <button class="btn btn-g" onclick="goStep(1)">← Volver</button>
               <button class="btn btn-p" onclick="goStep(3)">Siguiente: Confirmar →</button>
             </div>
           </div>
@@ -854,8 +864,7 @@ document.addEventListener('click', e=>{
     <div class="fg">
       <div style="display:flex;flex-direction:column;gap:6px" class="fg-f"><label>Nombre completo</label><input id="nc-name" type="text" placeholder="Juan Pérez"></div>
       <div style="display:flex;flex-direction:column;gap:6px"><label>Email</label><input id="nc-email" type="email" placeholder="juan@gmail.com"></div>
-      <div style="display:flex;flex-direction:column;gap:6px"><label>User ID de Supabase <span style="color:var(--muted);font-size:11px">(opcional — para vincular login)</span></label><input id="nc-uid" type="text" placeholder="Se completa automático si el cliente ya se logueó"></div>
-      <div style="display:flex;flex-direction:column;gap:6px"><label>Canal YouTube</label><input id="nc-ch" type="text" placeholder="@micanal"></div>
+<div style="display:flex;flex-direction:column;gap:6px"><label>Canal YouTube</label><input id="nc-ch" type="text" placeholder="@micanal"></div>
       <div style="display:flex;flex-direction:column;gap:6px"><label>Pack</label><select id="nc-pack"><option value="4">Pack Básico (4)</option><option value="8">Pack Estándar (8)</option><option value="16">Pack Pro (16)</option><option value="99">Ilimitado</option></select></div>
       <div style="display:flex;flex-direction:column;gap:6px"><label>Precio ($)</label><input id="nc-price" type="number" placeholder="120"></div>
       <div style="display:flex;flex-direction:column;gap:6px" class="fg-f"><label>Estado de pago</label><select id="nc-ps"><option>Al día</option><option>Pendiente</option><option>Vencido</option></select></div>
@@ -958,35 +967,45 @@ document.addEventListener('click', e=>{
       <button class="mc" onclick="closeMo('mo-review')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
 
-    <!-- Canvas de anotación -->
-    <div style="margin-bottom:12px">
-      <div class="ctoolbar" id="canvas-toolbar">
-        <span style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-right:4px">Herramientas:</span>
-        <button class="tbtn act" id="tool-pen" onclick="setTool('pen')"><span style="display:inline-flex;align-items:center;vertical-align:middle"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span> Marcar</button>
-        <button class="tbtn" id="tool-arrow" onclick="setTool('arrow')"><span style="display:inline-flex;align-items:center;vertical-align:middle"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span> Flecha</button>
-        <button class="tbtn" id="tool-rect" onclick="setTool('rect')">▭ Área</button>
-        <div style="width:1px;height:20px;background:var(--border);margin:0 4px"></div>
-        <button class="tbtn" onclick="setColor('#ff4d4d')" title="Rojo"><span class="cdot" style="background:#ff4d4d"></span></button>
-        <button class="tbtn" onclick="setColor('#f5c842')" title="Amarillo"><span class="cdot" style="background:#f5c842"></span></button>
-        <button class="tbtn" onclick="setColor('#4d9fff')" title="Azul"><span class="cdot" style="background:#4d9fff"></span></button>
-        <button class="tbtn" onclick="setColor('#2dca73')" title="Verde"><span class="cdot" style="background:#2dca73"></span></button>
-        <div style="margin-left:auto;display:flex;gap:6px">
-          <button class="tbtn" onclick="undoStroke()" title="Deshacer"><span style="display:inline-flex;align-items:center;vertical-align:middle"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></span> Deshacer</button>
-          <button class="tbtn" onclick="clearCanvas()" title="Limpiar"><span style="display:inline-flex;align-items:center;vertical-align:middle"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/><path d="M9 6V4h6v2"/></svg></span> Limpiar</button>
-        </div>
-      </div>
-      <div class="canvas-wrap" id="canvas-wrap">
-        <img class="ri" id="review-img" src="" alt="Miniatura">
-        <canvas id="ann-canvas"></canvas>
-      </div>
+    <!-- Imagen principal -->
+    <div class="canvas-wrap" id="canvas-wrap" style="margin-bottom:12px">
+      <img class="ri" id="review-img" src="" alt="Miniatura">
+      <canvas id="ann-canvas"></canvas>
     </div>
 
-    <!-- Comentario y acciones (cliente) -->
+    <!-- Comentario y acciones (cliente) — PRIMERO Y PROMINENTE -->
     <div id="rev-client-actions">
-      <textarea class="review-comment" id="rev-comment" placeholder="Escribí tu feedback: qué te gusta, qué querés cambiar, qué falta..."></textarea>
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:8px">Tu feedback</label>
+        <textarea class="review-comment" id="rev-comment" placeholder="¿Qué querés que cambie? ¿Qué te gustó? Cuanto más detallado, mejor resultado..." style="min-height:90px"></textarea>
+      </div>
+      <!-- Anotaciones — colapsable -->
+      <div style="margin-bottom:16px">
+        <button onclick="const w=document.getElementById('canvas-toolbar');const open=w.style.display!=='none';w.style.display=open?'none':'flex';this.innerHTML=open?'<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M12 20h9'/><path d='M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z'/></svg> Marcar sobre la imagen (opcional)':'<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M12 20h9'/><path d='M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z'/></svg> Ocultar herramientas'"
+          style="font-size:12px;color:var(--muted);background:none;border:1px dashed var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit;transition:all .2s"
+          onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--text)'"
+          onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Marcar sobre la imagen <span style="font-size:11px;background:var(--surface2);padding:1px 6px;border-radius:8px">Opcional</span>
+        </button>
+        <div class="ctoolbar" id="canvas-toolbar" style="display:none;margin-top:8px">
+          <button class="tbtn act" id="tool-pen" onclick="setTool('pen')"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Marcar</button>
+          <button class="tbtn" id="tool-arrow" onclick="setTool('arrow')"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg> Flecha</button>
+          <button class="tbtn" id="tool-rect" onclick="setTool('rect')">▭ Área</button>
+          <div style="width:1px;height:18px;background:var(--border);margin:0 4px"></div>
+          <button class="tbtn" onclick="setColor('#ff4d4d')"><span class="cdot" style="background:#ff4d4d"></span></button>
+          <button class="tbtn" onclick="setColor('#f5c842')"><span class="cdot" style="background:#f5c842"></span></button>
+          <button class="tbtn" onclick="setColor('#4d9fff')"><span class="cdot" style="background:#4d9fff"></span></button>
+          <button class="tbtn" onclick="setColor('#2dca73')"><span class="cdot" style="background:#2dca73"></span></button>
+          <div style="margin-left:auto;display:flex;gap:6px">
+            <button class="tbtn" onclick="undoStroke()"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></button>
+            <button class="tbtn" onclick="clearCanvas()"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+          </div>
+        </div>
+      </div>
       <div class="rev-actions">
-        <button class="btn-chg" onclick="submitReview('cambios')"><span style="display:inline-flex;align-items:center;vertical-align:middle"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></span> Pedir cambios</button>
-        <button class="btn-ok" onclick="submitReview('aprobado')"><span style="display:inline-flex;align-items:center;vertical-align:middle"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Aprobar miniatura</button>
+        <button class="btn-chg" onclick="submitReview('cambios')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Pedir cambios</button>
+        <button class="btn-ok" onclick="submitReview('aprobado')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Aprobar miniatura</button>
       </div>
     </div>
 
@@ -1188,22 +1207,26 @@ function urgencyLabel(deadline){
   return null;
 }
 
+function _clNotifKey(){ return 'tf-clnotifs-'+(user?.email||'demo'); }
+function _saveClientNotifs(){
+  try { localStorage.setItem(_clNotifKey(), JSON.stringify((S._clientNotifs||[]).slice(0,30))); } catch(e){}
+}
+function _loadClientNotifs(){
+  try {
+    const raw = localStorage.getItem(_clNotifKey());
+    if(raw) S._clientNotifs = JSON.parse(raw);
+  } catch(e){ S._clientNotifs = []; }
+}
+
 function addClientNotif(icon, title, sub, onClickRid){
-  // Notificación destinada al cliente — se guarda en array separado
   if(!S._clientNotifs) S._clientNotifs = [];
   S._clientNotifs.unshift({
-    id: Date.now(), icon, title, sub, rid: onClickRid,
+    id: Date.now(), icon, title, sub, rid: onClickRid, read: false,
     ts: new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})
   });
-  // Actualizar badge del cliente si está logueado como cliente
-  const badge = document.getElementById('cl-notif-badge');
-  if(badge){
-    const unread = (S._clientNotifs||[]).filter(n=>!n.read).length;
-    badge.textContent = unread;
-    badge.style.display = unread ? 'flex' : 'none';
-  }
-  // Toast al cliente si está en modo cliente
-  if(S._role === 'client') toast(title);
+  _saveClientNotifs();
+  updateClientNotifBadge();
+  if(role === 'client') toast(title);
 }
 
 function addNotification(icon, title, sub, onClickRid){
@@ -1719,9 +1742,7 @@ function renderADash(){
 }
 /* ════ ONBOARDING ════ */
 const OB_STEPS = [
-  { icon:'gift', title:'¡Bienvenido a ThumbFlow!', desc:'Desde acá podés ver el estado de tus miniaturas en tiempo real, dejar feedback y aprobar el trabajo de tu diseñador.' },
-  { icon:'clipboard', title:'Cargá tu pedido', desc:'Entrá a "Nuevo pedido", escribí el título de tu video, agregá referencias de YouTube y contale a tu diseñador el estilo que buscás.' },
-  { icon:'sparkle', title:'Revisá y aprobá', desc:'Cuando tu diseñador termine, vas a ver la miniatura acá. Podés marcar cambios directamente sobre la imagen o aprobarla con un clic.' }
+  { icon:'gift', title:'¡Bienvenido a ThumbFlow!', desc:'Desde acá podés ver tus pedidos, dar feedback sobre las miniaturas y aprobar el trabajo de tu diseñador. Cuando haya algo para revisar, te avisamos acá mismo.' }
 ];
 
 function obShow(){
@@ -1851,13 +1872,66 @@ function renderAReqs(){
     </div></div>`;}).join(''):`<div class="es"><div style="opacity:.25;display:flex;justify-content:center"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div><p>No hay pedidos.</p></div>`;
 }
 function renderAPays(){
-  document.getElementById('a-pays').innerHTML=S.clients.map(c=>`
-    <div class="card"><div class="card-title"><div style="display:flex;align-items:center;gap:12px"><div class="cav" style="width:36px;height:36px;font-size:13px">${ini(c.name)}</div>${c.name} ${pb(c.pay)}</div><div style="font-size:14px;color:var(--muted);font-weight:400">$${c.price}/ciclo</div></div>
-    ${c.payments.map(p=>`<div class="pay-row"><div><strong>${fd(p.d)}</strong><span style="color:var(--muted);margin-left:8px;font-size:12px">${p.m}</span></div><div style="display:flex;align-items:center;gap:16px"><strong>$${p.a}</strong>${pb(p.s==='Vencido'?'Vencido':p.s==='Pendiente'?'Pendiente':'Al día')}</div></div>`).join('')}
-    <div style="margin-top:14px;display:flex;gap:8px">
-      <button class="btn btn-p btn-sm" onclick="regPay('${c.id}')">+ Registrar pago</button>
-      <button class="btn btn-g btn-sm" onclick="updPay('${c.id}','Al día')">Marcar al día</button>
-    </div></div>`).join('');
+  const summaryEl = document.getElementById('pays-summary');
+  const active = S.clients.filter(c=>!c.archived);
+  const totalDebt = active.filter(c=>c.pay!=='Al día').reduce((sum,c)=>sum+c.price,0);
+  const vencidos = active.filter(c=>c.pay==='Vencido').length;
+  const pendientes = active.filter(c=>c.pay==='Pendiente').length;
+  const alDia = active.filter(c=>c.pay==='Al día').length;
+  if(summaryEl){
+    summaryEl.innerHTML = `
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px 16px;text-align:center">
+        <div style="font-size:18px;font-weight:800;color:var(--green)">${alDia}</div>
+        <div style="font-size:11px;color:var(--muted)">Al día</div>
+      </div>
+      ${pendientes ? `<div style="background:rgba(245,200,66,.08);border:1px solid rgba(245,200,66,.25);border-radius:12px;padding:10px 16px;text-align:center">
+        <div style="font-size:18px;font-weight:800;color:var(--yellow)">${pendientes}</div>
+        <div style="font-size:11px;color:var(--muted)">Pendiente${pendientes>1?'s':''}</div>
+      </div>` : ''}
+      ${vencidos ? `<div style="background:rgba(255,77,77,.08);border:1px solid rgba(255,77,77,.25);border-radius:12px;padding:10px 16px;text-align:center">
+        <div style="font-size:18px;font-weight:800;color:var(--red)">${vencidos}</div>
+        <div style="font-size:11px;color:var(--muted)">Vencido${vencidos>1?'s':''}</div>
+      </div>` : ''}
+      ${totalDebt ? `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px 16px;text-align:center">
+        <div style="font-size:18px;font-weight:800;color:var(--accent)">$${totalDebt.toLocaleString('es-AR')}</div>
+        <div style="font-size:11px;color:var(--muted)">Deuda total</div>
+      </div>` : ''}
+    `;
+  }
+
+  document.getElementById('a-pays').innerHTML = active.map(c=>{
+    const monthRev = c.payments.filter(p=>{
+      const d = new Date(p.d); const now = new Date();
+      return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear() && p.s==='Pagado';
+    }).reduce((sum,p)=>sum+p.a,0);
+    return `<div class="card">
+      <div class="card-title">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="cav" style="width:36px;height:36px;font-size:13px">${ini(c.name)}</div>
+          <div>
+            <div style="display:flex;align-items:center;gap:8px">${c.name} ${pb(c.pay)}</div>
+            <div style="font-size:12px;color:var(--muted);font-weight:400;margin-top:2px">$${c.price}/ciclo ${monthRev ? `· <span style="color:var(--green)">$${monthRev} cobrado este mes</span>` : ''}</div>
+          </div>
+        </div>
+        ${c.pay!=='Al día' ? `<a href="mailto:${c.email}?subject=Recordatorio de pago - ThumbFlow&body=Hola ${c.name.split(' ')[0]},%0A%0ATe recuerdo que tenés un pago pendiente de $${c.price}. Cualquier consulta estoy a disposición.%0A%0ASaludos!" class="btn btn-g btn-sm" style="color:var(--yellow);border-color:rgba(245,200,66,.3);text-decoration:none;flex-shrink:0">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:4px"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          Recordatorio
+        </a>` : ''}
+      </div>
+      <div style="max-height:160px;overflow-y:auto">
+        ${c.payments.slice().reverse().map(p=>`
+          <div class="pay-row">
+            <div><strong>${fd(p.d)}</strong><span style="color:var(--muted);margin-left:8px;font-size:12px">${p.m}</span></div>
+            <div style="display:flex;align-items:center;gap:16px"><strong>$${p.a}</strong>${pb(p.s==='Vencido'?'Vencido':p.s==='Pendiente'?'Pendiente':'Al día')}</div>
+          </div>`).join('')}
+      </div>
+      <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-p btn-sm" onclick="regPay('${c.id}')">+ Registrar pago</button>
+        <button class="btn btn-g btn-sm" onclick="updPay('${c.id}','Al día')">Marcar al día</button>
+        ${c.pay!=='Al día' ? `<button class="btn btn-g btn-sm" style="color:var(--red);border-color:rgba(255,77,77,.3)" onclick="updPay('${c.id}','Vencido')">Marcar vencido</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 /* CLIENT */
@@ -2118,20 +2192,97 @@ function renderTracking(cid){
     ${restHtml}`;
 }
 
-function renderCDash(cid){
-  const c=gc(cid),rqs=gr(cid),pending=rqs.filter(r=>r.status!=='Completado').length;
-  const av=c.pack===99?'∞':c.pack-c.used;
-  document.getElementById('cl-stats').innerHTML=`
-    <div class="stat-card"><div class="stat-lbl">Disponibles</div><div class="stat-val ${typeof av==='number'&&av<=1?'c-red':'c-green'}">${av}</div><div class="stat-sub">${c.pack===99?'Ilimitado':`de ${c.pack} en tu pack`}</div>${c.pack!==99?`<div class="pbar"><div class="pbar-fill" style="width:${Math.min(100,(c.used/c.pack)*100)}%"></div></div>`:''}</div>
-    <div class="stat-card"><div class="stat-lbl">En proceso</div><div class="stat-val c-yellow">${pending}</div><div class="stat-sub">Pedidos activos</div></div>
-    <div class="stat-card"><div class="stat-lbl">Entregadas</div><div class="stat-val c-blue">${c.used}</div><div class="stat-sub">Total histórico</div></div>
-    <div class="stat-card"><div class="stat-lbl">Estado de pago</div><div style="margin-top:8px">${pb(c.pay)}</div><div class="stat-sub" style="margin-top:8px">$${c.price}/ciclo</div></div>`;
+function renderCDash(cid){ _loadClientNotifs();
+  const cl = gc(cid); if(!cl) return;
+  const reqs = gr(cid);
+  document.getElementById('cl-welcome').textContent = 'Hola, ' + cl.name.split(' ')[0];
+  updateCreditsUI(cl);
+
+  // ── HERO BANNER: acción urgente ──────────────────────────────
+  const heroEl = document.getElementById('cl-hero-action');
+  const toReview = reqs.filter(r=>r.status==='Listo para revisar');
+  const inProgress = reqs.filter(r=>r.status==='En progreso');
+  if(heroEl){
+    if(toReview.length){
+      const r = toReview[0];
+      heroEl.style.display = 'block';
+      heroEl.innerHTML = `
+        <div style="background:linear-gradient(135deg,rgba(77,159,255,.15),rgba(77,159,255,.05));border:1.5px solid rgba(77,159,255,.4);border-radius:16px;padding:20px 24px;display:flex;align-items:center;gap:20px;cursor:pointer;transition:all .2s;margin-bottom:8px" onclick="openReqMo('${r.id}')"
+          onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 8px 24px rgba(77,159,255,.15)'"
+          onmouseout="this.style.transform='';this.style.boxShadow=''">
+          <div style="width:48px;height:48px;border-radius:14px;background:rgba(77,159,255,.15);border:1.5px solid rgba(77,159,255,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--blue)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">
+              <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--blue);margin-right:5px;animation:liveDot 1.5s ease-in-out infinite;vertical-align:middle"></span>
+              Miniatura lista para revisar
+            </div>
+            <div style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">"${r.title}"</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">Aprobala o pedí cambios · el diseñador espera tu respuesta</div>
+          </div>
+          <button class="btn btn-p btn-sm" style="flex-shrink:0;background:var(--blue);border-color:var(--blue)" onclick="event.stopPropagation();openReqMo('${r.id}')">Revisar ahora →</button>
+        </div>
+        ${toReview.length>1 ? `<div style="font-size:12px;color:var(--muted);padding:4px 8px">+${toReview.length-1} más listo${toReview.length-1>1?'s':''} para revisar</div>` : ''}
+      `;
+    } else if(inProgress.length){
+      const r = inProgress[0];
+      heroEl.style.display = 'block';
+      heroEl.innerHTML = `
+        <div style="background:rgba(255,77,0,.06);border:1px solid rgba(255,77,0,.2);border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin-bottom:8px">
+          <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--accent);flex-shrink:0;animation:liveDot 1.5s ease-in-out infinite"></span>
+          <div>
+            <div style="font-size:13px;font-weight:600">Tu diseñador está trabajando en <em>"${r.title}"</em></div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">Te avisamos cuando esté lista para revisar</div>
+          </div>
+        </div>
+      `;
+    } else {
+      heroEl.style.display = 'none';
+    }
+  }
+
+  // ── STATS ────────────────────────────────────────────────────
+  const pending = reqs.filter(r=>r.status!=='Completado').length;
+  const done = reqs.filter(r=>r.status==='Completado').length;
+  const credits = cl.pack===99 ? '∞' : cl.pack - cl.used;
+  document.getElementById('cl-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-card-inner">
+      <div class="stat-card-icon"><div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#5E9FFF,#9B59FF);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px #5E9FFF55"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg></div></div>
+      <div class="stat-card-body"><div class="stat-val">${pending}</div><div class="stat-lbl">En proceso</div></div>
+    </div></div>
+    <div class="stat-card"><div class="stat-card-inner">
+      <div class="stat-card-icon"><div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#00D4AA,#00A878);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px #00D4AA55"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></div></div>
+      <div class="stat-card-body"><div class="stat-val">${done}</div><div class="stat-lbl">Completadas</div></div>
+    </div></div>
+    <div class="stat-card"><div class="stat-card-inner">
+      <div class="stat-card-icon"><div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#FFD60A,#FF9500);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px #FFD60A55"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></div></div>
+      <div class="stat-card-body"><div class="stat-val">${credits}</div><div class="stat-lbl">Créditos disp.</div></div>
+    </div></div>
+  `;
+
   renderTracking(cid);
-  updateCreditsUI(c);
-  const rec=[...rqs].reverse().slice(0,3);
-  document.getElementById('cl-recent').innerHTML=rec.length?rec.map(r=>`<div class="rc"><div><div class="rt">${r.title}</div><div class="rm"><span class="chip-pair">${sb(r.status)}${urgencyChip(r.deadline)}</span><span><span style="display:inline-flex;align-items:center;vertical-align:middle"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span> ${fd(r.deadline)}</span></div></div><button class="btn btn-g btn-sm" onclick="openReqMo('${r.id}')">Ver / Editar</button></div>`).join(''):`<div class="es"><div style="opacity:.25;display:flex;justify-content:center"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div><p>No tenés pedidos aún.</p><button class="btn btn-p" onclick="showPanel('client','nuevo',document.getElementById('nav-nuevo'))">Hacer primer pedido</button></div>`;
-  renderCReqs(cid);renderCPack(c);
+  updateClientNotifBadge();
+  // Botón de contacto al diseñador
+  const contactBtn = document.getElementById('cl-contact-btn');
+  const contactLink = document.getElementById('cl-contact-link');
+  if(contactBtn && contactLink){ contactBtn.style.display='block'; contactLink.href='mailto:'+ADMIN_EMAIL+'?subject=Consulta sobre mi pedido - ThumbFlow'; }
+
+  // ── PEDIDOS RECIENTES ────────────────────────────────────────
+  const recent = [...reqs].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,4);
+  document.getElementById('cl-recent').innerHTML = recent.length ? recent.map(r=>{
+    const isDone = r.status==='Completado';
+    const hasVer = r.versions && r.versions.length > 0;
+    return`<div class="rc" style="${isDone?'opacity:.6':''}">
+      <div style="flex:1;min-width:0">
+        <div class="rt" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.title}</div>
+        <div class="rm">${sb(r.status)} ${urgencyChip(r.deadline)} <span style="color:var(--muted)">${fd(r.deadline)}</span></div>
+      </div>
+      <button class="btn btn-g btn-sm" onclick="openReqMo('${r.id}')">${r.status==='Listo para revisar'?'Revisar':'Ver'}</button>
+    </div>`;
+  }).join('') : `<div style="color:var(--muted);font-size:13px;padding:12px 0">No hay pedidos aún. <span style="color:var(--accent);cursor:pointer" onclick="showPanel('client','nuevo',null)">Creá tu primer pedido →</span></div>`;
 }
+
 function renderCReqs(cid){
   const el=document.getElementById('cl-all-reqs');if(!el)return;
   const rqs=gr(cid);
