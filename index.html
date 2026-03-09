@@ -296,7 +296,7 @@
   .ts{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;z-index:2;}
   .ts-dot{width:40px;height:40px;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .5s cubic-bezier(.4,0,.2,1);}
   .ts-dot.done{background:#2dca73;border-color:#2dca73;box-shadow:none;}
-  .ts-dot.active{background:var(--surface2);border-width:2px;animation:trackingPulse 2s ease-in-out infinite;}
+  .ts-dot.active{background:var(--surface2);border-width:2px;transform:scale(1.2);animation:trackingPulse 2s ease-in-out infinite;}
   .ts-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);text-align:center;transition:color .3s;max-width:70px;}
   .ts.done .ts-lbl,.ts.active .ts-lbl{color:var(--text);}
   .tracking-msg{background:var(--surface2);border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:14px;}
@@ -647,6 +647,7 @@ document.addEventListener('click', e=>{
         </div>
         <div class="avatar" id="admin-av">D</div><span id="admin-un">Diseñador</span>
       </div>
+      <button class="notif-btn" id="cl-notif-btn" onclick="toggleClientNotifPanel()" title="Notificaciones" style="position:relative"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg><span id="cl-notif-badge" style="position:absolute;top:2px;right:2px;min-width:15px;height:15px;border-radius:8px;background:var(--accent);color:white;font-size:9px;font-weight:700;display:none;align-items:center;justify-content:center;padding:0 3px;pointer-events:none;line-height:1"></span></button>
       <label class="theme-switch" onclick="toggleTheme()" title="Alternar dark / light mode">
         <div class="theme-switch-track"><div class="theme-switch-thumb"></div></div>
       </label>
@@ -728,6 +729,14 @@ document.addEventListener('click', e=>{
       </label>
       <button class="logout-btn" onclick="logout()" title="Salir"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg></button>
     </div>
+  <!-- Panel notificaciones CLIENTE -->
+  <div id="cl-notif-panel" style="display:none;position:fixed;top:56px;right:12px;width:320px;max-height:420px;background:var(--surface);border:1px solid var(--border);border-radius:16px;z-index:9999;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.4)">
+    <div style="padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <span class="notif-head-title">Notificaciones</span>
+      <button class="icon-btn" style="font-size:12px;color:var(--muted)" onclick="markClientNotifsRead()">Marcar leídas</button>
+    </div>
+    <div id="cl-notif-list" style="overflow-y:auto;max-height:340px"></div>
+  </div>
     <div class="sidebar" id="client-sidebar">
       <button class="sidebar-toggle" id="client-sidebar-toggle" onclick="toggleSidebar('client')" title="Contraer/expandir"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
       <span class="nav-lbl">Mi cuenta</span>
