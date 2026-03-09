@@ -1409,6 +1409,7 @@ async function handleSession(session){
     user = { name, role, email, id: session.user.id };
     await loadAdminData();
     showScreen('screen-admin');
+    restoreSidebar('admin');
     document.getElementById('admin-av').textContent = name[0].toUpperCase();
     document.getElementById('admin-un').textContent = name.split(' ')[0];
     renderADash(); renderAClients(); renderAReqs(); renderAPays();
@@ -1705,7 +1706,16 @@ function restoreSidebar(panel){
   }
 }
 
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>{
+    s.classList.remove('active');
+    s.style.display = '';
+  });
+  const el = document.getElementById(id);
+  if(el){
+    el.classList.add('active');
+  }
+}
 function showPanel(sc,name,btn){
   document.querySelectorAll(`#screen-${sc} .panel`).forEach(p=>p.classList.remove('active'));
   const el=document.getElementById(`${sc}-panel-${name}`);if(el)el.classList.add('active');
