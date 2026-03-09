@@ -295,7 +295,7 @@
   .tracking-progress-line{position:absolute;top:20px;left:30px;height:2px;background:linear-gradient(90deg,var(--accent),#ff8c42);z-index:1;transition:width 1s cubic-bezier(.4,0,.2,1);}
   .ts{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;z-index:2;}
   .ts-dot{width:40px;height:40px;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .5s cubic-bezier(.4,0,.2,1);}
-  .ts-dot.done{width:32px;height:32px;background:#2dca73;border-color:#2dca73;box-shadow:none;}
+  .ts-dot.done{background:#2dca73;border-color:#2dca73;box-shadow:none;}
   .ts-dot.active{background:var(--surface2);border-width:2px;animation:trackingPulse 2s ease-in-out infinite;}
   .ts-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);text-align:center;transition:color .3s;max-width:70px;}
   .ts.done .ts-lbl,.ts.active .ts-lbl{color:var(--text);}
@@ -1962,7 +1962,7 @@ function renderTracking(cid){
     const dotStyle = i<idx
       ? ''
       : isCurrent
-      ? `background:${sc.dot};border-color:${sc.color};box-shadow:0 0 0 8px ${sc.dot};transform:scale(1.18);`
+      ? `background:${sc.dot};border-color:${sc.color};box-shadow:0 0 0 6px ${sc.dot};`
       : '';
     return `<div class="ts ${cls}">
       <div class="ts-dot ${cls}" style="${dotStyle}">${i<idx?`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>`:({'clipboard':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2v1a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4zM8 4V3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1H8z"/></svg>`,'paint':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 5.52 4.48 10 10 10 .926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2zm-5.5 9c-.828 0-1.5-.672-1.5-1.5S5.672 8 6.5 8 8 8.672 8 9.5 7.328 11 6.5 11zm3-4C8.672 7 8 6.328 8 5.5S8.672 4 9.5 4s1.5.672 1.5 1.5S10.328 7 9.5 7zm5 0c-.828 0-1.5-.672-1.5-1.5S13.672 4 14.5 4s1.5.672 1.5 1.5S15.328 7 14.5 7zm3 4c-.828 0-1.5-.672-1.5-1.5S16.672 8 17.5 8s1.5.672 1.5 1.5S18.328 11 17.5 11z"/></svg>`,'sparkle':`<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 32 32" fill="currentColor"> <!-- estrella grande central --> <path d="M16 2l2.5 7.5L26 12l-7.5 2.5L16 22l-2.5-7.5L6 12l7.5-2.5L16 2z" style="animation:sparkBig 2.4s ease-in-out infinite"/> <!-- estrella chica superior derecha --> <path d="M25 4l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3z" style="animation:sparkSm1 2.4s ease-in-out infinite;animation-delay:.4s"/> <!-- estrella chica inferior izquierda --> <path d="M7 20l.8 2.4 2.4.8-2.4.8L7 27l-.8-2.4L3.8 24l2.4-.8L7 20z" style="animation:sparkSm2 2.4s ease-in-out infinite;animation-delay:.9s"/></svg>`,'check':`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>`}[s.icon]||s.icon)}</div>
