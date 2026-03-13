@@ -1406,8 +1406,17 @@ async function handleSession(session){
     role = 'client';
     user = { name, role, email, id: session.user.id };
     await loadClientData(session.user.id);
+    console.log('[ThumbFlow] loadClientData terminó. S.clients:', S.clients.length, 'user.clientId:', user?.clientId);
     showScreen('screen-client');
     restoreSidebar('client');
+    // Forzar render del panel inicio
+    const _cid = user?.clientId || (S.clients[0]?.id);
+    console.log('[ThumbFlow] Llamando renderCDash con cid:', _cid);
+    if(_cid) renderCDash(_cid);
+    // Forzar panel inicio visible
+    document.querySelectorAll('#screen-client .panel').forEach(p=>p.classList.remove('active'));
+    const _initP = document.getElementById('client-panel-inicio');
+    if(_initP) _initP.classList.add('active');
     setTimeout(()=>obShow(), 800);
   }
 }
@@ -1574,6 +1583,12 @@ async function loadClientData(userId){
     document.getElementById('cl-welcome').textContent=`Hola, ${c.name.split(' ')[0]}`;
     if(user) user.clientId = c.id;
     renderCDash(c.id);
+    // Asegurar que el panel inicio del cliente esté visible
+    const initPanel = document.getElementById('client-panel-inicio');
+    if(initPanel){
+      document.querySelectorAll('#screen-client .panel').forEach(p=>p.classList.remove('active'));
+      initPanel.classList.add('active');
+    }
     startRealtime();
 
   }catch(e){
@@ -2263,7 +2278,10 @@ function renderTracking(cid){
 }
 
 function renderCDash(cid){ _loadClientNotifs();
-  const cl = gc(cid); if(!cl) return;
+  let cl = gc(cid);
+  // Fallback: si no encuentra por id, usar el primer cliente cargado
+  if(!cl && S.clients.length) { cl = S.clients[0]; cid = cl.id; }
+  if(!cl){ console.warn('[ThumbFlow] renderCDash: no hay cliente para cid='+cid); return; }
   const reqs = gr(cid);
   document.getElementById('cl-welcome').textContent = 'Hola, ' + cl.name.split(' ')[0];
   updateCreditsUI(cl);
