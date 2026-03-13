@@ -545,7 +545,7 @@
   .pay-card.vencido{background:linear-gradient(135deg,rgba(255,77,77,.18) 0%,rgba(255,77,77,.06) 100%);border:1px solid rgba(255,77,77,.4);}
   .pay-status-big{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:2px;}
   /* Barra de créditos degradada */
-  .credits-bar-wrap{height:8px;border-radius:6px;background:var(--surface2);overflow:hidden;margin-top:10px;}
+  .credits-bar-wrap{height:8px;border-radius:6px;background:var(--surface2);overflow:hidden;margin-top:10px;}.credits-bar-fill{height:100%;border-radius:6px;transition:width .8s ease;}
   .credits-bar-fill{height:100%;border-radius:6px;transition:width .8s cubic-bezier(.4,0,.2,1);}
 
   /* ════ DASHBOARD CLIENTE — barra miniaturas + card pago ════ */
@@ -565,6 +565,32 @@
   .income-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:700;color:rgba(255,255,255,.75);margin-bottom:6px;}
   .income-val{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:white;line-height:1;margin-bottom:4px;}
   .income-sub{font-size:11px;color:rgba(255,255,255,.7);}
+
+  /* ════ HISTORIAL DE PACKS ════ */
+  .pack-cycle{background:var(--surface);border:1px solid var(--border);border-radius:16px;margin-bottom:14px;overflow:hidden;transition:border-color .2s;}
+  .pack-cycle:hover{border-color:rgba(255,77,0,.3);}
+  .pack-cycle-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer;gap:12px;}
+  .pack-cycle-chevron{color:var(--muted);transition:transform .25s;flex-shrink:0;}
+  .pack-cycle.open .pack-cycle-chevron{transform:rotate(90deg);}
+  .pack-cycle-body{display:none;padding:0 20px 16px;border-top:1px solid var(--border);}
+  .pack-cycle.open .pack-cycle-body{display:block;animation:fadeIn .2s ease;}
+  .pack-cycle-title{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;}
+  .pack-cycle-meta{font-size:11px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:8px;}
+  .pack-cycle-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;}
+  .pack-active-badge{background:rgba(45,202,115,.15);color:var(--green);border:1px solid rgba(45,202,115,.3);}
+  .pack-complete-badge{background:var(--surface2);color:var(--muted);border:1px solid var(--border);}
+  .pack-mini-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(34,34,47,.4);font-size:13px;gap:10px;}
+  .pack-mini-row:last-child{border-bottom:none;}
+  .pack-mini-num{width:22px;height:22px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--muted);flex-shrink:0;}
+  .pack-mini-title{flex:1;min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .pack-slots{display:flex;gap:5px;margin-top:12px;flex-wrap:wrap;}
+  .pack-slot{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;}
+  .pack-slot.done{background:rgba(45,202,115,.15);border:1px solid rgba(45,202,115,.3);}
+  .pack-slot.active{background:rgba(255,77,0,.12);border:1px solid rgba(255,77,0,.3);}
+  .pack-slot.empty{background:var(--surface2);border:1px solid var(--border);}
+  /* Modal pack completo */
+  .pack-complete-modal-inner{text-align:center;padding:8px 0 0;}
+  .pack-complete-confetti{font-size:56px;margin-bottom:12px;animation:fadeUp .4s ease;}
 </style>
 <script type="module">
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -1046,9 +1072,9 @@ let isSupabaseMode = false;
 // Datos demo (usados cuando Supabase no está configurado)
 const S={
   clients:[
-    {id:'c1',name:'[DEMO] Marcos Rueda',email:'marcos@gmail.com',ch:'@marcosrueda',pack:8,used:5,price:120,pay:'Al día',notes:'Cliente puntual. Prefiere miniaturas oscuras con texto grande.',payments:[{d:'2025-01-05',a:120,s:'Pagado',m:'Transferencia'},{d:'2025-02-05',a:120,s:'Pagado',m:'Transferencia'},{d:'2025-03-05',a:120,s:'Pendiente',m:'-'}]},
-    {id:'c2',name:'[DEMO] Sofía Gómez',email:'sofi@gmail.com',ch:'@sofigomez',pack:4,used:4,price:70,pay:'Vencido',notes:'Necesita renovar pack. Le gusta estilo minimalista con pasteles.',payments:[{d:'2025-01-12',a:70,s:'Pagado',m:'PayPal'},{d:'2025-02-12',a:70,s:'Vencido',m:'-'}]},
-    {id:'c3',name:'[DEMO] Diego Torres',email:'diego@gmail.com',ch:'@diegotorres',pack:16,used:9,price:200,pay:'Al día',notes:'Cliente Pro. Siempre manda referencias. Muy organizado.',payments:[{d:'2025-01-20',a:200,s:'Pagado',m:'Efectivo'},{d:'2025-02-20',a:200,s:'Pagado',m:'Efectivo'},{d:'2025-03-20',a:200,s:'Pagado',m:'Efectivo'}]}
+    {id:'c1',name:'[DEMO] Marcos Rueda',email:'marcos@gmail.com',ch:'@marcosrueda',pack:8,used:5,price:120,pay:'Al día',notes:'Cliente puntual. Prefiere miniaturas oscuras con texto grande.',payments:[{d:'2025-01-05',a:120,s:'Pagado',m:'Transferencia'},{d:'2025-02-05',a:120,s:'Pagado',m:'Transferencia'},{d:'2025-03-05',a:120,s:'Pendiente',m:'-'}],packs:[{id:'pk1',size:8,price:120,opened_at:'2025-01-05',closed_at:null,req_ids:['r1','r2']}]},
+    {id:'c2',name:'[DEMO] Sofía Gómez',email:'sofi@gmail.com',ch:'@sofigomez',pack:4,used:4,price:70,pay:'Vencido',notes:'Necesita renovar pack. Le gusta estilo minimalista con pasteles.',payments:[{d:'2025-01-12',a:70,s:'Pagado',m:'PayPal'},{d:'2025-02-12',a:70,s:'Vencido',m:'-'}],packs:[{id:'pk2a',size:4,price:70,opened_at:'2024-10-01',closed_at:'2024-11-30',req_ids:[]},{id:'pk2b',size:4,price:70,opened_at:'2025-01-12',closed_at:null,req_ids:['r3']}]},
+    {id:'c3',name:'[DEMO] Diego Torres',email:'diego@gmail.com',ch:'@diegotorres',pack:16,used:9,price:200,pay:'Al día',notes:'Cliente Pro. Siempre manda referencias. Muy organizado.',payments:[{d:'2025-01-20',a:200,s:'Pagado',m:'Efectivo'},{d:'2025-02-20',a:200,s:'Pagado',m:'Efectivo'},{d:'2025-03-20',a:200,s:'Pagado',m:'Efectivo'}],packs:[{id:'pk3a',size:8,price:200,opened_at:'2024-06-01',closed_at:'2024-10-15',req_ids:[]},{id:'pk3b',size:16,price:200,opened_at:'2025-01-20',closed_at:null,req_ids:['r4']}]}
   ],
   reqs:[
     {id:'r1',cid:'c1',title:'Cómo ganar dinero con IA en 2025',desc:'Miniatura impactante, fondo oscuro, cara de sorpresa.',style:'Oscuro, rojo y blanco',deadline:'2025-03-15',notes:'',status:'Listo para revisar',date:'2025-03-01',refs:[],clientImgs:[],versions:[{img:'https://img.youtube.com/vi/9bZkp7q19f0/maxresdefault.jpg',date:'6 mar 2025',status:'pendiente',comment:'',annotation:null}]},
@@ -1372,12 +1398,20 @@ async function loadAdminData(){
     if(pe) throw pe;
 
     // Mantener datos demo + agregar datos reales de Supabase
-    const realClients = clients.map(c=>({
-      id:c.id, name:c.name, email:c.email, ch:c.channel||'',
-      pack:c.pack, used:c.used, price:c.price, pay:c.pay_status,
-      notes:c.notes||'',
-      payments: pays.filter(p=>p.client_id===c.id).map(p=>({d:p.paid_at,a:p.amount,s:p.status,m:p.method}))
-    }));
+    const realClients = clients.map(c=>{
+      let parsedPacks = [];
+      try{ parsedPacks = typeof c.packs==='string' ? JSON.parse(c.packs||'[]') : (c.packs||[]); }catch(e){}
+      if(!parsedPacks.length && c.pack!==99){
+        parsedPacks = [{id:'pk'+c.id, size:c.pack, price:c.price, opened_at:c.created_at?.split('T')[0]||new Date().toISOString().split('T')[0], closed_at:null, req_ids:[]}];
+      }
+      return {
+        id:c.id, name:c.name, email:c.email, ch:c.channel||'',
+        pack:c.pack, used:c.used, price:c.price, pay:c.pay_status,
+        notes:c.notes||'',
+        payments: pays.filter(p=>p.client_id===c.id).map(p=>({d:p.paid_at,a:p.amount,s:p.status,m:p.method})),
+        packs: parsedPacks
+      };
+    });
 
     const realReqs = reqs.map(r=>({
       id:r.id, cid:r.client_id, title:r.title,
@@ -1445,10 +1479,16 @@ async function loadClientData(userId){
       .eq('client_id',c.id).order('created_at',{ascending:false});
 
     // Mapear al formato interno
+    let parsedPacks = [];
+    try{ parsedPacks = typeof c.packs==='string' ? JSON.parse(c.packs||'[]') : (c.packs||[]); }catch(e){}
+    // Si no hay packs guardados, crear uno activo automáticamente
+    if(!parsedPacks.length && c.pack!==99){
+      parsedPacks = [{id:'pk'+c.id, size:c.pack, price:c.price, opened_at:c.created_at?.split('T')[0]||new Date().toISOString().split('T')[0], closed_at:null, req_ids:[]}];
+    }
     S.clients = [{
       id:c.id, name:c.name, email:c.email, ch:c.channel||'',
       pack:c.pack, used:c.used, price:c.price, pay:c.pay_status,
-      notes:'', payments:[]
+      notes:'', payments:[], packs:parsedPacks
     }];
 
     S.reqs = (reqs||[]).map(r=>({
@@ -1506,7 +1546,7 @@ async function dbAddClient(data){
 
 async function dbUpdateClient(id, changes){
   if(!sb_client) return;
-  const map={pay:'pay_status',pack:'pack',notes:'notes',ch:'channel',name:'name',price:'price'};
+  const map={pay:'pay_status',pack:'pack',notes:'notes',ch:'channel',name:'name',price:'price',packs:'packs'};
   const upd={};
   Object.entries(changes).forEach(([k,v])=>{ upd[map[k]||k]=v; });
   await sb_client.from('clients').update(upd).eq('id',id);
@@ -1994,16 +2034,86 @@ function renderCReqs(cid){
 }
 function renderCPack(c){
   const el=document.getElementById('cl-pack');if(!el)return;
-  const pct=c.pack===99?30:Math.min(100,(c.used/c.pack)*100);
-  el.innerHTML=`<div class="card"><div class="card-title">Tu plan actual</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
-      <div><div class="stat-lbl" style="margin-bottom:6px">Pack</div><div style="font-size:18px;font-weight:700">${c.pack===99?'Ilimitado':'Pack de '+c.pack+' miniaturas'}</div></div>
-      <div><div class="stat-lbl" style="margin-bottom:6px">Precio</div><div style="font-size:18px;font-weight:700">$${c.price}<span style="color:var(--muted);font-size:13px">/ciclo</span></div></div>
-    </div>
-    <div class="pbar" style="height:10px"><div class="pbar-fill" style="width:${pct}%;background:${pct>80?'var(--red)':pct>50?'var(--yellow)':'var(--green)'}"></div></div>
-    <div style="display:flex;justify-content:space-between;font-size:13px;margin-top:8px"><span style="color:var(--muted)">Usadas: <strong style="color:var(--text)">${c.used}</strong></span><span style="color:var(--muted)">Total: <strong style="color:var(--text)">${c.pack===99?'∞':c.pack}</strong></span></div>
-    <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">${pb(c.pay)}<p style="color:${c.pay==='Al día'?'var(--green)':'var(--red)'};font-size:13px;margin-top:8px">${c.pay==='Al día'?'✓ Tus pagos están al día.':'⚠️ Tenés un pago pendiente. Contactá al diseñador.'}</p></div>
-  </div>`;
+  const packs = c.packs || [];
+  const ap = getActivePack(c);
+  const history = [...packs].reverse(); // más reciente primero
+
+  if(!packs.length){
+    el.innerHTML=`<div class="card"><div class="card-title">Mi pack</div><div class="es"><div style="font-size:48px;opacity:.4">📦</div><p>No hay información de packs disponible.</p></div></div>`;
+    return;
+  }
+
+  el.innerHTML = history.map((pack, i)=>{
+    const isActive = !pack.closed_at;
+    const packReqs = getPackReqs(pack);
+    const completedCount = packReqs.filter(r=>r.status==='Completado').length;
+    const totalSlots = pack.size===99 ? packReqs.length : pack.size;
+    const pct = totalSlots ? Math.round((completedCount/totalSlots)*100) : 0;
+
+    // Slots visuales
+    const slotsHtml = pack.size!==99 ? `<div class="pack-slots">
+      ${Array.from({length:totalSlots}).map((_,si)=>{
+        const req = packReqs[si];
+        if(!req) return `<div class="pack-slot empty" title="Disponible">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity=".3"><circle cx="12" cy="12" r="10"/></svg>
+        </div>`;
+        const isDone = req.status==='Completado';
+        const isInProgress = req.status==='En progreso'||req.status==='Listo para revisar';
+        return `<div class="pack-slot ${isDone?'done':isInProgress?'active':'empty'}" title="${req.title}">
+          ${isDone?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+            :isInProgress?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
+            :'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity=".25"><circle cx="12" cy="12" r="10"/></svg>'}
+        </div>`;
+      }).join('')}
+    </div>` : '';
+
+    const cycleNum = packs.length - i; // número de ciclo (el más viejo es el 1)
+    const openDate = pack.opened_at ? `Abierto ${fd(pack.opened_at)}` : '';
+    const closeDate = pack.closed_at ? ` · Cerrado ${fd(pack.closed_at)}` : '';
+
+    return `<div class="pack-cycle ${i===0?'open':''}" id="pack-${pack.id}">
+      <div class="pack-cycle-header" onclick="this.closest('.pack-cycle').classList.toggle('open')">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+            <div class="pack-cycle-title">Ciclo ${cycleNum} — ${getPackLabel(pack.size)}</div>
+            <span class="pack-cycle-badge ${isActive?'pack-active-badge':'pack-complete-badge'}">${isActive?'Activo':'Completado'}</span>
+          </div>
+          <div class="pack-cycle-meta">
+            <span>${openDate}${closeDate}</span>
+            <span>·</span>
+            <span>${completedCount}${pack.size!==99?'/'+pack.size:''} completadas</span>
+          </div>
+        </div>
+        <svg class="pack-cycle-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="pack-cycle-body">
+        ${slotsHtml}
+        ${packReqs.length ? `
+        <div style="margin-top:14px">
+          ${packReqs.map((r,ri)=>`
+            <div class="pack-mini-row">
+              <div class="pack-mini-num">${ri+1}</div>
+              <div class="pack-mini-title" title="${r.title}">${r.title}</div>
+              <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+                ${r.status==='Completado'
+                  ?`<span class="badge bg" style="gap:4px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Completada</span>`
+                  :r.status==='Listo para revisar'
+                  ?`<span class="badge bb">Revisar</span>`
+                  :r.status==='En progreso'
+                  ?`<span class="badge bb">En diseño</span>`
+                  :`<span class="badge bm">Pendiente</span>`}
+                <button class="btn btn-g btn-sm" onclick="openReqMo('${r.id}')">Ver</button>
+              </div>
+            </div>`).join('')}
+        </div>` : `<div style="padding:16px 0;color:var(--muted);font-size:13px">Sin pedidos en este ciclo aún.</div>`}
+        ${isActive && pack.size!==99 ? `
+          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:13px">
+            <div style="color:var(--muted)">${pack.size-packReqs.length > 0 ? `<strong style="color:var(--text)">${pack.size-packReqs.length}</strong> miniatura${pack.size-packReqs.length!==1?'s':''} restante${pack.size-packReqs.length!==1?'s':''}` : 'Pack completo ✓'}</div>
+            ${packReqs.length<pack.size?`<button class="btn btn-p btn-sm" onclick="showPanel('client','nuevo',document.getElementById('nav-nuevo'))">+ Nuevo pedido</button>`:''}
+          </div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 /* MODALS */
@@ -2224,8 +2334,10 @@ async function saveReq(rid){
       const oldStatus = r.status;
       r.status = newStatus;
       if(isSupabaseMode) await dbUpdateRequest(rid,{status:r.status});
-      // Notificar por realtime si cambió
-      if(oldStatus !== newStatus) renderADash();
+      if(oldStatus !== newStatus){
+        renderADash();
+        if(newStatus==='Completado') checkPackCompletion(r.cid, rid);
+      }
     }
   } else {
     // Cliente: puede editar todos los campos
@@ -2479,9 +2591,11 @@ async function addClient(){
 async function chStatus(rid,status){
   const r=S.reqs.find(x=>x.id===rid);if(!r)return;
   if(status==='Entregado'&&r.status!=='Entregado'){const c=gc(r.cid);if(c){c.used++;if(isSupabaseMode)await dbUpdateClient(c.id,{used:c.used});}}
+  const wasCompleted = r.status === 'Completado';
   r.status=status;
   if(isSupabaseMode) await dbUpdateRequest(rid,{status});
   playSound('status');
+  if(status==='Completado' && !wasCompleted) checkPackCompletion(r.cid, rid);
   renderADash();renderAReqs();renderAClients();toast('✓ Estado actualizado');
 }
 async function regPay(cid){
@@ -2712,6 +2826,7 @@ async function submitReq(){
   }
 
   S.reqs.push(newReq);
+  assignReqToPack(clientId, newReq.id);
   clientRefImgs=[];
   refs=[];
   playSound('action');
@@ -2774,6 +2889,88 @@ function renderBadges(){
 function escHtml(t){ return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
 
 applyTheme();
+
+/* ════════════════════════
+   SISTEMA DE PACKS / CICLOS
+════════════════════════ */
+
+function getActivePack(c){
+  if(!c.packs||!c.packs.length) return null;
+  return c.packs.find(p=>!p.closed_at) || null;
+}
+
+function getPackLabel(size){
+  return size===4?'Pack Básico (4)':size===8?'Pack Estándar (8)':size===16?'Pack Pro (16)':size===99?'Ilimitado':'Pack '+size;
+}
+
+function getPackReqs(pack){
+  if(!pack||!pack.req_ids) return [];
+  return pack.req_ids.map(id=>S.reqs.find(r=>r.id===id)).filter(Boolean);
+}
+
+// Llamar cuando un pedido se marca como Completado
+// Verifica si el pack actual se llenó
+function checkPackCompletion(cid, rid){
+  const c = gc(cid); if(!c||c.pack===99) return;
+  const ap = getActivePack(c); if(!ap) return;
+  // Asegurar que este req está en el pack activo
+  if(!ap.req_ids.includes(rid)) return;
+  // Contar cuántos del pack están Completados
+  const packReqs = getPackReqs(ap);
+  const completedInPack = packReqs.filter(r=>r.status==='Completado').length;
+  if(completedInPack >= ap.size){
+    // Pack completo → cerrar
+    ap.closed_at = new Date().toISOString().split('T')[0];
+    // Notificar al admin
+    addNotification('🎉','¡Pack completado!',`El pack de ${c.name} está completo (${ap.size} miniaturas).`,null);
+    // Guardar en Supabase si aplica
+    if(isSupabaseMode){
+      dbUpdateClient(cid,{packs: JSON.stringify(c.packs)});
+    }
+    // Si el propio cliente está conectado, mostrar modal
+    if(role==='client' && user?.clientId===cid){
+      showPackCompleteModal(c, ap);
+    }
+  }
+}
+
+function showPackCompleteModal(c, pack){
+  playSound('approved');
+  document.getElementById('mo-alert-icon').textContent='';
+  document.getElementById('mo-alert-msg').innerHTML=`
+    <div class="pack-complete-modal-inner">
+      <div class="pack-complete-confetti">🎉</div>
+      <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:8px">¡Pack completado!</div>
+      <div style="color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:16px">
+        Completaste las <strong style="color:var(--text)">${pack.size} miniaturas</strong> de tu ${getPackLabel(pack.size)}.<br>
+        Cuando estés listo, contactá al diseñador para contratar el siguiente ciclo.
+      </div>
+      <a href="https://wa.me/?text=${encodeURIComponent('¡Hola! Completé mi pack de '+pack.size+' miniaturas y quiero renovar 🎬')}" target="_blank"
+        style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:var(--accent);color:white;border-radius:12px;font-weight:700;font-size:14px;text-decoration:none">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Contactar al diseñador
+      </a>
+    </div>`;
+  openMo('mo-alert');
+  // Agregar notif al cliente también
+  clAddNotif('🎉','¡Pack completado!',`Completaste tu ${getPackLabel(pack.size)}. ¡Hora de renovar!`,null);
+}
+
+// Asignar un nuevo pedido al pack activo del cliente
+function assignReqToPack(cid, reqId){
+  const c = gc(cid); if(!c) return;
+  if(c.pack===99) return; // ilimitado no tiene packs
+  if(!c.packs) c.packs=[];
+  let ap = getActivePack(c);
+  if(!ap){
+    // Crear pack activo automáticamente
+    ap = { id:'pk'+Date.now(), size:c.pack, price:c.price, opened_at:new Date().toISOString().split('T')[0], closed_at:null, req_ids:[] };
+    c.packs.push(ap);
+  }
+  if(!ap.req_ids.includes(reqId)) ap.req_ids.push(reqId);
+  if(isSupabaseMode) dbUpdateClient(cid,{packs: JSON.stringify(c.packs)});
+}
+
 
 /* ════════════════════════
    FOTO DE PERFIL DE CANAL YOUTUBE
@@ -2910,49 +3107,84 @@ function renderHeroBanner(c, rqs){
   const el = document.getElementById('cl-hero-section');
   if(!el) return;
 
-  // Pedido más urgente activo
-  const active = rqs.filter(r=>r.status!=='Completado'&&r.status!=='Aprobado')
+  const today = new Date(); today.setHours(0,0,0,0);
+  const nombre = c.name.split(' ')[0];
+
+  // Pedidos activos (sin completados)
+  const active = rqs.filter(r=>r.status!=='Completado')
     .sort((a,b)=>{ if(!a.deadline) return 1; if(!b.deadline) return -1; return new Date(a.deadline)-new Date(b.deadline); });
 
-  const today = new Date(); today.setHours(0,0,0,0);
-  const packPct = c.pack===99 ? 30 : Math.round((c.used/c.pack)*100);
-  const remaining = c.pack===99 ? '∞' : c.pack - c.used;
+  // Pedidos completados en los últimos 7 días
+  const recentDone = rqs.filter(r=>{
+    if(r.status!=='Completado') return false;
+    const d = new Date(r.date||'2000-01-01');
+    return (today - d) <= 7*24*60*60*1000;
+  });
 
-  // Decidir ícono y tono — solo buenas noticias
-  let icon='🎬', heroTitle=`Hola, ${c.name.split(' ')[0]} 👋`, heroSub='';
+  // Pedido completado cuya deadline era en el futuro o hoy (entrega anticipada)
+  const earlyDelivery = recentDone.find(r=>{
+    if(!r.deadline) return false;
+    const dl = new Date(r.deadline); dl.setHours(0,0,0,0);
+    return dl >= today;
+  });
 
-  if(active.length && active[0].status==='Listo para revisar'){
-    icon='✨';
-    heroTitle='¡Tu miniatura está lista!';
-    heroSub='Ya podés revisarla y aprobarla.';
-  } else if(active.length && active[0].status==='En progreso' && active[0].deadline){
-    // Comparar con fecha límite — si queda más de 3 días, celebrar que va bien
-    const dl = new Date(active[0].deadline); dl.setHours(0,0,0,0);
-    const diff = Math.round((dl-today)/(1000*60*60*24));
-    if(diff >= 4){
-      icon='🚀'; heroTitle='¡Tu miniatura está en camino!'; heroSub=`Tu diseñador está trabajando en ello — llegará antes de lo que imaginás.`;
-    } else if(diff >= 1){
-      icon='🎨'; heroTitle='¡En diseño!'; heroSub=`"${active[0].title}" ya está siendo creada para vos.`;
-    } else {
-      // diff 0 o negativo con estado En progreso — mensaje neutro positivo
-      icon='🎨'; heroTitle='Tu diseñador está en eso'; heroSub='Vas a recibir la miniatura muy pronto.';
-    }
-  } else if(active.length && active[0].status==='Completado'){
-    icon='🏆'; heroTitle='¡Listo, todo completado!'; heroSub='Todos tus pedidos activos están terminados.';
-  } else if(!active.length && c.used > 0){
-    icon='🎉'; heroTitle='¡Todo al día!'; heroSub='No tenés pedidos pendientes. ¿Listo para el próximo?';
-  } else if(c.pack!==99 && remaining <= 0){
-    icon='🎬'; heroTitle='Pack completo'; heroSub='Completaste todas tus miniaturas del ciclo. ¡Excelente!';
-  } else {
-    heroSub = active.length ? `${active.length} pedido${active.length>1?'s':''} activo${active.length>1?'s':''}` : 'Tu panel de miniaturas';
-  }
-
-  // CTA botón — revisar miniatura si está lista
+  let icon='🎬', heroTitle=`Hola, ${nombre} 👋`, heroSub='Todo listo para crear algo genial.';
   let heroCTA = '';
-  if(active.length && active[0].status === 'Listo para revisar'){
-    heroCTA = `<button onclick="openReqMo('${active[0].id}')" style="margin-top:14px;display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:#ff4d00;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:all .2s" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">
+
+  // P1 — Miniatura lista para revisar
+  const toReview = active.find(r=>r.status==='Listo para revisar');
+  if(toReview){
+    icon='✨';
+    heroTitle='¡Tu miniatura llegó!';
+    heroSub=`"${toReview.title}" está lista. Revisala y danos tu feedback.`;
+    heroCTA = `<button onclick="openReqMo('${toReview.id}')" style="margin-top:14px;display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:#ff4d00;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:all .2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
       Ver miniatura
+    </button>`;
+  }
+  // P2 — Entregada antes de la fecha límite
+  else if(earlyDelivery){
+    const dl = new Date(earlyDelivery.deadline); dl.setHours(0,0,0,0);
+    const diff = Math.round((dl - today)/(1000*60*60*24));
+    icon='🚀';
+    heroTitle='¡Llegó antes de lo esperado!';
+    heroSub = diff===0
+      ? `"${earlyDelivery.title}" entregada el mismo día del límite.`
+      : `"${earlyDelivery.title}" lista ${diff} día${diff>1?'s':''} antes de la fecha.`;
+    heroCTA = `<button onclick="openReqMo('${earlyDelivery.id}')" style="margin-top:14px;display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:#ff4d00;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:all .2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Ver entrega
+    </button>`;
+  }
+  // P3 — Diseñador trabajando
+  else if(active.some(r=>r.status==='En progreso')){
+    const wip = active.find(r=>r.status==='En progreso');
+    icon='🎨';
+    heroTitle='Tu diseñador está en ello';
+    heroSub = active.length>1
+      ? `Trabajando en ${active.length} pedidos. Te avisamos cuando estén listos.`
+      : `"${wip.title}" está siendo diseñada ahora mismo.`;
+  }
+  // P4 — Pedido reciente completado (sin entrega anticipada)
+  else if(recentDone.length){
+    icon='🏆';
+    heroTitle='¡Otro hit entregado!';
+    heroSub=`"${recentDone[0].title}" aprobada y lista para publicar.`;
+  }
+  // P5 — Pedidos activos genéricos (No iniciado)
+  else if(active.length){
+    icon='⚡';
+    heroTitle=`${active.length} pedido${active.length>1?'s':''} en curso`;
+    heroSub='Estamos trabajando en tu contenido. Te avisamos cada avance.';
+  }
+  // P6 — Sin pedidos activos
+  else {
+    icon='🎬';
+    heroTitle=`Hola, ${nombre} 👋`;
+    heroSub='Todo al día. ¿Listo para crear la próxima miniatura?';
+    heroCTA = `<button onclick="showPanel('client','nuevo',document.getElementById('nav-nuevo'))" style="margin-top:14px;display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:#ff4d00;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:all .2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Nuevo pedido
     </button>`;
   }
 
