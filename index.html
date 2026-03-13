@@ -1149,7 +1149,7 @@ document.addEventListener('click', e=>{
 });
 
 // Datos demo (usados cuando Supabase no está configurado)
-const S={
+const DEMO_DATA={
   clients:[
     {id:'c1',name:'[DEMO] Marcos Rueda',email:'marcos@gmail.com',ch:'@marcosrueda',pack:8,used:5,price:120,pay:'Al día',notes:'Cliente puntual. Prefiere miniaturas oscuras con texto grande.',payments:[{d:'2025-01-05',a:120,s:'Pagado',m:'Transferencia'},{d:'2025-02-05',a:120,s:'Pagado',m:'Transferencia'},{d:'2025-03-05',a:120,s:'Pendiente',m:'-'}]},
     {id:'c2',name:'[DEMO] Sofía Gómez',email:'sofi@gmail.com',ch:'@sofigomez',pack:4,used:4,price:70,pay:'Vencido',notes:'Necesita renovar pack. Le gusta estilo minimalista con pasteles.',payments:[{d:'2025-01-12',a:70,s:'Pagado',m:'PayPal'},{d:'2025-02-12',a:70,s:'Vencido',m:'-'}]},
@@ -1162,6 +1162,8 @@ const S={
     {id:'r4',cid:'c3',title:'Tutorial Final Cut Pro completo',desc:'Logo FCP, fondo azul, cara mirando pantalla.',style:'Azul y blanco',deadline:'2025-03-20',notes:'',status:'Pendiente',date:'2025-03-05',refs:[],clientImgs:[],versions:[]}
   ]
 };
+// S es el estado mutable — empieza con datos demo, se sobreescribe con Supabase
+const S={ clients:[...DEMO_DATA.clients], reqs:[...DEMO_DATA.reqs] };
 
 /* ═══════════════════════════════════════════════════
    HELPERS
@@ -1454,7 +1456,14 @@ async function logout(){
 
 // Demo login (sin Supabase)
 function selectRole(r,btn){role=r;document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
-function demoLogin(r){role=r;login(r==='admin'?'Diseñador Pro':'Marcos Rueda');}
+function demoLogin(r){
+  role=r;
+  isSupabaseMode=false;
+  // Resetear estado a datos demo
+  S.clients=[...DEMO_DATA.clients];
+  S.reqs=[...DEMO_DATA.reqs];
+  login(r==='admin'?'Diseñador Pro':'Marcos Rueda');
+}
 function login(name){
   user={name,role};
   showScreen(role==='admin'?'screen-admin':'screen-client');
