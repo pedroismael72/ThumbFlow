@@ -1510,22 +1510,23 @@ async function loadAdminData(){
 async function loadClientData(userId){
   if(!sb_client) return;
   try{
-    // Buscar el cliente por su user_id
+    // 1. Buscar por user_id
     let {data:clients,error}=await sb_client
       .from('clients').select('*').eq('user_id',userId).limit(1);
     if(error) throw error;
 
-    // Si no encontró por user_id, buscar por email y vincular automáticamente
+    // 2. Si no encontró, buscar por email (con o sin user_id ya asignado)
     if(!clients||!clients.length){
-      const { data:{ user } } = await sb_client.auth.getUser();
-      if(user?.email){
+      const { data:{ user:authUser } } = await sb_client.auth.getUser();
+      if(authUser?.email){
         const {data:byEmail} = await sb_client
-          .from('clients').select('*').eq('email',user.email).is('user_id',null).limit(1);
+          .from('clients').select('*').eq('email',authUser.email).limit(1);
         if(byEmail&&byEmail.length){
-          // Vincular el user_id automáticamente
-          await sb_client.from('clients').update({user_id:userId}).eq('id',byEmail[0].id);
+          // Vincular el user_id si todavía no está
+          if(!byEmail[0].user_id){
+            await sb_client.from('clients').update({user_id:userId}).eq('id',byEmail[0].id);
+          }
           clients = byEmail;
-          toast('Cuenta vinculada');
         }
       }
     }
