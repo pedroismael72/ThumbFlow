@@ -488,10 +488,7 @@
   .hero-banner-icon{position:relative;z-index:1;font-size:52px;opacity:.9;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3));}
   .hero-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:white;margin-bottom:4px;text-shadow:0 2px 8px rgba(0,0,0,.2);}
   .hero-sub{font-size:13px;color:rgba(255,255,255,.85);margin-bottom:12px;line-height:1.5;}
-  .hero-pbar-wrap{background:rgba(255,255,255,.2);border-radius:10px;height:6px;width:220px;overflow:hidden;margin-bottom:4px;}
-  .hero-pbar-fill{height:100%;border-radius:10px;background:white;transition:width 1s cubic-bezier(.4,0,.2,1);}
-  .hero-pbar-label{font-size:11px;color:rgba(255,255,255,.75);font-weight:600;}
-  .hero-days{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;color:white;backdrop-filter:blur(4px);margin-top:6px;}
+
 
   /* ════ NOTIFICACIONES CLIENTE (topbar) ════ */
   .cl-notif-wrap{position:relative;}
@@ -511,6 +508,30 @@
   .cl-notif-txt .cl-notif-title{font-size:12px;font-weight:600;margin-bottom:2px;}
   .cl-notif-txt .cl-notif-sub{font-size:11px;color:var(--muted);}
   .cl-notif-empty{padding:32px 16px;text-align:center;color:var(--muted);font-size:13px;}
+
+  /* ════ MODAL PERFIL CLIENTE ════ */
+  .profile-header{display:flex;align-items:flex-start;gap:16px;padding:0 0 20px;border-bottom:1px solid var(--border);margin-bottom:20px;}
+  .profile-avatar-wrap{position:relative;flex-shrink:0;}
+  .profile-avatar-wrap img{width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid var(--border);}
+  .profile-avatar-fallback{width:64px;height:64px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:white;}
+  .profile-info{flex:1;min-width:0;}
+  .profile-name{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:2px;line-height:1.2;}
+  .profile-handle{font-size:13px;color:var(--accent);font-weight:600;margin-bottom:6px;}
+  .profile-email{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;}
+  .profile-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
+  .profile-stat{background:var(--surface2);border-radius:12px;padding:12px;text-align:center;}
+  .profile-stat-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:2px;}
+  .profile-stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:600;}
+  .profile-section-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .profile-field{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(34,34,47,.5);font-size:13px;}
+  .profile-field:last-child{border-bottom:none;}
+  .profile-field-label{color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;width:80px;flex-shrink:0;}
+  .profile-field-val{flex:1;font-weight:500;}
+  .profile-edit-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+  .profile-edit-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .profile-edit-mode input,.profile-edit-mode select{background:var(--surface2);border:1px solid var(--accent);border-radius:8px;padding:6px 10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;width:100%;outline:none;}
+  .profile-recent-req{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(34,34,47,.5);font-size:13px;}
+  .profile-recent-req:last-child{border-bottom:none;}
 </style>
 <script type="module">
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -804,7 +825,7 @@
       <button class="btn btn-g" id="mo-cl-archive-btn" onclick="archiveClient()">📦 Archivar</button>
       <div style="flex:1"></div>
       <button class="btn btn-g" onclick="closeMo('mo-cl')">Cerrar</button>
-      <button class="btn btn-p" onclick="saveClientNotes()">Guardar</button>
+      <button class="btn btn-p" id="mo-save-cl-btn" style="display:none" onclick="saveClientNotes()">Guardar cambios</button>
     </div>
   </div>
 </div>
@@ -1452,7 +1473,7 @@ async function dbAddClient(data){
 
 async function dbUpdateClient(id, changes){
   if(!sb_client) return;
-  const map={pay:'pay_status',pack:'pack',notes:'notes',ch:'channel'};
+  const map={pay:'pay_status',pack:'pack',notes:'notes',ch:'channel',name:'name',price:'price'};
   const upd={};
   Object.entries(changes).forEach(([k,v])=>{ upd[map[k]||k]=v; });
   await sb_client.from('clients').update(upd).eq('id',id);
@@ -1543,7 +1564,13 @@ function renderAClients(){
     const p = gr(c.id).filter(r=>r.status!=='Completado').length;
     return `<div class="cc" style="${isArchived?'opacity:.55;border-style:dashed':''}" onclick="openClMo('${c.id}')">
       <div class="cch">
-        <div class="cav" style="${isArchived?'filter:grayscale(1)':''}">${ini(c.name)}</div>
+        <div style="position:relative;width:44px;height:44px;flex-shrink:0;">
+          ${c.ch ? `<img src="https://unavatar.io/youtube/${c.ch.replace(/^@/,'')}"
+            style="width:44px;height:44px;border-radius:12px;object-fit:cover;border:2px solid var(--border);${isArchived?'filter:grayscale(1)':''}"
+            onerror="this.style.display='none';this.nextSibling.style.display='flex'">
+            <div class="cav" style="display:none;${isArchived?'filter:grayscale(1)':''}">${ini(c.name)}</div>` 
+          : `<div class="cav" style="${isArchived?'filter:grayscale(1)':''}">${ini(c.name)}</div>`}
+        </div>
         <div>
           <div class="cn">${c.name} ${isArchived?'<span style="font-size:10px;background:rgba(255,255,255,.08);border-radius:6px;padding:2px 7px;color:var(--muted);font-weight:600">ARCHIVADO</span>':''}</div>
           <div class="cp">${c.ch} · ${c.pack===99?'Ilimitado':'Pack '+c.pack}</div>
@@ -2133,26 +2160,113 @@ async function saveReq(rid){
   }
 }
 function openClMo(cid){
-  viewCid=cid;const c=gc(cid);if(!c)return;
+  viewCid=cid; const c=gc(cid); if(!c)return;
   const rqs=gr(cid);
-  document.getElementById('mo-cl-title').textContent=c.name;
-  document.getElementById('mo-cl-body').innerHTML=`
-    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
-      <div class="stat-card"><div class="stat-lbl">Pack</div><div class="stat-val c-blue" style="font-size:22px">${c.pack===99?'∞':c.pack}</div><div class="stat-sub">miniaturas</div></div>
-      <div class="stat-card"><div class="stat-lbl">Usadas</div><div class="stat-val ${c.used>=c.pack&&c.pack!==99?'c-red':'c-green'}" style="font-size:22px">${c.used}</div><div class="stat-sub">de ${c.pack===99?'∞':c.pack}</div></div>
-      <div class="stat-card"><div class="stat-lbl">Pago</div><div style="margin-top:6px">${pb(c.pay)}</div><div class="stat-sub">$${c.price}/ciclo</div></div>
-    </div>
-    <div class="fg" style="margin-bottom:16px">
-      <div style="display:flex;flex-direction:column;gap:6px"><label>Email</label><input value="${c.email}" disabled style="opacity:.5"></div>
-      <div style="display:flex;flex-direction:column;gap:6px"><label>Canal</label><input value="${c.ch}" disabled style="opacity:.5"></div>
-      <div style="display:flex;flex-direction:column;gap:6px"><label>Pack</label><select id="ep"><option value="4" ${c.pack==4?'selected':''}>Básico (4)</option><option value="8" ${c.pack==8?'selected':''}>Estándar (8)</option><option value="16" ${c.pack==16?'selected':''}>Pro (16)</option><option value="99" ${c.pack==99?'selected':''}>Ilimitado</option></select></div>
-      <div style="display:flex;flex-direction:column;gap:6px"><label>Pago</label><select id="eps"><option ${c.pay==='Al día'?'selected':''}>Al día</option><option ${c.pay==='Pendiente'?'selected':''}>Pendiente</option><option ${c.pay==='Vencido'?'selected':''}>Vencido</option></select></div>
-    </div>
-    <div class="nb" style="margin-bottom:20px"><label>🔒 Notas internas</label><textarea id="en">${c.notes}</textarea></div>
-    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:12px">Pedidos (${rqs.length})</div>
-    ${rqs.slice(0,4).map(r=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px"><div><strong>${r.title}</strong><span style="color:var(--muted);margin-left:8px;font-size:12px">${fd(r.deadline)}</span></div>${sb(r.status)}</div>`).join('')}`;
+  const pending = rqs.filter(r=>r.status!=='Completado'&&r.status!=='Aprobado').length;
+  const packLabel = c.pack===99?'Ilimitado':c.pack===4?'Básico (4)':c.pack===8?'Estándar (8)':c.pack===16?'Pro (16)':'Pack '+c.pack;
+  const av = c.pack===99?'∞':c.pack-c.used;
 
-  // Actualizar botones del footer según estado del cliente
+  // Header del modal — solo nombre
+  document.getElementById('mo-cl-title').textContent='';
+
+  const avatarHtml = c.ch
+    ? `<img src="https://unavatar.io/youtube/${c.ch.replace(/^@/,'')}"
+        style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid var(--border)"
+        onerror="this.style.display='none';document.getElementById('cl-av-fallback-${cid}').style.display='flex'">
+       <div id="cl-av-fallback-${cid}" class="profile-avatar-fallback" style="display:none">${ini(c.name)}</div>`
+    : `<div class="profile-avatar-fallback">${ini(c.name)}</div>`;
+
+  document.getElementById('mo-cl-body').innerHTML=`
+    <!-- HEADER PERFIL -->
+    <div class="profile-header">
+      <div class="profile-avatar-wrap">${avatarHtml}</div>
+      <div class="profile-info">
+        <div class="profile-name">${c.name}</div>
+        ${c.ch?`<div class="profile-handle">${c.ch}</div>`:''}
+        <div class="profile-email">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+          ${c.email}
+        </div>
+      </div>
+      <button class="profile-edit-btn" id="cl-edit-toggle" onclick="toggleClEdit('${cid}')" title="Editar cliente">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </button>
+    </div>
+
+    <!-- STATS -->
+    <div class="profile-stats">
+      <div class="profile-stat">
+        <div class="profile-stat-val c-blue">${c.pack===99?'∞':c.pack}</div>
+        <div class="profile-stat-lbl">Pack</div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-val ${typeof av==='number'&&av<=1?'c-red':'c-green'}">${av}</div>
+        <div class="profile-stat-lbl">Disponibles</div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-val c-yellow">${pending}</div>
+        <div class="profile-stat-lbl">Pendientes</div>
+      </div>
+    </div>
+
+    <!-- DATOS DEL PLAN (modo lectura) -->
+    <div id="cl-view-mode">
+      <div class="profile-section-title">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Plan y facturación
+      </div>
+      <div style="background:var(--surface2);border-radius:12px;padding:4px 14px;margin-bottom:18px;">
+        <div class="profile-field"><span class="profile-field-label">Pack</span><span class="profile-field-val">${packLabel}</span></div>
+        <div class="profile-field"><span class="profile-field-label">Precio</span><span class="profile-field-val">$${c.price}<span style="color:var(--muted);font-size:11px">/ciclo</span></span></div>
+        <div class="profile-field"><span class="profile-field-label">Pago</span><span class="profile-field-val">${pb(c.pay)}</span></div>
+        <div class="profile-field"><span class="profile-field-label">Usadas</span><span class="profile-field-val">${c.used} de ${c.pack===99?'∞':c.pack}</span></div>
+      </div>
+
+      ${c.notes?`
+      <div class="profile-section-title">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Notas internas
+      </div>
+      <div style="background:rgba(245,200,66,.06);border:1px solid rgba(245,200,66,.15);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--text);line-height:1.6;margin-bottom:18px;">${c.notes}</div>`:''}
+    </div>
+
+    <!-- MODO EDICIÓN (oculto por defecto) -->
+    <div id="cl-edit-mode" style="display:none">
+      <div class="profile-section-title">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Editar datos
+      </div>
+      <div class="fg profile-edit-mode" style="margin-bottom:16px">
+        <div style="display:flex;flex-direction:column;gap:6px"><label>Nombre</label><input id="ep-name" type="text" value="${c.name}"></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><label>Canal YouTube</label><input id="ep-ch" type="text" value="${c.ch}" placeholder="@micanal"></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><label>Pack</label><select id="ep"><option value="4" ${c.pack==4?'selected':''}>Básico (4)</option><option value="8" ${c.pack==8?'selected':''}>Estándar (8)</option><option value="16" ${c.pack==16?'selected':''}>Pro (16)</option><option value="99" ${c.pack==99?'selected':''}>Ilimitado</option></select></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><label>Pago</label><select id="eps"><option ${c.pay==='Al día'?'selected':''}>Al día</option><option ${c.pay==='Pendiente'?'selected':''}>Pendiente</option><option ${c.pay==='Vencido'?'selected':''}>Vencido</option></select></div>
+        <div style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1"><label>Precio ($)</label><input id="ep-price" type="number" value="${c.price}"></div>
+        <div style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1"><label>Notas internas</label><textarea id="en" style="min-height:80px">${c.notes}</textarea></div>
+      </div>
+    </div>
+
+    <!-- PEDIDOS RECIENTES -->
+    <div class="profile-section-title" style="margin-top:4px">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Pedidos (${rqs.length})
+    </div>
+    <div style="background:var(--surface2);border-radius:12px;padding:4px 14px;">
+      ${rqs.length ? rqs.slice(0,4).map(r=>`
+        <div class="profile-recent-req">
+          <div style="min-width:0;flex:1">
+            <div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.title}</div>
+            <div style="font-size:11px;color:var(--muted)">📅 ${fd(r.deadline)}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:10px">
+            ${sb(r.status)}
+            <button class="btn btn-g btn-sm" onclick="closeMo('mo-cl');openReqMo('${r.id}')">Ver</button>
+          </div>
+        </div>`).join('')
+      : '<div style="padding:16px 0;color:var(--muted);font-size:13px;text-align:center">Sin pedidos aún</div>'}
+    </div>`;
+
+  // Actualizar botones footer
   const archBtn = document.getElementById('mo-cl-archive-btn');
   if(c.archived){
     archBtn.textContent = '📤 Restaurar';
@@ -2161,7 +2275,26 @@ function openClMo(cid){
     archBtn.textContent = '📦 Archivar';
     archBtn.onclick = ()=>archiveClient();
   }
+  // Botón guardar — oculto hasta que abran edición
+  document.getElementById('mo-save-cl-btn') && (document.getElementById('mo-save-cl-btn').style.display='none');
   openMo('mo-cl');
+}
+
+function toggleClEdit(cid){
+  const viewMode = document.getElementById('cl-view-mode');
+  const editMode = document.getElementById('cl-edit-mode');
+  const editBtn  = document.getElementById('cl-edit-toggle');
+  const saveBtn  = document.getElementById('mo-save-cl-btn');
+  const isEditing = editMode.style.display !== 'none';
+  if(isEditing){
+    viewMode.style.display=''; editMode.style.display='none';
+    editBtn.style.color=''; editBtn.style.borderColor='';
+    if(saveBtn) saveBtn.style.display='none';
+  } else {
+    viewMode.style.display='none'; editMode.style.display='';
+    editBtn.style.color='var(--accent)'; editBtn.style.borderColor='var(--accent)';
+    if(saveBtn) saveBtn.style.display='';
+  }
 }
 async function deleteClient(){
   const c=gc(viewCid);if(!c)return;
@@ -2222,10 +2355,13 @@ async function unarchiveClient(cid){
 async function saveClientNotes(){
   const c=gc(viewCid);if(!c)return;
   c.notes=document.getElementById('en')?.value||c.notes;
-  const ps=document.getElementById('eps')?.value;if(ps)c.pay=ps;
-  const pk=document.getElementById('ep')?.value;if(pk)c.pack=parseInt(pk);
-  if(isSupabaseMode) await dbUpdateClient(viewCid,{notes:c.notes,pay:c.pay,pack:c.pack});
-  closeMo('mo-cl');toast('✓ Cliente actualizado');
+  const ps=document.getElementById('eps')?.value; if(ps)c.pay=ps;
+  const pk=document.getElementById('ep')?.value;  if(pk)c.pack=parseInt(pk);
+  const nm=document.getElementById('ep-name')?.value?.trim(); if(nm)c.name=nm;
+  const ch=document.getElementById('ep-ch')?.value?.trim();   if(ch!==undefined)c.ch=ch;
+  const pr=document.getElementById('ep-price')?.value;        if(pr)c.price=parseInt(pr)||c.price;
+  if(isSupabaseMode) await dbUpdateClient(viewCid,{notes:c.notes,pay:c.pay,pack:c.pack,name:c.name,ch:c.ch,price:c.price});
+  closeMo('mo-cl'); playSound('action'); toast('✓ Cliente actualizado');
   renderADash();renderAClients();renderAPays();
 }
 async function addClient(){
@@ -2552,6 +2688,34 @@ function escHtml(t){ return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').r
 applyTheme();
 
 /* ════════════════════════
+   FOTO DE PERFIL DE CANAL YOUTUBE
+   Usa unavatar.io que resuelve @handles de YT gratis
+════════════════════════ */
+const _ytPhotoCache = {};
+
+async function getChannelPhoto(handle){
+  if(!handle) return null;
+  const clean = handle.replace(/^@/,'').trim();
+  if(!clean) return null;
+  if(_ytPhotoCache[clean] !== undefined) return _ytPhotoCache[clean];
+  // unavatar.io resuelve el @handle de YouTube directamente
+  const url = `https://unavatar.io/youtube/${clean}`;
+  _ytPhotoCache[clean] = url; // optimistic — retorna 404 transparente si no existe
+  return url;
+}
+
+function ytAvatarImg(handle, size=44, extraStyle=''){
+  const clean = (handle||'').replace(/^@/,'').trim();
+  if(!clean) return '';
+  const url = `https://unavatar.io/youtube/${clean}`;
+  return `<img src="${url}" 
+    style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;border:2px solid var(--border);flex-shrink:0;${extraStyle}"
+    onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+    alt="${handle}">`;
+}
+
+
+/* ════════════════════════
    SISTEMA DE SONIDOS
 ════════════════════════ */
 let _audioCtx = null;
@@ -2686,14 +2850,13 @@ function renderHeroBanner(c, rqs){
     heroSub = active.length ? `${active.length} pedido${active.length>1?'s':''} en curso` : 'Tu panel de miniaturas';
   }
 
-  // Days pill
-  let daysPill='';
-  if(active.length && active[0].deadline){
-    const dl = new Date(active[0].deadline); dl.setHours(0,0,0,0);
-    const diff = Math.round((dl-today)/(1000*60*60*24));
-    daysPill = diff>=0
-      ? `<div class="hero-days"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${diff===0?'Vence hoy':diff===1?'Vence mañana':'Vence en '+diff+' días'}</div>`
-      : `<div class="hero-days">⚡ Vencido hace ${Math.abs(diff)} día${Math.abs(diff)>1?'s':''}</div>`;
+  // CTA botón — revisar miniatura si está lista
+  let heroCTA = '';
+  if(active.length && active[0].status === 'Listo para revisar'){
+    heroCTA = `<button onclick="openReqMo('${active[0].id}')" style="margin-top:14px;display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:#ff4d00;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:all .2s" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      Ver miniatura
+    </button>`;
   }
 
   el.innerHTML = `
@@ -2701,9 +2864,7 @@ function renderHeroBanner(c, rqs){
       <div class="hero-banner-content">
         <div class="hero-title">${heroTitle}</div>
         <div class="hero-sub">${heroSub}</div>
-        <div class="hero-pbar-wrap"><div class="hero-pbar-fill" style="width:${packPct}%"></div></div>
-        <div class="hero-pbar-label">${c.pack===99?'Pack Ilimitado':`${c.used} de ${c.pack} miniaturas usadas`}</div>
-        ${daysPill}
+        ${heroCTA}
       </div>
       <div class="hero-banner-icon">${icon}</div>
     </div>`;
