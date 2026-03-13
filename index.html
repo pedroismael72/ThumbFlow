@@ -64,7 +64,7 @@
   body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
   h1,h2,h3,h4{font-family:'DM Sans',sans-serif;font-weight:700;}
   .screen{display:none;min-height:100vh;}
-  .screen.active{display:flex;flex-direction:column;}
+  /* screen.active moved above */
 
   /* LOGIN */
   #screen-login{align-items:center;justify-content:center;position:relative;overflow:hidden;}
@@ -92,7 +92,7 @@
   .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
 
   /* LAYOUT */
-  .app-layout{display:grid;grid-template-columns:240px 1fr;grid-template-rows:56px 1fr;min-height:100vh;transition:grid-template-columns .2s ease;}
+  .app-layout{display:grid;grid-template-columns:240px 1fr;grid-template-rows:56px 1fr;min-height:100vh;height:100vh;width:100%;transition:grid-template-columns .2s ease;}.screen.active{display:flex;flex-direction:column;width:100%;}
   .app-layout.sidebar-collapsed{grid-template-columns:60px 1fr;}
   .topbar{grid-column:1/-1;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:10px;overflow:visible;position:relative;z-index:50;}
   .topbar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;flex-shrink:0;}
@@ -1364,30 +1364,23 @@ function stopRealtime(){
    AUTH — Supabase + Google Login
 ═══════════════════════════════════════════════════ */
 
+let _sessionHandled = false;
+
 async function checkSession(){
   if(!sb_client) return;
 
-  const isOAuthRedirect = window.location.hash.includes('access_token') || 
-                          window.location.search.includes('code=');
-
-  if(isOAuthRedirect){
-    const { data: { session } } = await sb_client.auth.getSession();
-    if(session){
+  // UN solo listener global — registrado una sola vez
+  sb_client.auth.onAuthStateChange(async(event, session) => {
+    if(event === 'SIGNED_OUT'){ _sessionHandled=false; showScreen('screen-login'); return; }
+    if(event === 'SIGNED_IN' && session){
+      // Nuevo login — siempre procesar, incluso si ya había sesión
+      _sessionHandled = true;
       history.replaceState(null,'',window.location.pathname);
       await handleSession(session);
-      return;
+    } else if(event === 'INITIAL_SESSION' && session && !_sessionHandled){
+      _sessionHandled = true;
+      await handleSession(session);
     }
-  }
-
-  const { data: { session } } = await sb_client.auth.getSession();
-  if(session){
-    await handleSession(session);
-    return;
-  }
-
-  sb_client.auth.onAuthStateChange(async(event, session) => {
-    if(event === 'SIGNED_IN' && session) await handleSession(session);
-    if(event === 'SIGNED_OUT') showScreen('screen-login');
   });
 }
 
@@ -1402,6 +1395,7 @@ async function handleSession(session){
     user = { name, role, email, id: session.user.id };
     await loadAdminData();
     showScreen('screen-admin');
+    restoreSidebar('admin');
     document.getElementById('admin-av').textContent = name[0].toUpperCase();
     document.getElementById('admin-un').textContent = name.split(' ')[0];
     renderADash(); renderAClients(); renderAReqs(); renderAPays();
@@ -1418,8 +1412,17 @@ async function handleSession(session){
     role = 'client';
     user = { name, role, email, id: session.user.id };
     await loadClientData(session.user.id);
+    console.log('[ThumbFlow] loadClientData terminó. S.clients:', S.clients.length, 'user.clientId:', user?.clientId);
     showScreen('screen-client');
     restoreSidebar('client');
+    // Forzar render del panel inicio
+    const _cid = user?.clientId || (S.clients[0]?.id);
+    console.log('[ThumbFlow] Llamando renderCDash con cid:', _cid);
+    if(_cid) renderCDash(_cid);
+    // Forzar panel inicio visible
+    document.querySelectorAll('#screen-client .panel').forEach(p=>p.classList.remove('active'));
+    const _initP = document.getElementById('client-panel-inicio');
+    if(_initP) _initP.classList.add('active');
     setTimeout(()=>obShow(), 800);
   }
 }
@@ -1446,7 +1449,7 @@ async function logout(){
   if(!ok) return;
   stopRealtime();
   if(sb_client) await sb_client.auth.signOut();
-  user=null; isSupabaseMode=false; role='admin';
+  user=null; isSupabaseMode=false; role='admin'; _sessionHandled=false;
   window.history.replaceState({}, document.title, window.location.pathname);
   showScreen('screen-login');
 }
@@ -1551,22 +1554,23 @@ async function loadAdminData(){
 async function loadClientData(userId){
   if(!sb_client) return;
   try{
-    // Buscar el cliente por su user_id
+    // 1. Buscar por user_id
     let {data:clients,error}=await sb_client
       .from('clients').select('*').eq('user_id',userId).limit(1);
     if(error) throw error;
 
-    // Si no encontró por user_id, buscar por email y vincular automáticamente
+    // 2. Si no encontró, buscar por email (con o sin user_id ya asignado)
     if(!clients||!clients.length){
-      const { data:{ user } } = await sb_client.auth.getUser();
-      if(user?.email){
+      const { data:{ user:authUser } } = await sb_client.auth.getUser();
+      if(authUser?.email){
         const {data:byEmail} = await sb_client
-          .from('clients').select('*').eq('email',user.email).is('user_id',null).limit(1);
+          .from('clients').select('*').eq('email',authUser.email).limit(1);
         if(byEmail&&byEmail.length){
-          // Vincular el user_id automáticamente
-          await sb_client.from('clients').update({user_id:userId}).eq('id',byEmail[0].id);
+          // Vincular el user_id si todavía no está
+          if(!byEmail[0].user_id){
+            await sb_client.from('clients').update({user_id:userId}).eq('id',byEmail[0].id);
+          }
           clients = byEmail;
-          toast('✓ Cuenta vinculada correctamente');
         }
       }
     }
@@ -1574,10 +1578,10 @@ async function loadClientData(userId){
     if(!clients||!clients.length){
       // Cliente nuevo — mostrar pantalla de espera
       showScreen('screen-client');
-      document.getElementById('cl-welcome').textContent = `Hola 👋`;
+      document.getElementById('cl-welcome').textContent = `Hola`;
       document.getElementById('cl-stats').innerHTML=`
         <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)">
-          <div style="font-size:48px;margin-bottom:16px">⏳</div>
+          <div style="opacity:.35;display:flex;justify-content:center;margin-bottom:16px"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
           <div style="font-size:16px;font-weight:600;margin-bottom:8px">Tu cuenta está siendo configurada</div>
           <div style="font-size:13px">El diseñador va a activar tu acceso en breve.<br>Volvé a intentar en unos minutos.</div>
         </div>`;
@@ -1611,14 +1615,20 @@ async function loadClientData(userId){
 
     document.getElementById('cl-av').textContent=c.name[0].toUpperCase();
     document.getElementById('cl-un').textContent=c.name.split(' ')[0];
-    document.getElementById('cl-welcome').textContent=`Hola, ${c.name.split(' ')[0]} 👋`;
+    document.getElementById('cl-welcome').textContent=`Hola, ${c.name.split(' ')[0]}`;
     if(user) user.clientId = c.id;
     renderCDash(c.id);
+    // Asegurar que el panel inicio del cliente esté visible
+    const initPanel = document.getElementById('client-panel-inicio');
+    if(initPanel){
+      document.querySelectorAll('#screen-client .panel').forEach(p=>p.classList.remove('active'));
+      initPanel.classList.add('active');
+    }
     startRealtime();
 
   }catch(e){
     console.error('[ThumbFlow] Error cargando cliente:', e);
-    toast('⚠ Error cargando tus datos');
+    toast('Error cargando tus datos');
   }
 }
 
@@ -1727,7 +1737,16 @@ function restoreSidebar(panel){
   }
 }
 
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>{
+    s.classList.remove('active');
+    s.style.display = '';
+  });
+  const el = document.getElementById(id);
+  if(el){
+    el.classList.add('active');
+  }
+}
 function showPanel(sc,name,btn){
   document.querySelectorAll(`#screen-${sc} .panel`).forEach(p=>p.classList.remove('active'));
   const el=document.getElementById(`${sc}-panel-${name}`);if(el)el.classList.add('active');
