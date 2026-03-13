@@ -63,7 +63,7 @@
 
   /* LAYOUT */
   .app-layout{display:grid;grid-template-columns:240px 1fr;grid-template-rows:56px 1fr;min-height:100vh;}
-  .topbar{grid-column:1/-1;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:10px;overflow:hidden;}
+  .topbar{grid-column:1/-1;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:10px;overflow:visible;position:relative;z-index:50;}
   .topbar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;flex-shrink:0;}
   .topbar-logo span{color:var(--accent);}
   .topbar-spacer{flex:1;}
@@ -209,7 +209,7 @@
   .notif-btn:hover{border-color:var(--accent);color:var(--text);}
   .notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--accent);border:2px solid var(--surface);display:none;}
   .notif-dot.show{display:block;}
-  .notif-panel{position:absolute;top:48px;right:0;width:340px;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5);z-index:200;display:none;overflow:hidden;}
+  .notif-panel{position:absolute;top:48px;right:0;width:340px;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5);z-index:1000;display:none;overflow:hidden;}
   .notif-panel.open{display:block;animation:fadeUp .2s ease;}
   .notif-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
   .notif-head-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;}
@@ -491,12 +491,12 @@
 
 
   /* ════ NOTIFICACIONES CLIENTE (topbar) ════ */
-  .cl-notif-wrap{position:relative;}
+  .cl-notif-wrap{position:relative;z-index:50;}
   .cl-notif-btn{position:relative;width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;color:var(--muted);}
   .cl-notif-btn:hover{border-color:var(--accent);color:var(--text);}
   .cl-notif-badge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:9px;background:var(--accent);border:2px solid var(--bg);display:none;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:white;padding:0 4px;}
   .cl-notif-badge.show{display:flex;}
-  .cl-notif-panel{position:absolute;top:44px;right:0;width:320px;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5);z-index:200;display:none;overflow:hidden;}
+  .cl-notif-panel{position:absolute;top:44px;right:0;width:320px;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5);z-index:1000;display:none;overflow:hidden;}
   .cl-notif-panel.open{display:block;animation:fadeUp .2s ease;}
   .cl-notif-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
   .cl-notif-head-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;}
@@ -529,9 +529,42 @@
   .profile-field-val{flex:1;font-weight:500;}
   .profile-edit-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
   .profile-edit-btn:hover{border-color:var(--accent);color:var(--accent);}
-  .profile-edit-mode input,.profile-edit-mode select{background:var(--surface2);border:1px solid var(--accent);border-radius:8px;padding:6px 10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;width:100%;outline:none;}
+  .profile-edit-mode input,.profile-edit-mode select{background:var(--surface2);border:1px solid rgba(255,77,0,.35);border-radius:8px;padding:6px 10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;width:100%;outline:none;transition:border-color .2s;}
+  .profile-edit-mode input:focus,.profile-edit-mode select:focus{border-color:var(--accent);}
+  .profile-edit-mode textarea{background:var(--surface2);border:1px solid rgba(255,77,0,.35);border-radius:8px;padding:8px 10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;width:100%;outline:none;transition:border-color .2s;resize:vertical;min-height:80px;}
+  .profile-edit-mode textarea:focus{border-color:var(--accent);}
   .profile-recent-req{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(34,34,47,.5);font-size:13px;}
   .profile-recent-req:last-child{border-bottom:none;}
+
+  /* ════ STAT CARD COLOREADA (pago) ════ */
+  .pay-card{border-radius:16px;padding:20px;position:relative;overflow:hidden;transition:border-color .2s;}
+  .pay-card::before{content:'';position:absolute;inset:0;z-index:0;}
+  .pay-card-content{position:relative;z-index:1;}
+  .pay-card.al-dia{background:linear-gradient(135deg,rgba(45,202,115,.15) 0%,rgba(45,202,115,.05) 100%);border:1px solid rgba(45,202,115,.3);}
+  .pay-card.pendiente{background:linear-gradient(135deg,rgba(255,77,0,.15) 0%,rgba(255,77,0,.05) 100%);border:1px solid rgba(255,77,0,.3);}
+  .pay-card.vencido{background:linear-gradient(135deg,rgba(255,77,77,.18) 0%,rgba(255,77,77,.06) 100%);border:1px solid rgba(255,77,77,.4);}
+  .pay-status-big{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:2px;}
+  /* Barra de créditos degradada */
+  .credits-bar-wrap{height:8px;border-radius:6px;background:var(--surface2);overflow:hidden;margin-top:10px;}
+  .credits-bar-fill{height:100%;border-radius:6px;transition:width .8s cubic-bezier(.4,0,.2,1);}
+
+  /* ════ DASHBOARD CLIENTE — barra miniaturas + card pago ════ */
+  .cl-pack-bar-wrap{height:8px;border-radius:4px;background:var(--surface2);overflow:hidden;margin-top:10px;}
+  .cl-pack-bar-fill{height:100%;border-radius:4px;transition:width .8s ease;}
+  .pay-hero-card{border-radius:16px;padding:20px;position:relative;overflow:hidden;border:none;}
+  .pay-hero-card::before{content:'';position:absolute;inset:0;z-index:0;}
+  .pay-hero-card-content{position:relative;z-index:1;}
+  .pay-hero-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:700;opacity:.8;margin-bottom:6px;}
+  .pay-hero-val{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;line-height:1;margin-bottom:4px;}
+  .pay-hero-sub{font-size:11px;opacity:.75;}
+
+  /* ════ DASHBOARD ADMIN — card ingresos ════ */
+  .income-hero-card{border-radius:16px;padding:20px;background:linear-gradient(135deg,#7a2e00,#ff4d00 60%,#ff8c42);position:relative;overflow:hidden;border:none;}
+  .income-hero-card::after{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:radial-gradient(circle,rgba(255,255,255,.15) 0%,transparent 70%);border-radius:50%;}
+  .income-hero-inner{position:relative;z-index:1;}
+  .income-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:700;color:rgba(255,255,255,.75);margin-bottom:6px;}
+  .income-val{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:white;line-height:1;margin-bottom:4px;}
+  .income-sub{font-size:11px;color:rgba(255,255,255,.7);}
 </style>
 <script type="module">
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -570,7 +603,7 @@
       <div class="topbar-logo">Thumb<span>Flow</span></div>
       <div class="topbar-spacer"></div>
       <div style="display:flex;align-items:center;gap:6px">
-        <div style="position:relative">
+        <div style="position:relative;z-index:50">
           <button class="notif-btn" onclick="toggleNotifPanel()" id="notif-btn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             <span class="notif-dot" id="notif-dot"></span>
@@ -609,10 +642,10 @@
       <div class="panel active" id="admin-panel-dashboard">
         <div class="page-header"><div class="page-title">Dashboard</div><div class="page-sub">Resumen general de tu estudio</div></div>
         <div class="stats-grid">
-          <div class="stat-card"><div class="stat-lbl">Clientes activos</div><div class="stat-val c-blue">3</div><div class="stat-sub">Total registrados</div></div>
-          <div class="stat-card"><div class="stat-lbl">Pedidos pendientes</div><div class="stat-val c-yellow" id="dash-p">2</div><div class="stat-sub">Esperando entrega</div></div>
-          <div class="stat-card"><div class="stat-lbl">Miniaturas entregadas</div><div class="stat-val c-green" id="dash-d">18</div><div class="stat-sub">Este mes: 7</div></div>
-          <div class="stat-card"><div class="stat-lbl">Ingresos totales</div><div class="stat-val" style="font-size:24px">$1.480</div><div class="stat-sub c-green">+$240 este mes</div></div>
+          <div class="stat-card"><div class="stat-lbl">Clientes activos</div><div class="stat-val c-blue" id="dash-cl">0</div><div class="stat-sub">Total registrados</div></div>
+          <div class="stat-card"><div class="stat-lbl">Pedidos pendientes</div><div class="stat-val c-yellow" id="dash-p">0</div><div class="stat-sub">Esperando entrega</div></div>
+          <div class="stat-card"><div class="stat-lbl">Miniaturas entregadas</div><div class="stat-val c-green" id="dash-d">0</div><div class="stat-sub" id="dash-d-sub">Completadas</div></div>
+          <div class="income-hero-card"><div class="income-hero-inner"><div class="income-lbl">Ingresos totales</div><div class="income-val" id="dash-income">$0</div><div class="income-sub" id="dash-income-sub">De los packs contratados</div></div></div>
         </div>
         <div class="card"><div class="card-title">Pedidos recientes <button class="btn btn-p btn-sm" onclick="showPanel('admin','pedidos',null)">Ver todos</button></div><div id="a-recent"></div></div>
         <div class="card"><div class="card-title">Estado de clientes</div><table><thead><tr><th>Cliente</th><th>Pack</th><th>Uso</th><th>Pago</th><th></th></tr></thead><tbody id="a-cl-sum"></tbody></table></div>
@@ -1542,8 +1575,27 @@ function closeMo(id){document.getElementById(id).classList.remove('open');}
 
 /* ADMIN */
 function renderADash(){
-  const pending=S.reqs.filter(r=>r.status!=='Completado').length;
-  const dp=document.getElementById('dash-p');if(dp)dp.textContent=pending;
+  const pending   = S.reqs.filter(r=>r.status!=='Completado').length;
+  const completed = S.reqs.filter(r=>r.status==='Completado').length;
+  const activeClients = S.clients.filter(c=>!c.archived).length;
+  // Ingresos = suma de precios de clientes activos (packs contratados)
+  const totalIncome = S.clients.filter(c=>!c.archived).reduce((sum,c)=>sum+(c.price||0),0);
+
+  const dp=document.getElementById('dash-p');   if(dp)dp.textContent=pending;
+  const dd=document.getElementById('dash-d');   if(dd)dd.textContent=completed;
+  const dcl=document.getElementById('dash-cl'); if(dcl)dcl.textContent=activeClients;
+
+  // Card de ingresos con gradiente naranja
+  const incomeCard=document.getElementById('dash-income-card');
+  if(incomeCard) incomeCard.innerHTML=`
+    <div style="border-radius:16px;padding:20px;position:relative;overflow:hidden;background:linear-gradient(135deg,#ff4d00 0%,#ff8c42 100%);border:none;">
+      <div style="position:absolute;right:-20px;top:-20px;width:100px;height:100px;background:radial-gradient(circle,rgba(255,255,255,.15) 0%,transparent 70%);border-radius:50%;"></div>
+      <div style="position:relative;z-index:1;">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.75);font-weight:600;margin-bottom:8px">Ingresos mensuales</div>
+        <div style="font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:white;margin-bottom:4px">$${totalIncome}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.8)">${activeClients} pack${activeClients!==1?'s':''} activo${activeClients!==1?'s':''}</div>
+      </div>
+    </div>`;
   document.getElementById('a-recent').innerHTML=[...S.reqs].reverse().slice(0,3).map(r=>{
     const c=gc(r.cid);
     return`<div class="rc"><div><div class="rt">${r.title}</div><div class="rm"><span>👤 ${c?.name}</span><span>📅 ${fd(r.deadline)}</span><span class="chip-pair">${sb(r.status)}${urgencyChip(r.deadline)}</span></div></div><button class="btn btn-g btn-sm" onclick="openReqMo('${r.id}')">Ver</button></div>`;
@@ -1882,11 +1934,47 @@ function renderCDash(cid){
   const c=gc(cid),rqs=gr(cid),pending=rqs.filter(r=>r.status!=='Completado').length;
   const av=c.pack===99?'∞':c.pack-c.used;
   renderHeroBanner(c, rqs);
+  // Barra degradada de créditos: verde → amarillo → rojo
+  const pct = c.pack===99 ? 15 : Math.min(100,Math.round((c.used/c.pack)*100));
+  const barColor = c.pack===99 ? '#2dca73'
+    : pct >= 90 ? '#ff4d4d'
+    : pct >= 65 ? '#f5c842'
+    : '#2dca73';
+  const barGradient = c.pack===99
+    ? '#2dca73'
+    : `linear-gradient(90deg, #2dca73 0%, #f5c842 60%, #ff4d4d 100%)`;
+  // Usamos clip-path inverso para mostrar solo la parte "usada" visualmente
+  // Pero mostramos cuántas QUEDAN, entonces la barra representa el remanente
+  const remPct = c.pack===99 ? 100 : Math.max(0,100 - pct);
+  const remBarColor = remPct > 50 ? '#2dca73' : remPct > 20 ? '#f5c842' : '#ff4d4d';
+
+  // Card de pago con color según estado
+  const payClass = c.pay==='Al día' ? 'al-dia' : c.pay==='Pendiente' ? 'pendiente' : 'vencido';
+  const payColor = c.pay==='Al día' ? 'var(--green)' : c.pay==='Pendiente' ? 'var(--accent)' : 'var(--red)';
+  const payIcon  = c.pay==='Al día'
+    ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${payColor}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+    : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${payColor}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+  const payText  = c.pay==='Al día' ? 'AL DÍA' : c.pay==='Pendiente' ? 'ATRASADO' : 'VENCIDO';
+
   document.getElementById('cl-stats').innerHTML=`
-    <div class="stat-card"><div class="stat-lbl">Disponibles</div><div class="stat-val ${typeof av==='number'&&av<=1?'c-red':'c-green'}">${av}</div><div class="stat-sub">${c.pack===99?'Ilimitado':`de ${c.pack} en tu pack`}</div>${c.pack!==99?`<div class="pbar"><div class="pbar-fill" style="width:${Math.min(100,(c.used/c.pack)*100)}%"></div></div>`:''}</div>
+    <div class="stat-card">
+      <div class="stat-lbl">Miniaturas disponibles</div>
+      <div class="stat-val" style="color:${remBarColor}">${c.pack===99?'∞':av}</div>
+      <div class="stat-sub">${c.pack===99?'Pack ilimitado':`de ${c.pack} en tu pack`}</div>
+      ${c.pack!==99?`<div class="credits-bar-wrap"><div class="credits-bar-fill" style="width:${remPct}%;background:${remBarColor}"></div></div>`:''}
+    </div>
     <div class="stat-card"><div class="stat-lbl">En proceso</div><div class="stat-val c-yellow">${pending}</div><div class="stat-sub">Pedidos activos</div></div>
     <div class="stat-card"><div class="stat-lbl">Entregadas</div><div class="stat-val c-blue">${c.used}</div><div class="stat-sub">Total histórico</div></div>
-    <div class="stat-card"><div class="stat-lbl">Estado de pago</div><div style="margin-top:8px">${pb(c.pay)}</div><div class="stat-sub" style="margin-top:8px">$${c.price}/ciclo</div></div>`;
+    <div class="pay-card ${payClass}">
+      <div class="pay-card-content">
+        <div class="stat-lbl" style="color:${payColor}">Estado de pago</div>
+        <div style="display:flex;align-items:center;gap:7px;margin-top:8px;margin-bottom:2px">
+          ${payIcon}
+          <div class="pay-status-big" style="color:${payColor}">${payText}</div>
+        </div>
+        <div class="stat-sub">$${c.price}/ciclo</div>
+      </div>
+    </div>`;
   renderTracking(cid);
   updateCreditsUI(c);
   const rec=[...rqs].reverse().slice(0,3);
@@ -2830,24 +2918,33 @@ function renderHeroBanner(c, rqs){
   const packPct = c.pack===99 ? 30 : Math.round((c.used/c.pack)*100);
   const remaining = c.pack===99 ? '∞' : c.pack - c.used;
 
-  // Decidir ícono y tono según situación
+  // Decidir ícono y tono — solo buenas noticias
   let icon='🎬', heroTitle=`Hola, ${c.name.split(' ')[0]} 👋`, heroSub='';
 
   if(active.length && active[0].status==='Listo para revisar'){
     icon='✨';
     heroTitle='¡Tu miniatura está lista!';
-    heroSub='Entrá al pedido y aprobala o pedí cambios.';
-  } else if(active.length && active[0].deadline){
+    heroSub='Ya podés revisarla y aprobarla.';
+  } else if(active.length && active[0].status==='En progreso' && active[0].deadline){
+    // Comparar con fecha límite — si queda más de 3 días, celebrar que va bien
     const dl = new Date(active[0].deadline); dl.setHours(0,0,0,0);
     const diff = Math.round((dl-today)/(1000*60*60*24));
-    if(diff<=0){ icon='⚡'; heroTitle='¡Pedido vencido!'; heroSub=`"${active[0].title}" superó la fecha límite.`; }
-    else if(diff===1){ icon='⏰'; heroTitle='¡Entrega mañana!'; heroSub=`"${active[0].title}" — quedan pocas horas.`; }
-    else if(diff<=3){ icon='🔔'; heroTitle=`${diff} días para la entrega`; heroSub=`"${active[0].title}"`; }
-    else { heroSub = active.length>1 ? `${active.length} pedidos activos en curso` : `"${active[0].title}" · ${c.pack===99?'Pack Ilimitado':'Pack '+c.pack}`; }
-  } else if(c.pack!==99 && remaining<=1){
-    icon='📦'; heroTitle='¡Pack casi agotado!'; heroSub='Contactá al diseñador para renovar tu plan.';
+    if(diff >= 4){
+      icon='🚀'; heroTitle='¡Tu miniatura está en camino!'; heroSub=`Tu diseñador está trabajando en ello — llegará antes de lo que imaginás.`;
+    } else if(diff >= 1){
+      icon='🎨'; heroTitle='¡En diseño!'; heroSub=`"${active[0].title}" ya está siendo creada para vos.`;
+    } else {
+      // diff 0 o negativo con estado En progreso — mensaje neutro positivo
+      icon='🎨'; heroTitle='Tu diseñador está en eso'; heroSub='Vas a recibir la miniatura muy pronto.';
+    }
+  } else if(active.length && active[0].status==='Completado'){
+    icon='🏆'; heroTitle='¡Listo, todo completado!'; heroSub='Todos tus pedidos activos están terminados.';
+  } else if(!active.length && c.used > 0){
+    icon='🎉'; heroTitle='¡Todo al día!'; heroSub='No tenés pedidos pendientes. ¿Listo para el próximo?';
+  } else if(c.pack!==99 && remaining <= 0){
+    icon='🎬'; heroTitle='Pack completo'; heroSub='Completaste todas tus miniaturas del ciclo. ¡Excelente!';
   } else {
-    heroSub = active.length ? `${active.length} pedido${active.length>1?'s':''} en curso` : 'Tu panel de miniaturas';
+    heroSub = active.length ? `${active.length} pedido${active.length>1?'s':''} activo${active.length>1?'s':''}` : 'Tu panel de miniaturas';
   }
 
   // CTA botón — revisar miniatura si está lista
