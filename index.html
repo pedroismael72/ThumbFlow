@@ -479,6 +479,38 @@
     /* Notificaciones */
     .notif-panel{right:-10px;width:calc(100vw - 20px);}
   }
+
+  /* ════ HERO BANNER URGENCIA (cliente) ════ */
+  .hero-banner{border-radius:20px;padding:28px 32px;margin-bottom:24px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:20px;}
+  .hero-banner::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#ff4d00 0%,#ff8c42 60%,rgba(255,140,66,.4) 100%);z-index:0;}
+  .hero-banner::after{content:'';position:absolute;right:-30px;top:-30px;width:220px;height:220px;background:radial-gradient(circle,rgba(255,255,255,.12) 0%,transparent 70%);border-radius:50%;z-index:0;}
+  .hero-banner-content{position:relative;z-index:1;}
+  .hero-banner-icon{position:relative;z-index:1;font-size:52px;opacity:.9;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3));}
+  .hero-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:white;margin-bottom:4px;text-shadow:0 2px 8px rgba(0,0,0,.2);}
+  .hero-sub{font-size:13px;color:rgba(255,255,255,.85);margin-bottom:12px;line-height:1.5;}
+  .hero-pbar-wrap{background:rgba(255,255,255,.2);border-radius:10px;height:6px;width:220px;overflow:hidden;margin-bottom:4px;}
+  .hero-pbar-fill{height:100%;border-radius:10px;background:white;transition:width 1s cubic-bezier(.4,0,.2,1);}
+  .hero-pbar-label{font-size:11px;color:rgba(255,255,255,.75);font-weight:600;}
+  .hero-days{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;color:white;backdrop-filter:blur(4px);margin-top:6px;}
+
+  /* ════ NOTIFICACIONES CLIENTE (topbar) ════ */
+  .cl-notif-wrap{position:relative;}
+  .cl-notif-btn{position:relative;width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;color:var(--muted);}
+  .cl-notif-btn:hover{border-color:var(--accent);color:var(--text);}
+  .cl-notif-badge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:9px;background:var(--accent);border:2px solid var(--bg);display:none;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:white;padding:0 4px;}
+  .cl-notif-badge.show{display:flex;}
+  .cl-notif-panel{position:absolute;top:44px;right:0;width:320px;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5);z-index:200;display:none;overflow:hidden;}
+  .cl-notif-panel.open{display:block;animation:fadeUp .2s ease;}
+  .cl-notif-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .cl-notif-head-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;}
+  .cl-notif-list{max-height:320px;overflow-y:auto;}
+  .cl-notif-item{padding:12px 18px;border-bottom:1px solid rgba(34,34,47,.5);cursor:pointer;transition:background .15s;display:flex;gap:10px;align-items:flex-start;}
+  .cl-notif-item:hover{background:var(--surface2);}
+  .cl-notif-item.unread{background:rgba(255,77,0,.05);border-left:3px solid var(--accent);padding-left:15px;}
+  .cl-notif-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+  .cl-notif-txt .cl-notif-title{font-size:12px;font-weight:600;margin-bottom:2px;}
+  .cl-notif-txt .cl-notif-sub{font-size:11px;color:var(--muted);}
+  .cl-notif-empty{padding:32px 16px;text-align:center;color:var(--muted);font-size:13px;}
 </style>
 <script type="module">
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -518,7 +550,10 @@
       <div class="topbar-spacer"></div>
       <div style="display:flex;align-items:center;gap:6px">
         <div style="position:relative">
-          <button class="notif-btn" onclick="toggleNotifPanel()" id="notif-btn">🔔<span class="notif-dot" id="notif-dot"></span></button>
+          <button class="notif-btn" onclick="toggleNotifPanel()" id="notif-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="notif-dot" id="notif-dot"></span>
+          </button>
           <div class="notif-panel" id="notif-panel">
             <div class="notif-head">
               <span class="notif-head-title">Notificaciones</span>
@@ -543,11 +578,11 @@
     </div>
     <div class="sidebar">
       <span class="nav-lbl">Principal</span>
-      <button class="nav-item active" onclick="showPanel('admin','dashboard',this)"><span class="nav-icon">◼</span> Dashboard</button>
-      <button class="nav-item" onclick="showPanel('admin','clientes',this)"><span class="nav-icon">👥</span> Clientes <span class="nav-badge" id="badge-cl">3</span></button>
-      <button class="nav-item" onclick="showPanel('admin','pedidos',this)"><span class="nav-icon">📋</span> Pedidos <span class="nav-badge" id="badge-pe">2</span></button>
+      <button class="nav-item active" onclick="showPanel('admin','dashboard',this)"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span> Dashboard</button>
+      <button class="nav-item" onclick="showPanel('admin','clientes',this)"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span> Clientes <span class="nav-badge" id="badge-cl">3</span></button>
+      <button class="nav-item" onclick="showPanel('admin','pedidos',this)"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span> Pedidos <span class="nav-badge" id="badge-pe">2</span></button>
       <span class="nav-lbl">Finanzas</span>
-      <button class="nav-item" onclick="showPanel('admin','pagos',this)"><span class="nav-icon">💰</span> Pagos</button>
+      <button class="nav-item" onclick="showPanel('admin','pagos',this)"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span> Pagos</button>
     </div>
     <div class="main-content">
       <div class="panel active" id="admin-panel-dashboard">
@@ -586,6 +621,19 @@
       <div class="topbar-logo">Thumb<span>Flow</span></div>
       <div class="topbar-spacer"></div>
       
+      <div class="cl-notif-wrap" style="position:relative">
+        <button class="cl-notif-btn" id="cl-notif-btn" onclick="toggleClNotif()" title="Notificaciones">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="cl-notif-badge" id="cl-notif-badge">0</span>
+        </button>
+        <div class="cl-notif-panel" id="cl-notif-panel">
+          <div class="cl-notif-head">
+            <span class="cl-notif-head-title">Notificaciones</span>
+            <button class="btn btn-g btn-sm" onclick="clMarkAllRead()">Leído todo</button>
+          </div>
+          <div class="cl-notif-list" id="cl-notif-list"><div class="cl-notif-empty">Sin notificaciones</div></div>
+        </div>
+      </div>
       <div class="topbar-user">
         <div id="cl-credits-pill" style="display:none;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 12px 5px 8px;font-size:12px;font-weight:600;">
           <span style="font-size:15px">🎬</span>
@@ -603,15 +651,15 @@
     </div>
     <div class="sidebar">
       <span class="nav-lbl">Mi cuenta</span>
-      <button class="nav-item active" onclick="showPanel('client','inicio',this)"><span class="nav-icon">◼</span> Inicio</button>
-      <button class="nav-item" onclick="showPanel('client','pedidos',this)"><span class="nav-icon">📋</span> Mis pedidos</button>
-      <button class="nav-item" id="nav-nuevo" onclick="showPanel('client','nuevo',this)"><span class="nav-icon">✚</span> Nuevo pedido</button>
+      <button class="nav-item active" onclick="showPanel('client','inicio',this)"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span> Inicio</button>
+      <button class="nav-item" onclick="showPanel('client','pedidos',this)"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span> Mis pedidos</button>
+      <button class="nav-item" id="nav-nuevo" onclick="showPanel('client','nuevo',this)"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></span> Nuevo pedido</button>
       <span class="nav-lbl">Cuenta</span>
-      <button class="nav-item" onclick="showPanel('client','pack',this)"><span class="nav-icon">📦</span> Mi pack</button>
+      <button class="nav-item" onclick="showPanel('client','pack',this)"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span> Mi pack</button>
     </div>
     <div class="main-content">
       <div class="panel active" id="client-panel-inicio">
-        <div class="page-header"><div class="page-title" id="cl-welcome">Hola 👋</div><div class="page-sub">Tu panel de miniaturas</div></div>
+        <div id="cl-hero-section"></div>
         <div class="stats-grid" id="cl-stats"></div>
         <div id="cl-tracking-section"></div>
         <div class="card"><div class="card-title">Pedidos recientes</div><div id="cl-recent"></div></div>
@@ -975,7 +1023,12 @@ const sb=s=>{
   return`<span class="badge ${m[s]||'bm'}">${s}</span>`;
 };
 const pb=s=>{const m={'Al día':'bg',Pendiente:'by',Vencido:'br'};return`<span class="badge ${m[s]||'bm'}">${s}</span>`;};
-function toast(msg='✓ Guardado'){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function toast(msg='✓ Guardado'){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
+  // Sonido según contenido
+  if(msg.includes('✓')||msg.includes('Guardado')||msg.includes('creado')||msg.includes('enviado')) playSound('action');
+  else if(msg.includes('❌')||msg.includes('Error')) playSound('error');
+}
 
 /* ═══ LIGHTBOX ═══ */
 function openLightbox(imgUrl, title, ytUrl){
@@ -1024,6 +1077,7 @@ function addNotification(icon, title, sub, onClickRid){
   if(notifications.length > 50) notifications.pop();
   unreadCount++;
   renderNotifPanel();
+  playSound('notif');
 }
 
 function renderNotifPanel(){
@@ -1114,6 +1168,14 @@ function startRealtime(){
         // Notificar si pasó a "Listo para revisar"
         if(r.status === 'Listo para revisar'){
           toast('🎉 ¡Tu miniatura está lista para revisar!');
+          clAddNotif('✨','¡Miniatura lista para revisar!', `"${r.title}" — Entrá y aprobala o pedí cambios.`, r.id);
+          playSound('notif');
+        } else if(r.status === 'En progreso'){
+          clAddNotif('🎨','Tu diseñador empezó a trabajar',`"${r.title}" está en progreso.`, r.id);
+          playSound('status');
+        } else if(r.status === 'Completado'){
+          clAddNotif('🏆','¡Pedido completado!',`"${r.title}" fue finalizado.`, r.id);
+          playSound('approved');
         }
       })
       .subscribe();
@@ -1217,7 +1279,7 @@ async function logout(){
   if(!ok) return;
   stopRealtime();
   if(sb_client) await sb_client.auth.signOut();
-  user=null; isSupabaseMode=false; role='admin';
+  user=null; isSupabaseMode=false; role='admin'; clNotifs=[]; clUnread=0;
   window.history.replaceState({}, document.title, window.location.pathname);
   showScreen('screen-login');
 }
@@ -1236,7 +1298,7 @@ function login(name){
     const c=gc('c1');
     document.getElementById('cl-av').textContent=c.name[0];
     document.getElementById('cl-un').textContent=c.name;
-    document.getElementById('cl-welcome').textContent=`Hola, ${c.name.split(' ')[0]} 👋`;
+    clNotifsLoad();
     renderCDash('c1');
   }
 }
@@ -1349,8 +1411,8 @@ async function loadClientData(userId){
 
     document.getElementById('cl-av').textContent=c.name[0].toUpperCase();
     document.getElementById('cl-un').textContent=c.name.split(' ')[0];
-    document.getElementById('cl-welcome').textContent=`Hola, ${c.name.split(' ')[0]} 👋`;
     if(user) user.clientId = c.id;
+    clNotifsLoad();
     renderCDash(c.id);
     startRealtime();
 
@@ -1792,6 +1854,7 @@ function renderTracking(cid){
 function renderCDash(cid){
   const c=gc(cid),rqs=gr(cid),pending=rqs.filter(r=>r.status!=='Completado').length;
   const av=c.pack===99?'∞':c.pack-c.used;
+  renderHeroBanner(c, rqs);
   document.getElementById('cl-stats').innerHTML=`
     <div class="stat-card"><div class="stat-lbl">Disponibles</div><div class="stat-val ${typeof av==='number'&&av<=1?'c-red':'c-green'}">${av}</div><div class="stat-sub">${c.pack===99?'Ilimitado':`de ${c.pack} en tu pack`}</div>${c.pack!==99?`<div class="pbar"><div class="pbar-fill" style="width:${Math.min(100,(c.used/c.pack)*100)}%"></div></div>`:''}</div>
     <div class="stat-card"><div class="stat-lbl">En proceso</div><div class="stat-val c-yellow">${pending}</div><div class="stat-sub">Pedidos activos</div></div>
@@ -2061,6 +2124,7 @@ async function saveReq(rid){
 
   _reqOriginalStatus = null;
   closeMo('mo-req');
+  playSound('action');
   toast('✓ Pedido actualizado');
   if(role==='admin'){renderADash();renderAReqs();}
   else{
@@ -2193,6 +2257,7 @@ async function chStatus(rid,status){
   if(status==='Entregado'&&r.status!=='Entregado'){const c=gc(r.cid);if(c){c.used++;if(isSupabaseMode)await dbUpdateClient(c.id,{used:c.used});}}
   r.status=status;
   if(isSupabaseMode) await dbUpdateRequest(rid,{status});
+  playSound('status');
   renderADash();renderAReqs();renderAClients();toast('✓ Estado actualizado');
 }
 async function regPay(cid){
@@ -2425,6 +2490,7 @@ async function submitReq(){
   S.reqs.push(newReq);
   clientRefImgs=[];
   refs=[];
+  playSound('action');
   toast('✓ Pedido enviado al diseñador');
   renderCDash(clientId);
   showPanel('client','inicio',document.querySelector('#screen-client .nav-item'));
@@ -2485,6 +2551,165 @@ function escHtml(t){ return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').r
 
 applyTheme();
 
+/* ════════════════════════
+   SISTEMA DE SONIDOS
+════════════════════════ */
+let _audioCtx = null;
+function _getAudio(){
+  if(!_audioCtx) _audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  return _audioCtx;
+}
+function playSound(type){
+  try{
+    const ctx = _getAudio();
+    const presets = {
+      notif:    [{f:520,t:0,d:.12,g:.16},{f:780,t:.10,d:.18,g:.13}],
+      status:   [{f:440,t:0,d:.1,g:.12},{f:550,t:.09,d:.14,g:.1}],
+      approved: [{f:523,t:0,d:.15,g:.15},{f:659,t:.11,d:.15,g:.13},{f:784,t:.22,d:.22,g:.11}],
+      changes:  [{f:440,t:0,d:.12,g:.13},{f:330,t:.11,d:.2,g:.09}],
+      action:   [{f:480,t:0,d:.09,g:.09}],
+      error:    [{f:220,t:0,d:.18,g:.14},{f:170,t:.13,d:.22,g:.09}],
+    };
+    const notes = presets[type] || presets.action;
+    notes.forEach(({f,t,d,g})=>{
+      const osc = ctx.createOscillator();
+      const ng  = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(f, ctx.currentTime+t);
+      ng.gain.setValueAtTime(0, ctx.currentTime+t);
+      ng.gain.linearRampToValueAtTime(g, ctx.currentTime+t+.025);
+      ng.gain.exponentialRampToValueAtTime(.001, ctx.currentTime+t+d);
+      osc.connect(ng); ng.connect(ctx.destination);
+      osc.start(ctx.currentTime+t);
+      osc.stop(ctx.currentTime+t+d+.05);
+    });
+  }catch(e){}
+}
+
+/* ════════════════════════
+   NOTIFICACIONES CLIENTE
+════════════════════════ */
+let clNotifs = [];
+let clUnread  = 0;
+const CL_NOTIF_KEY = 'tf-cl-notifs';
+
+function clNotifsLoad(){
+  try{ clNotifs = JSON.parse(localStorage.getItem(CL_NOTIF_KEY)||'[]'); }
+  catch(e){ clNotifs = []; }
+  clUnread = clNotifs.filter(n=>!n.read).length;
+  clRenderNotifPanel();
+}
+function clNotifsave(){ localStorage.setItem(CL_NOTIF_KEY, JSON.stringify(clNotifs.slice(0,60))); }
+
+function clAddNotif(icon, title, sub, rid){
+  const n = { id:Date.now(), icon, title, sub, read:false, rid:rid||null };
+  clNotifs.unshift(n);
+  clUnread++;
+  clRenderNotifPanel();
+  clNotifsave();
+  playSound('notif');
+}
+
+function clRenderNotifPanel(){
+  const badge = document.getElementById('cl-notif-badge');
+  const list  = document.getElementById('cl-notif-list');
+  if(!badge||!list) return;
+  if(clUnread>0){ badge.textContent=clUnread>9?'9+':clUnread; badge.classList.add('show'); }
+  else { badge.classList.remove('show'); }
+  if(!clNotifs.length){ list.innerHTML='<div class="cl-notif-empty">Sin notificaciones</div>'; return; }
+  list.innerHTML = clNotifs.map(n=>`
+    <div class="cl-notif-item ${n.read?'':'unread'}" onclick="clClickNotif(${n.id},'${n.rid||''}')">
+      <div class="cl-notif-icon">${n.icon}</div>
+      <div class="cl-notif-txt">
+        <div class="cl-notif-title">${n.title}</div>
+        <div class="cl-notif-sub">${n.sub}</div>
+      </div>
+    </div>`).join('');
+}
+
+function clClickNotif(nid, rid){
+  const n = clNotifs.find(x=>x.id==nid);
+  if(n){ n.read=true; }
+  clUnread = clNotifs.filter(x=>!x.read).length;
+  clRenderNotifPanel(); clNotifsave();
+  closeClNotif();
+  if(rid) openReqMo(rid);
+}
+
+function clMarkAllRead(){
+  clNotifs.forEach(n=>n.read=true);
+  clUnread=0;
+  clRenderNotifPanel(); clNotifsave();
+}
+
+function toggleClNotif(){
+  const p = document.getElementById('cl-notif-panel');
+  p.classList.toggle('open');
+}
+function closeClNotif(){ document.getElementById('cl-notif-panel')?.classList.remove('open'); }
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#cl-notif-btn')&&!e.target.closest('#cl-notif-panel')) closeClNotif();
+});
+
+/* ════════════════════════
+   HERO BANNER CLIENTE
+════════════════════════ */
+function renderHeroBanner(c, rqs){
+  const el = document.getElementById('cl-hero-section');
+  if(!el) return;
+
+  // Pedido más urgente activo
+  const active = rqs.filter(r=>r.status!=='Completado'&&r.status!=='Aprobado')
+    .sort((a,b)=>{ if(!a.deadline) return 1; if(!b.deadline) return -1; return new Date(a.deadline)-new Date(b.deadline); });
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const packPct = c.pack===99 ? 30 : Math.round((c.used/c.pack)*100);
+  const remaining = c.pack===99 ? '∞' : c.pack - c.used;
+
+  // Decidir ícono y tono según situación
+  let icon='🎬', heroTitle=`Hola, ${c.name.split(' ')[0]} 👋`, heroSub='';
+
+  if(active.length && active[0].status==='Listo para revisar'){
+    icon='✨';
+    heroTitle='¡Tu miniatura está lista!';
+    heroSub='Entrá al pedido y aprobala o pedí cambios.';
+  } else if(active.length && active[0].deadline){
+    const dl = new Date(active[0].deadline); dl.setHours(0,0,0,0);
+    const diff = Math.round((dl-today)/(1000*60*60*24));
+    if(diff<=0){ icon='⚡'; heroTitle='¡Pedido vencido!'; heroSub=`"${active[0].title}" superó la fecha límite.`; }
+    else if(diff===1){ icon='⏰'; heroTitle='¡Entrega mañana!'; heroSub=`"${active[0].title}" — quedan pocas horas.`; }
+    else if(diff<=3){ icon='🔔'; heroTitle=`${diff} días para la entrega`; heroSub=`"${active[0].title}"`; }
+    else { heroSub = active.length>1 ? `${active.length} pedidos activos en curso` : `"${active[0].title}" · ${c.pack===99?'Pack Ilimitado':'Pack '+c.pack}`; }
+  } else if(c.pack!==99 && remaining<=1){
+    icon='📦'; heroTitle='¡Pack casi agotado!'; heroSub='Contactá al diseñador para renovar tu plan.';
+  } else {
+    heroSub = active.length ? `${active.length} pedido${active.length>1?'s':''} en curso` : 'Tu panel de miniaturas';
+  }
+
+  // Days pill
+  let daysPill='';
+  if(active.length && active[0].deadline){
+    const dl = new Date(active[0].deadline); dl.setHours(0,0,0,0);
+    const diff = Math.round((dl-today)/(1000*60*60*24));
+    daysPill = diff>=0
+      ? `<div class="hero-days"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${diff===0?'Vence hoy':diff===1?'Vence mañana':'Vence en '+diff+' días'}</div>`
+      : `<div class="hero-days">⚡ Vencido hace ${Math.abs(diff)} día${Math.abs(diff)>1?'s':''}</div>`;
+  }
+
+  el.innerHTML = `
+    <div class="hero-banner">
+      <div class="hero-banner-content">
+        <div class="hero-title">${heroTitle}</div>
+        <div class="hero-sub">${heroSub}</div>
+        <div class="hero-pbar-wrap"><div class="hero-pbar-fill" style="width:${packPct}%"></div></div>
+        <div class="hero-pbar-label">${c.pack===99?'Pack Ilimitado':`${c.used} de ${c.pack} miniaturas usadas`}</div>
+        ${daysPill}
+      </div>
+      <div class="hero-banner-icon">${icon}</div>
+    </div>`;
+}
+
+
 
 
 function buildVersionsHtml(r, isAdmin){
@@ -2511,11 +2736,16 @@ function buildVersionsHtml(r, isAdmin){
     html+=`<div class="version-list">
       ${[...versions].reverse().map((v,ri)=>{
         const vnum=versions.length-ri;
+        const statusSVGs = {
+          aprobado: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+          cambios:  `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+          pendiente:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`
+        };
         const statusHtml = v.status==='aprobado'
-          ?`<span class="badge bg">✓ Aprobado</span>`
+          ?`<span class="badge bg" style="gap:5px">${statusSVGs.aprobado} Aprobado</span>`
           :v.status==='cambios'
-          ?`<span class="badge by">Cambios pedidos</span>`
-          :`<span class="badge bb">⏳ Esperando revisión</span>`;
+          ?`<span class="badge by" style="gap:5px">${statusSVGs.cambios} Cambios pedidos</span>`
+          :`<span class="badge bb" style="gap:5px">${statusSVGs.pendiente} Esperando revisión</span>`;
         return`<div class="version-item">
           <div class="version-thumb" onclick="openReview('${r.id}',${versions.length-1-ri})">
             <img src="${v.img}" alt="v${vnum}">
@@ -2699,7 +2929,8 @@ async function submitReview(decision){
   }
 
   closeMo('mo-review');
-  toast(decision==='aprobado'?'✓ ¡Miniatura aprobada!':'✎ Feedback enviado al diseñador');
+  if(decision==='aprobado'){ playSound('approved'); toast('✓ ¡Miniatura aprobada!'); }
+  else { playSound('changes'); toast('✎ Feedback enviado al diseñador'); }
   const cid=isSupabaseMode?S.clients[0]?.id:'c1';
   renderCDash(cid);
 }
@@ -2723,7 +2954,13 @@ function openReview(rid, vidx){
   const isA=role==='admin';
 
   document.getElementById('rev-title').textContent=`${r.title} — Versión ${vnum}`;
-  document.getElementById('rev-version-label').textContent=`Subida el ${v.date} · ${v.status==='aprobado'?'✓ Aprobada':v.status==='cambios'?'✎ Cambios solicitados':'⏳ Esperando revisión'}`;
+  const revStatusIcon = v.status==='aprobado'
+    ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+    : v.status==='cambios'
+    ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`
+    : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+  const revStatusText = v.status==='aprobado'?'Aprobada':v.status==='cambios'?'Cambios solicitados':'Esperando revisión';
+  document.getElementById('rev-version-label').innerHTML=`Subida el ${v.date} &nbsp;·&nbsp; <span style="display:inline-flex;align-items:center;gap:4px">${revStatusIcon} ${revStatusText}</span>`;
 
   const img=document.getElementById('review-img');
   img.src=v.img;
