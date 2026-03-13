@@ -1643,7 +1643,7 @@ function renderADash(){
   document.getElementById('a-cl-sum').innerHTML=S.clients.filter(c=>!c.archived).map(c=>`
     <tr><td data-label="Cliente"><strong>${c.name}</strong><br><small style="color:var(--muted)">${c.ch}</small></td>
     <td data-label="Pack">${c.pack===99?'Ilimitado':c.pack+' mins.'}</td>
-    <td data-label="Uso">${c.pack===99?'∞':`${c.used}/${c.pack}`}${c.pack!==99?`<div class="pbar"><div class="pbar-fill" style="width:${Math.min(100,(c.used/c.pack)*100)}%;background:${c.used>=c.pack?'var(--red)':'var(--accent)'}"></div></div>`:''}</td>
+    <td data-label="Uso">${(()=>{const u=getUsed(c.id);const uPct=Math.min(100,(u/c.pack)*100);return c.pack===99?'∞':`${u}/${c.pack}<div class="pbar"><div class="pbar-fill" style="width:${uPct}%;background:${u>=c.pack?'var(--red)':'var(--accent)'}"></div></div>`;})()}</td>
     <td data-label="Pago">${pb(c.pay)}</td>
     <td><button class="btn btn-g btn-sm" onclick="openClMo('${c.id}')">Ver</button></td></tr>`).join('');
   updateAdminWorkload();
@@ -1671,7 +1671,7 @@ function renderAClients(){
       </div>
       ${isArchived
         ? `<div style="padding:8px 0 2px;font-size:12px;color:var(--muted)">📦 Archivado · ${gr(c.id).length} pedidos guardados · <span style="color:var(--accent);cursor:pointer" onclick="event.stopPropagation();unarchiveClient('${c.id}')">Restaurar</span></div>`
-        : `<div class="cs"><div class="csv"><div class="csn ${c.used>=c.pack&&c.pack!==99?'c-red':'c-green'}">${c.pack===99?'∞':c.pack-c.used}</div><div class="csl">Disponibles</div></div><div class="csv"><div class="csn c-yellow">${p}</div><div class="csl">Pendientes</div></div></div>`
+        : `<div class="cs"><div class="csv"><div class="csn ${(()=>{const u=getUsed(c.id);return u>=c.pack&&c.pack!==99?'c-red':'c-green'})()}">${c.pack===99?'∞':c.pack-getUsed(c.id)}</div><div class="csl">Disponibles</div></div><div class="csv"><div class="csn c-yellow">${p}</div><div class="csl">Pendientes</div></div></div>`
       }
     </div>`;
   };
@@ -1722,12 +1722,12 @@ function updateCreditsUI(c){
   const usedEl = document.getElementById('cl-credits-used');
   const totalEl = document.getElementById('cl-credits-total');
   if(pill && c){
-    const remaining = c.pack===99 ? '∞' : c.pack - c.used;
+    const usedNow = getUsed(c.id);
+    const remaining = c.pack===99 ? '∞' : c.pack - usedNow;
     const total = c.pack===99 ? '∞' : c.pack;
     usedEl.textContent = remaining;
     totalEl.textContent = total;
-    // Color según disponibles
-    usedEl.style.color = (c.pack!==99 && c.used>=c.pack) ? 'var(--red)' : (c.pack!==99 && (c.pack-c.used)<=2) ? 'var(--yellow)' : 'var(--green)';
+    usedEl.style.color = (c.pack!==99 && usedNow>=c.pack) ? 'var(--red)' : (c.pack!==99 && (c.pack-usedNow)<=2) ? 'var(--yellow)' : 'var(--green)';
     pill.style.display = 'flex';
   }
 }
@@ -1972,10 +1972,11 @@ function renderTracking(cid){
 
 function renderCDash(cid){
   const c=gc(cid),rqs=gr(cid),pending=rqs.filter(r=>r.status!=='Completado').length;
-  const av=c.pack===99?'∞':c.pack-c.used;
+  const usedCount = getUsed(cid);
+  const av=c.pack===99?'∞':c.pack-usedCount;
   renderHeroBanner(c, rqs);
   // Barra degradada de créditos: verde → amarillo → rojo
-  const pct = c.pack===99 ? 15 : Math.min(100,Math.round((c.used/c.pack)*100));
+  const pct = c.pack===99 ? 15 : Math.min(100,Math.round((usedCount/c.pack)*100));
   const barColor = c.pack===99 ? '#2dca73'
     : pct >= 90 ? '#ff4d4d'
     : pct >= 65 ? '#f5c842'
@@ -1985,7 +1986,7 @@ function renderCDash(cid){
     : `linear-gradient(90deg, #2dca73 0%, #f5c842 60%, #ff4d4d 100%)`;
   // Usamos clip-path inverso para mostrar solo la parte "usada" visualmente
   // Pero mostramos cuántas QUEDAN, entonces la barra representa el remanente
-  const remPct = c.pack===99 ? 100 : Math.max(0,100 - pct);
+  const remPct = c.pack===99 ? 100 : Math.max(0,Math.round(((c.pack-usedCount)/c.pack)*100));
   const remBarColor = remPct > 50 ? '#2dca73' : remPct > 20 ? '#f5c842' : '#ff4d4d';
 
   // Card de pago con color según estado
@@ -2004,7 +2005,7 @@ function renderCDash(cid){
       ${c.pack!==99?`<div class="credits-bar-wrap"><div class="credits-bar-fill" style="width:${remPct}%;background:${remBarColor}"></div></div>`:''}
     </div>
     <div class="stat-card"><div class="stat-lbl">En proceso</div><div class="stat-val c-yellow">${pending}</div><div class="stat-sub">Pedidos activos</div></div>
-    <div class="stat-card"><div class="stat-lbl">Entregadas</div><div class="stat-val c-blue">${c.used}</div><div class="stat-sub">Total histórico</div></div>
+    <div class="stat-card"><div class="stat-lbl">Entregadas</div><div class="stat-val c-blue">${usedCount}</div><div class="stat-sub">Total histórico</div></div>
     <div class="pay-card ${payClass}">
       <div class="pay-card-content">
         <div class="stat-lbl" style="color:${payColor}">Estado de pago</div>
@@ -2033,6 +2034,7 @@ function renderCReqs(cid){
     </div></div>`;}).join(''):`<div class="es"><div style="font-size:48px;opacity:.4">📋</div><p>No tenés pedidos aún.</p></div>`;
 }
 function renderCPack(c){
+  const usedCount = getUsed(c.id);
   const el=document.getElementById('cl-pack');if(!el)return;
   const packs = c.packs || [];
   const ap = getActivePack(c);
@@ -2364,7 +2366,8 @@ function openClMo(cid){
   const rqs=gr(cid);
   const pending = rqs.filter(r=>r.status!=='Completado'&&r.status!=='Aprobado').length;
   const packLabel = c.pack===99?'Ilimitado':c.pack===4?'Básico (4)':c.pack===8?'Estándar (8)':c.pack===16?'Pro (16)':'Pack '+c.pack;
-  const av = c.pack===99?'∞':c.pack-c.used;
+  const usedCount = getUsed(cid);
+  const av = c.pack===99?'∞':c.pack-usedCount;
 
   // Header del modal — solo nombre
   document.getElementById('mo-cl-title').textContent='';
@@ -2419,7 +2422,7 @@ function openClMo(cid){
         <div class="profile-field"><span class="profile-field-label">Pack</span><span class="profile-field-val">${packLabel}</span></div>
         <div class="profile-field"><span class="profile-field-label">Precio</span><span class="profile-field-val">$${c.price}<span style="color:var(--muted);font-size:11px">/ciclo</span></span></div>
         <div class="profile-field"><span class="profile-field-label">Pago</span><span class="profile-field-val">${pb(c.pay)}</span></div>
-        <div class="profile-field"><span class="profile-field-label">Usadas</span><span class="profile-field-val">${c.used} de ${c.pack===99?'∞':c.pack}</span></div>
+        <div class="profile-field"><span class="profile-field-label">Usadas</span><span class="profile-field-val">${usedCount} de ${c.pack===99?'∞':c.pack}</span></div>
       </div>
 
       ${c.notes?`
@@ -2590,7 +2593,6 @@ async function addClient(){
 }
 async function chStatus(rid,status){
   const r=S.reqs.find(x=>x.id===rid);if(!r)return;
-  if(status==='Entregado'&&r.status!=='Entregado'){const c=gc(r.cid);if(c){c.used++;if(isSupabaseMode)await dbUpdateClient(c.id,{used:c.used});}}
   const wasCompleted = r.status === 'Completado';
   r.status=status;
   if(isSupabaseMode) await dbUpdateRequest(rid,{status});
@@ -2793,7 +2795,7 @@ async function submitReq(){
   if(!clientId){toast('❌ Error: no se encontró tu cuenta');return;}
   
   const c=gc(clientId);
-  if(c.pack!==99&&c.used>=c.pack){appAlert({msg:'No tenés créditos disponibles en tu pack actual. Contactá al diseñador para renovar.',icon:'🎬'});return;}
+  if(c.pack!==99&&getUsed(clientId)>=c.pack){appAlert({msg:'No tenés créditos disponibles en tu pack actual. Contactá al diseñador para renovar.',icon:'🎬'});return;}
 
   // Subir imágenes propias a Supabase Storage si aplica
   let uploadedImgs = [...clientRefImgs];
@@ -2889,6 +2891,12 @@ function renderBadges(){
 function escHtml(t){ return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
 
 applyTheme();
+
+function getUsed(cid){
+  // Cuenta los pedidos Completados de este cliente — fuente de verdad
+  return S.reqs.filter(r=>r.cid===cid && r.status==='Completado').length;
+}
+
 
 /* ════════════════════════
    SISTEMA DE PACKS / CICLOS
@@ -3415,7 +3423,15 @@ async function submitReview(decision){
 
   if(isSupabaseMode){
     if(v.id) await dbUpdateVersion(v.id,{status:decision,comment:v.comment,annotation:v.annotation});
-    if(decision==='aprobado') await dbUpdateRequest(reviewingRid,{status:'Completado'});
+    if(decision==='aprobado'){
+      await dbUpdateRequest(reviewingRid,{status:'Completado'});
+      // Sincronizar used en DB = conteo real de pedidos completados
+      const clientObj = gc(r.cid||S.clients[0]?.id);
+      if(clientObj){
+        const newUsed = getUsed(clientObj.id);
+        await dbUpdateClient(clientObj.id,{used:newUsed});
+      }
+    }
   }
 
   closeMo('mo-review');
