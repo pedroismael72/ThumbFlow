@@ -1459,10 +1459,28 @@ function selectRole(r,btn){role=r;document.querySelectorAll('.role-btn').forEach
 function demoLogin(r){
   role=r;
   isSupabaseMode=false;
-  // Resetear estado a datos demo
   S.clients=[...DEMO_DATA.clients];
   S.reqs=[...DEMO_DATA.reqs];
-  login(r==='admin'?'Diseñador Pro':'Marcos Rueda');
+
+  if(r==='client'){
+    user={name:'Marcos Rueda',role:'client',email:'demo@demo.com'};
+    // Mostrar screen-client
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById('screen-client').classList.add('active');
+    // Mostrar panel inicio
+    document.querySelectorAll('#screen-client .panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('client-panel-inicio').classList.add('active');
+    // Datos básicos
+    const cl = S.clients[0];
+    document.getElementById('cl-av').textContent = cl.name[0];
+    document.getElementById('cl-un').textContent = cl.name.split(' ')[0];
+    document.getElementById('cl-welcome').textContent = 'Hola, ' + cl.name.split(' ')[0];
+    // Render
+    try{ renderCDash(cl.id); }catch(e){ console.error('renderCDash error:',e); }
+    return;
+  }
+
+  login('Diseñador Pro');
 }
 function login(name){
   user={name,role};
@@ -1480,7 +1498,11 @@ function login(name){
     document.getElementById('cl-welcome').textContent=`Hola, ${c.name.split(' ')[0]}`;
     renderCDash('c1');
     restoreSidebar('client');
-    setTimeout(()=>obShow(), 800);
+    // Asegurar panel visible
+    document.querySelectorAll('#screen-client .panel').forEach(p=>p.classList.remove('active'));
+    const _p = document.getElementById('client-panel-inicio');
+    if(_p) _p.classList.add('active');
+    setTimeout(()=>{ try{ obShow(); }catch(e){} }, 1000);
   }
 }
 
@@ -1844,11 +1866,14 @@ const OB_STEPS = [
 ];
 
 function obShow(){
-  const key = 'tf-ob-done-client-' + (user?.email||'demo');
-  if(localStorage.getItem(key)) return;
-  _obStep = 0;
-  obRender();
-  document.getElementById('ob-overlay').style.display = 'flex';
+  try{
+    const key = 'tf-ob-done-client-' + (user?.email||'demo');
+    if(localStorage.getItem(key)) return;
+    _obStep = 0;
+    obRender();
+    const ov = document.getElementById('ob-overlay');
+    if(ov) ov.style.display = 'flex';
+  }catch(e){ console.warn('obShow error:', e); }
 }
 function obRender(){
   const s = OB_STEPS[_obStep];
