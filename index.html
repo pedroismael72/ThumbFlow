@@ -612,6 +612,68 @@
   #pwa-install-btn{display:none;align-items:center;gap:7px;padding:7px 14px;background:rgba(255,77,0,.12);border:1px solid rgba(255,77,0,.3);border-radius:10px;color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;}
   #pwa-install-btn:hover{background:rgba(255,77,0,.2);}
   #pwa-install-btn svg{flex-shrink:0;}
+
+  /* ════ DASHBOARD FEED ════ */
+  .dash-shell{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start;}
+  @media(max-width:900px){.dash-shell{grid-template-columns:1fr;}}
+
+  /* Strip de métricas rápidas */
+  .dash-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+  @media(max-width:700px){.dash-metrics{grid-template-columns:repeat(2,1fr);}}
+  .dash-metric{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;transition:border-color .2s;}
+  .dash-metric:hover{border-color:rgba(255,77,0,.25);}
+  .dash-metric-val{font-size:26px;font-weight:800;line-height:1;margin-bottom:4px;}
+  .dash-metric-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:500;}
+  .dash-metric-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+
+  /* Feed principal */
+  .feed-section-title{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:600;margin:0 0 10px;display:flex;align-items:center;gap:8px;}
+  .feed-section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+  .feed-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:10px;cursor:pointer;transition:border-color .18s,transform .12s;}
+  .feed-card:hover{border-color:rgba(255,77,0,.3);transform:translateY(-1px);}
+  .feed-card:active{transform:translateY(0);}
+  .feed-card-inner{display:flex;align-items:center;gap:14px;padding:14px 16px;}
+  .feed-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+  .feed-avatar-fallback{width:40px;height:40px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--text);flex-shrink:0;}
+  .feed-body{flex:1;min-width:0;}
+  .feed-client{font-size:12px;color:var(--muted);margin-bottom:2px;display:flex;align-items:center;gap:6px;}
+  .feed-title{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;}
+  .feed-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .feed-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+  .feed-time{font-size:11px;color:var(--muted);}
+
+  /* Prioridad — borde izquierdo */
+  .feed-card.prio-urgent{border-left:3px solid var(--red);}
+  .feed-card.prio-soon{border-left:3px solid var(--yellow);}
+  .feed-card.prio-review{border-left:3px solid #378ADD;}
+  .feed-card.prio-normal{border-left:3px solid var(--border);}
+
+  /* Panel lateral */
+  .side-panel{display:flex;flex-direction:column;gap:14px;}
+  .side-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;}
+  .side-card-title{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:600;margin-bottom:12px;}
+
+  /* Ingresos hero */
+  .income-feed-card{border-radius:14px;padding:18px 20px;background:linear-gradient(135deg,#7a2e00 0%,#ff4d00 60%,#ff8c42 100%);position:relative;overflow:hidden;}
+  .income-feed-card::before{content:'';position:absolute;right:-24px;top:-24px;width:100px;height:100px;background:radial-gradient(circle,rgba(255,255,255,.15) 0%,transparent 70%);border-radius:50%;}
+  .income-feed-inner{position:relative;z-index:1;}
+  .income-feed-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.7);font-weight:600;margin-bottom:6px;}
+  .income-feed-val{font-size:28px;font-weight:800;color:white;line-height:1;margin-bottom:4px;}
+  .income-feed-sub{font-size:12px;color:rgba(255,255,255,.75);}
+
+  /* Cliente-fila en sidebar */
+  .cl-feed-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity .15s;}
+  .cl-feed-row:last-child{border-bottom:none;}
+  .cl-feed-row:hover{opacity:.8;}
+  .cl-feed-row-info{flex:1;min-width:0;}
+  .cl-feed-row-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .cl-feed-row-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+  .cl-av-sm{width:30px;height:30px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;overflow:hidden;}
+  .cl-av-sm img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+
+  /* Estado vacío */
+  .feed-empty{text-align:center;padding:40px 20px;color:var(--muted);}
+  .feed-empty-icon{font-size:40px;opacity:.35;margin-bottom:10px;}
 </style>
 <script type="module">
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -687,15 +749,68 @@
     </div>
     <div class="main-content">
       <div class="panel active" id="admin-panel-dashboard">
-        <div class="page-header"><div class="page-title">Dashboard</div><div class="page-sub">Resumen general de tu estudio</div></div>
-        <div class="stats-grid">
-          <div class="stat-card"><div class="stat-lbl">Clientes activos</div><div class="stat-val c-blue" id="dash-cl">0</div><div class="stat-sub">Total registrados</div></div>
-          <div class="stat-card"><div class="stat-lbl">Pedidos pendientes</div><div class="stat-val c-yellow" id="dash-p">0</div><div class="stat-sub">Esperando entrega</div></div>
-          <div class="stat-card"><div class="stat-lbl">Miniaturas entregadas</div><div class="stat-val c-green" id="dash-d">0</div><div class="stat-sub" id="dash-d-sub">Completadas</div></div>
-          <div class="income-hero-card"><div class="income-hero-inner"><div class="income-lbl">Ingresos totales</div><div class="income-val" id="dash-income">$0</div><div class="income-sub" id="dash-income-sub">De los packs contratados</div></div></div>
+
+        <!-- Métricas rápidas -->
+        <div class="dash-metrics">
+          <div class="dash-metric" onclick="showPanel('admin','pedidos',document.querySelector('.nav-item:nth-child(3)'))">
+            <div class="dash-metric-val c-yellow" id="dash-p">0</div>
+            <div class="dash-metric-lbl">En progreso</div>
+            <div class="dash-metric-sub" id="dash-p-sub">pedidos activos</div>
+          </div>
+          <div class="dash-metric" style="border-left:3px solid #378ADD" onclick="showPanel('admin','pedidos',document.querySelector('.nav-item:nth-child(3)'))">
+            <div class="dash-metric-val" style="color:#378ADD" id="dash-review">0</div>
+            <div class="dash-metric-lbl">Para revisar</div>
+            <div class="dash-metric-sub">esperando tu ok</div>
+          </div>
+          <div class="dash-metric" onclick="showPanel('admin','clientes',document.querySelector('.nav-item:nth-child(2)'))">
+            <div class="dash-metric-val c-blue" id="dash-cl">0</div>
+            <div class="dash-metric-lbl">Clientes</div>
+            <div class="dash-metric-sub">activos</div>
+          </div>
+          <div class="dash-metric" onclick="showPanel('admin','pedidos',document.querySelector('.nav-item:nth-child(3)'))">
+            <div class="dash-metric-val c-green" id="dash-d">0</div>
+            <div class="dash-metric-lbl">Completadas</div>
+            <div class="dash-metric-sub">total histórico</div>
+          </div>
         </div>
-        <div class="card"><div class="card-title">Pedidos recientes <button class="btn btn-p btn-sm" onclick="showPanel('admin','pedidos',null)">Ver todos</button></div><div id="a-recent"></div></div>
-        <div class="card"><div class="card-title">Estado de clientes</div><table><thead><tr><th>Cliente</th><th>Pack</th><th>Uso</th><th>Pago</th><th></th></tr></thead><tbody id="a-cl-sum"></tbody></table></div>
+
+        <!-- Shell 2 columnas -->
+        <div class="dash-shell">
+
+          <!-- Feed principal -->
+          <div>
+            <div id="dash-feed-urgent-section" style="display:none">
+              <div class="feed-section-title">Urgente</div>
+              <div id="dash-feed-urgent"></div>
+            </div>
+            <div id="dash-feed-review-section" style="display:none">
+              <div class="feed-section-title">Listo para revisar</div>
+              <div id="dash-feed-review"></div>
+            </div>
+            <div>
+              <div class="feed-section-title">Todos los pedidos activos</div>
+              <div id="dash-feed-all"></div>
+            </div>
+          </div>
+
+          <!-- Sidebar derecho -->
+          <div class="side-panel">
+            <!-- Card ingresos -->
+            <div class="income-feed-card">
+              <div class="income-feed-inner">
+                <div class="income-feed-lbl">Ingresos mensuales</div>
+                <div class="income-feed-val" id="dash-income">$0</div>
+                <div class="income-feed-sub" id="dash-income-sub">de los packs activos</div>
+              </div>
+            </div>
+            <!-- Clientes -->
+            <div class="side-card">
+              <div class="side-card-title">Clientes</div>
+              <div id="dash-cl-list"></div>
+            </div>
+          </div>
+
+        </div>
       </div>
       <div class="panel" id="admin-panel-clientes">
         <div class="ar"><div class="page-header" style="margin:0"><div class="page-title">Clientes</div><div class="page-sub">Gestioná tus clientes</div></div><button class="btn btn-p" onclick="openMo('mo-nc')">+ Nuevo cliente</button></div>
@@ -1636,37 +1751,126 @@ function closeMo(id){document.getElementById(id).classList.remove('open');}
 
 /* ADMIN */
 function renderADash(){
-  const pending   = S.reqs.filter(r=>r.status!=='Completado').length;
-  const completed = S.reqs.filter(r=>r.status==='Completado').length;
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // Cálculos base
+  const active     = S.reqs.filter(r=>r.status!=='Completado');
+  const completed  = S.reqs.filter(r=>r.status==='Completado').length;
+  const forReview  = active.filter(r=>r.status==='Listo para revisar');
   const activeClients = S.clients.filter(c=>!c.archived).length;
-  // Ingresos = suma de precios de clientes activos (packs contratados)
-  const totalIncome = S.clients.filter(c=>!c.archived).reduce((sum,c)=>sum+(c.price||0),0);
+  const totalIncome   = S.clients.filter(c=>!c.archived).reduce((sum,c)=>sum+(c.price||0),0);
 
-  const dp=document.getElementById('dash-p');   if(dp)dp.textContent=pending;
-  const dd=document.getElementById('dash-d');   if(dd)dd.textContent=completed;
-  const dcl=document.getElementById('dash-cl'); if(dcl)dcl.textContent=activeClients;
+  // Función para calcular días a deadline
+  const daysTo = deadline => {
+    if(!deadline) return null;
+    const dl = new Date(deadline); dl.setHours(0,0,0,0);
+    return Math.round((dl-today)/(1000*60*60*24));
+  };
 
-  // Card de ingresos con gradiente naranja
-  const incomeCard=document.getElementById('dash-income-card');
-  if(incomeCard) incomeCard.innerHTML=`
-    <div style="border-radius:16px;padding:20px;position:relative;overflow:hidden;background:linear-gradient(135deg,#ff4d00 0%,#ff8c42 100%);border:none;">
-      <div style="position:absolute;right:-20px;top:-20px;width:100px;height:100px;background:radial-gradient(circle,rgba(255,255,255,.15) 0%,transparent 70%);border-radius:50%;"></div>
-      <div style="position:relative;z-index:1;">
-        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.75);font-weight:600;margin-bottom:8px">Ingresos mensuales</div>
-        <div style="font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:white;margin-bottom:4px">$${totalIncome}</div>
-        <div style="font-size:12px;color:rgba(255,255,255,.8)">${activeClients} pack${activeClients!==1?'s':''} activo${activeClients!==1?'s':''}</div>
+  // Urgentes = vencidos o con deadline hoy/mañana (excluyendo Completados)
+  const urgent = active.filter(r=>{
+    const d = daysTo(r.deadline);
+    return d !== null && d <= 1;
+  });
+
+  // Métricas
+  const dp = document.getElementById('dash-p');       if(dp) dp.textContent = active.filter(r=>r.status==='En progreso'||r.status==='No iniciado').length;
+  const dr = document.getElementById('dash-review');   if(dr) dr.textContent = forReview.length;
+  const dd = document.getElementById('dash-d');        if(dd) dd.textContent = completed;
+  const dcl= document.getElementById('dash-cl');       if(dcl) dcl.textContent = activeClients;
+  const di = document.getElementById('dash-income');   if(di) di.textContent = '$'+totalIncome;
+  const dis= document.getElementById('dash-income-sub'); if(dis) dis.textContent = activeClients+' pack'+(activeClients!==1?'s':'')+' activo'+(activeClients!==1?'s':'');
+
+  // Helper: construir una feed-card
+  function feedCard(r, prioCls){
+    const cl = gc(r.cid);
+    const d  = daysTo(r.deadline);
+    const deadlineLabel = d === null ? '' : d < 0 ? `<span style="color:var(--red);font-size:11px;font-weight:700">Vencido hace ${Math.abs(d)}d</span>` : d === 0 ? `<span style="color:var(--red);font-size:11px;font-weight:700">Vence hoy</span>` : d === 1 ? `<span style="color:var(--yellow);font-size:11px;font-weight:700">Vence mañana</span>` : `<span style="font-size:11px;color:var(--muted)">${fd(r.deadline)}</span>`;
+    const avatarHtml = cl?.ch
+      ? `<img src="https://unavatar.io/youtube/${cl.ch}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0" onerror="this.style.display='none';this.nextSibling.style.display='flex'">`
+        +`<div class="feed-avatar-fallback" style="display:none">${ini(cl?.name||'?')}</div>`
+      : `<div class="feed-avatar-fallback">${ini(cl?.name||'?')}</div>`;
+    return `<div class="feed-card ${prioCls}" onclick="openReqMo('${r.id}')">
+      <div class="feed-card-inner">
+        <div style="position:relative;flex-shrink:0;width:40px;height:40px">${avatarHtml}</div>
+        <div class="feed-body">
+          <div class="feed-client">${cl?.name||'—'} <span style="color:var(--muted);font-size:10px">${cl?.ch||''}</span></div>
+          <div class="feed-title">${r.title}</div>
+          <div class="feed-meta">${sb(r.status)}${deadlineLabel}</div>
+        </div>
+        <div class="feed-right">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--muted)"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
       </div>
     </div>`;
-  document.getElementById('a-recent').innerHTML=[...S.reqs].reverse().slice(0,3).map(r=>{
-    const c=gc(r.cid);
-    return`<div class="rc" onclick="openReqMo('${r.id}')"><div><div class="rt">${r.title}</div><div class="rm"><span>👤 ${c?.name}</span><span>📅 ${fd(r.deadline)}</span><span class="chip-pair">${sb(r.status)}${urgencyChip(r.deadline)}</span></div></div></div>`;
-  }).join('');
-  document.getElementById('a-cl-sum').innerHTML=S.clients.filter(c=>!c.archived).map(c=>`
-    <tr><td data-label="Cliente"><strong>${c.name}</strong><br><small style="color:var(--muted)">${c.ch}</small></td>
-    <td data-label="Pack">${c.pack===99?'Ilimitado':c.pack+' mins.'}</td>
-    <td data-label="Uso">${(()=>{const u=getUsed(c.id);const uPct=Math.min(100,(u/c.pack)*100);return c.pack===99?'∞':`${u}/${c.pack}<div class="pbar"><div class="pbar-fill" style="width:${uPct}%;background:${u>=c.pack?'var(--red)':'var(--accent)'}"></div></div>`;})()}</td>
-    <td data-label="Pago">${pb(c.pay)}</td>
-    <td><button class="btn btn-g btn-sm" onclick="openClMo('${c.id}')">Ver</button></td></tr>`).join('');
+  }
+
+  // Sección urgente
+  const urgEl = document.getElementById('dash-feed-urgent');
+  const urgSec = document.getElementById('dash-feed-urgent-section');
+  if(urgEl && urgSec){
+    if(urgent.length){
+      urgSec.style.display='';
+      urgEl.innerHTML = urgent.map(r=>feedCard(r,'prio-urgent')).join('');
+    } else { urgSec.style.display='none'; }
+  }
+
+  // Sección listo para revisar
+  const revEl = document.getElementById('dash-feed-review');
+  const revSec= document.getElementById('dash-feed-review-section');
+  if(revEl && revSec){
+    if(forReview.length){
+      revSec.style.display='';
+      revEl.innerHTML = forReview.map(r=>feedCard(r,'prio-review')).join('');
+    } else { revSec.style.display='none'; }
+  }
+
+  // Todos los activos — ordenados: urgentes primero, luego por deadline, luego sin fecha
+  const allSorted = [...active].sort((a,b)=>{
+    const da = daysTo(a.deadline) ?? 9999;
+    const db = daysTo(b.deadline) ?? 9999;
+    return da - db;
+  });
+  const allEl = document.getElementById('dash-feed-all');
+  if(allEl){
+    if(allSorted.length){
+      allEl.innerHTML = allSorted.map(r=>{
+        const d = daysTo(r.deadline);
+        const prio = d !== null && d <= 1 ? 'prio-urgent' : r.status==='Listo para revisar' ? 'prio-review' : d !== null && d <= 3 ? 'prio-soon' : 'prio-normal';
+        return feedCard(r, prio);
+      }).join('');
+    } else {
+      allEl.innerHTML=`<div class="feed-empty"><div class="feed-empty-icon">✅</div><p>No hay pedidos activos.</p></div>`;
+    }
+  }
+
+  // Sidebar — lista de clientes
+  const clListEl = document.getElementById('dash-cl-list');
+  if(clListEl){
+    const cls = S.clients.filter(c=>!c.archived);
+    if(cls.length){
+      clListEl.innerHTML = cls.map(cl=>{
+        const pending = gr(cl.id).filter(r=>r.status!=='Completado').length;
+        const used = getUsed(cl.id);
+        const av = cl.pack===99?'∞':cl.pack-used;
+        const payColor = cl.pay==='Al día'?'var(--green)':cl.pay==='Pendiente'?'var(--yellow)':'var(--red)';
+        const avatarHtml = cl.ch
+          ? `<img src="https://unavatar.io/youtube/${cl.ch}" style="width:30px;height:30px;border-radius:50%;object-fit:cover" onerror="this.style.display='none';this.nextSibling.style.display='flex'"><div class="cl-av-sm" style="display:none">${ini(cl.name)}</div>`
+          : `<div class="cl-av-sm">${ini(cl.name)}</div>`;
+        return `<div class="cl-feed-row" onclick="openClMo('${cl.id}')">
+          <div style="position:relative;flex-shrink:0;width:30px;height:30px">${avatarHtml}</div>
+          <div class="cl-feed-row-info">
+            <div class="cl-feed-row-name">${cl.name}</div>
+            <div class="cl-feed-row-sub">${pending} activo${pending!==1?'s':''} · ${av} disp. · <span style="color:${payColor};font-weight:600">${cl.pay}</span></div>
+          </div>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--muted);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>`;
+      }).join('');
+    } else {
+      clListEl.innerHTML=`<div style="color:var(--muted);font-size:13px;padding:8px 0">Sin clientes aún.</div>`;
+    }
+  }
+
   updateAdminWorkload();
 }
 function renderAClients(){
