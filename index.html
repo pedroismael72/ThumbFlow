@@ -714,21 +714,22 @@
   .trk-mini-lbl.active,.trk-mini-lbl.done{color:var(--text);}
 
   /* ════ MODAL PEDIDO REDESIGN ════ */
-  .req-mo-shell{display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:480px;}
-  @media(max-width:700px){.req-mo-shell{grid-template-columns:1fr;}}
-  .req-mo-left{padding:24px;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:0;overflow-y:auto;max-height:75vh;}
-  .req-mo-right{padding:24px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;max-height:75vh;}
-  .req-info-block{margin-bottom:16px;}
-  .req-info-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600;margin-bottom:5px;}
-  .req-info-val{font-size:13px;color:var(--text);line-height:1.6;}
-  .req-chip-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px;}
-  .req-client-row{display:flex;align-items:center;gap:10px;padding:12px;background:var(--surface2);border-radius:12px;margin-bottom:18px;border:1px solid var(--border);}
-  .req-client-av{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;}
-  .req-title-big{font-size:18px;font-weight:800;line-height:1.3;margin-bottom:10px;color:var(--text);}
-  .req-status-chips{display:flex;flex-wrap:wrap;gap:7px;}
+  .req-mo-body{padding:22px 24px;overflow-y:auto;max-height:72vh;display:flex;flex-direction:column;gap:0;}
+  .req-field{margin-bottom:14px;}
+  .req-field-label{font-size:10px;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);font-weight:600;margin-bottom:5px;}
+  .req-field-val{font-size:13px;color:var(--text);line-height:1.6;}
+  .req-title-big{font-size:20px;font-weight:800;line-height:1.35;color:var(--text);margin-bottom:12px;}
+  .req-meta-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+  .req-meta-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:500;background:var(--surface2);border:1px solid var(--border);color:var(--text);}
+  .req-divider{height:1px;background:var(--border);margin:16px 0;}
+  .req-client-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:10px;margin-bottom:18px;border:1px solid var(--border);}
+  .req-client-av{width:30px;height:30px;border-radius:50%;object-fit:cover;flex-shrink:0;}
+  .req-status-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px;}
   .req-status-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;cursor:pointer;transition:all .15s;font-size:12px;font-weight:700;border:1.5px solid var(--border);color:var(--muted);background:transparent;}
   .req-status-chip:hover{border-color:rgba(255,77,0,.3);color:var(--text);}
   .req-status-chip.selected{color:white;}
+  .req-section-title{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .req-section-title::after{content:'';flex:1;height:1px;background:var(--border);}
 </style>
 <script type="module">
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -2065,10 +2066,10 @@ function updateSaveBtn(){
 
   // Actualizar chips visuales
   const statusCfgU = {
-    'Nuevo pedido':        { color:'#8888a0', bg:'rgba(107,107,126,.12)', hex:'#8888a0' },
-    'En diseño':        { color:'#ff4d00', bg:'rgba(255,77,0,.1)',     hex:'#ff4d00' },
+    'Nuevo pedido': { color:'#8888a0', bg:'rgba(107,107,126,.12)', hex:'#8888a0' },
+    'En diseño':    { color:'#ff4d00', bg:'rgba(255,77,0,.1)',     hex:'#ff4d00' },
     'Para revisar': { color:'#4d9fff', bg:'rgba(77,159,255,.1)',   hex:'#4d9fff' },
-    'Completado':         { color:'#2dca73', bg:'rgba(45,202,115,.1)',   hex:'#2dca73' },
+    'Listo':        { color:'#2dca73', bg:'rgba(45,202,115,.1)',   hex:'#2dca73' },
   };
   document.querySelectorAll('#chips-st [data-st]').forEach(el=>{
     const st = el.getAttribute('data-st');
@@ -2081,7 +2082,7 @@ function updateSaveBtn(){
     const first = el.querySelector('span:first-child');
     if(first){
       if(isSel){ first.style.cssText=`width:7px;height:7px;border-radius:50%;background:${cfg.hex};flex-shrink:0;animation:liveDot 1.8s ease-in-out infinite`; first.textContent=''; }
-      else { first.style.cssText=''; first.textContent = {'Nuevo pedido':'📋','En diseño':'🎨','Para revisar':'✨','Completado':'✅'}[st]||''; }
+      else { first.style.cssText=''; first.textContent = {'Nuevo pedido':'📋','En diseño':'🎨','Para revisar':'✨','Listo':'✅'}[st]||''; }
     }
   });
 
@@ -2483,179 +2484,145 @@ function _openReqMoRender(rid){
   viewRid=rid;const cl=gc(r.cid),isA=role==='admin';
   _reqOriginalStatus = r.status;
 
-  // Título en header
   const titleEl = document.getElementById('mo-req-title');
-  if(titleEl) titleEl.textContent = r.title.length > 40 ? r.title.slice(0,38)+'…' : r.title;
+  if(titleEl) titleEl.textContent = r.title.length>42 ? r.title.slice(0,40)+'\u2026' : r.title;
 
   const versionsHtml = buildVersionsHtml(r, isA);
 
-  // Referencias
   const refsHtml = r.refs&&r.refs.length ? `
-    <div class="req-info-block">
-      <div class="req-info-label">Referencias YouTube</div>
+    <div class="req-field">
+      <div class="req-field-label">Referencias YouTube</div>
       <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:4px">
-        ${r.refs.map(rf=>`<img src="${rf.t}" style="width:80px;height:45px;object-fit:cover;border-radius:8px;cursor:pointer;border:1px solid var(--border)" onclick="openLightbox('${rf.t}','${(rf.title||'').replace(/'/g,"\'")}','${rf.url||''}')" title="${rf.title||''}">`).join('')}
+        ${r.refs.map(rf=>`<img src="${rf.t}" style="width:88px;height:50px;object-fit:cover;border-radius:8px;cursor:pointer;border:1px solid var(--border)" onclick="openLightbox('${rf.t}','${(rf.title||'').replace(/'/g,"\\'")}',' ${rf.url||''}')" title="${rf.title||''}">`).join('')}
       </div>
     </div>` : '';
 
   const clientImgsHtml = r.clientImgs&&r.clientImgs.length ? `
-    <div class="req-info-block">
-      <div class="req-info-label">Imágenes del cliente</div>
+    <div class="req-field">
+      <div class="req-field-label">Imágenes del cliente</div>
       <div class="img-preview-grid" style="margin-top:4px">
         ${r.clientImgs.map(src=>`<div class="img-preview" onclick="openLightbox('${src}','Imagen de referencia','')"><img src="${src}" style="cursor:pointer"></div>`).join('')}
       </div>
     </div>` : '';
 
   const statusCfg = {
-    'Nuevo pedido': { color:'#6b6b7e', bg:'#6b6b7e' },
-    'En diseño':    { color:'#ff4d00', bg:'#ff4d00' },
-    'Para revisar': { color:'#4d9fff', bg:'#4d9fff' },
-    'Listo':        { color:'#2dca73', bg:'#2dca73' },
+    'Nuevo pedido': { color:'#8888a0', hex:'#8888a0' },
+    'En diseño':    { color:'#ff4d00', hex:'#ff4d00' },
+    'Para revisar': { color:'#4d9fff', hex:'#4d9fff' },
+    'Listo':        { color:'#2dca73', hex:'#2dca73' },
   };
 
-  if(isA){
-    // ── ADMIN: layout 2 columnas ──────────────────────────
+  // ── Bloque de info del pedido (igual para admin y cliente) ────
+  function infoBlock(){
     const sc = statusCfg[r.status]||statusCfg['Nuevo pedido'];
-
     const clientAv = cl?.ch
-      ? `<img src="https://unavatar.io/youtube/${cl.ch.replace(/^@/,'')}" class="req-client-av" onerror="this.style.display='none'">`
-      : `<div class="req-client-av" style="background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white">${ini(cl?.name||'?')}</div>`;
+      ? `<img src="https://unavatar.io/youtube/${cl.ch.replace(/^@/,'')}" class="req-client-av" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="req-client-av" style="background:var(--accent);display:none;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">${ini(cl?.name||'?')}</div>`
+      : `<div class="req-client-av" style="background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">${ini(cl?.name||'?')}</div>`;
 
-    // Chips de estado
+    return `
+      ${isA?`<div class="req-client-row">${clientAv}<div style="min-width:0"><div style="font-weight:700;font-size:13px">${cl?.name||'—'}</div><div style="font-size:11px;color:var(--muted)">${cl?.ch||''}</div></div></div>`:''}
+      <div class="req-title-big">${r.title}</div>
+      <div class="req-meta-row">
+        ${r.deadline?`<span class="req-meta-pill">📅 ${fd(r.deadline)}</span>`:''}
+        ${urgencyChip(r.deadline)}
+        ${r.style?`<span class="req-meta-pill">🎨 ${r.style}</span>`:''}
+        <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:700;color:${sc.hex};background:${sc.hex}15;border:1px solid ${sc.hex}25">${r.status}</span>
+      </div>
+      ${r.desc?`<div class="req-field"><div class="req-field-label">Descripción</div><div class="req-field-val">${r.desc}</div></div>`:'' }
+      ${r.notes?`<div class="req-field"><div class="req-field-label" style="color:#f5c842">Nota del cliente</div><div class="req-field-val" style="background:rgba(245,200,66,.06);border:1px solid rgba(245,200,66,.15);border-radius:8px;padding:10px 12px">${r.notes}</div></div>`:''}
+      ${refsHtml}${clientImgsHtml}`;
+  }
+
+  if(isA){
+    // Admin: info + estado + versiones
     const chipHtml = Object.entries(statusCfg).map(([st,cfg])=>{
-      const isSel = r.status === st;
-      return `<div class="req-status-chip ${isSel?'selected':''}"
-        style="${isSel?'background:'+cfg.bg+';border-color:'+cfg.bg+';':''}"
-        onclick="document.getElementById('mr-st').value='${st}';
-          document.querySelectorAll('.req-status-chip').forEach(x=>x.classList.remove('selected'));
+      const isSel = r.status===st;
+      return `<div class="req-status-chip ${isSel?'selected':''}" data-st="${st}"
+        style="${isSel?`background:${cfg.hex};border-color:${cfg.hex};`:''}color:${isSel?'white':'var(--muted)'}"
+        onclick="
+          document.getElementById('mr-st').value='${st}';
+          document.querySelectorAll('.req-status-chip').forEach(x=>{
+            x.classList.remove('selected');
+            x.style.background='';x.style.borderColor='';x.style.color='var(--muted)';
+          });
           this.classList.add('selected');
-          this.style.background=this.style.borderColor='${cfg.bg}';
-          document.querySelectorAll('.req-status-chip').forEach(x=>{if(!x.classList.contains('selected')){x.style.background='';x.style.borderColor='';}});
+          this.style.background='${cfg.hex}';this.style.borderColor='${cfg.hex}';this.style.color='white';
           updateSaveBtn()">
-        <span style="width:6px;height:6px;border-radius:2px;background:${isSel?'white':cfg.color};display:inline-block;flex-shrink:0"></span>
+        <span style="width:6px;height:6px;border-radius:2px;background:${isSel?'white':cfg.hex};display:inline-block;flex-shrink:0"></span>
         ${st}
       </div>`;
     }).join('');
 
     document.getElementById('mo-req-body').innerHTML = `
-      <div class="req-mo-shell">
-        <!-- COLUMNA IZQUIERDA: info del pedido -->
-        <div class="req-mo-left">
-          <div class="req-client-row">
-            ${clientAv}
-            <div style="min-width:0">
-              <div style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${cl?.name||'—'}</div>
-              <div style="font-size:11px;color:var(--muted)">${cl?.ch||''}</div>
-            </div>
-          </div>
-
-          <div class="req-title-big">${r.title}</div>
-
-          <div class="req-chip-row">
-            ${r.deadline?`<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:600;background:var(--surface2);border:1px solid var(--border);color:var(--text)">📅 ${fd(r.deadline)}</span>`:''}
-            ${urgencyChip(r.deadline)}
-            ${r.style?`<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:8px;font-size:12px;background:var(--surface2);border:1px solid var(--border);color:var(--muted)">🎨 ${r.style}</span>`:''}
-          </div>
-
-          ${r.desc?`<div class="req-info-block"><div class="req-info-label">Descripción</div><div class="req-info-val" style="background:var(--surface2);border-radius:10px;padding:10px 12px;border:1px solid var(--border)">${r.desc}</div></div>`:''}
-
-          ${r.notes?`<div class="req-info-block"><div class="req-info-label" style="color:#f5c842">Nota del cliente</div><div class="req-info-val" style="background:rgba(245,200,66,.06);border:1px solid rgba(245,200,66,.2);border-radius:10px;padding:10px 12px">${r.notes}</div></div>`:''}
-
-          ${refsHtml}${clientImgsHtml}
-        </div>
-
-        <!-- COLUMNA DERECHA: estado + entregas -->
-        <div class="req-mo-right">
-          <div>
-            <div class="req-info-label" style="margin-bottom:8px">Estado del pedido</div>
-            <div class="req-status-chips">${chipHtml}</div>
-            <select id="mr-st" style="display:none">
-              <option ${r.status==='Nuevo pedido'?'selected':''}>Nuevo pedido</option>
-              <option ${r.status==='En diseño'?'selected':''}>En diseño</option>
-              <option ${r.status==='Para revisar'?'selected':''}>Para revisar</option>
-              <option ${r.status==='Listo'?'selected':''}>Listo</option>
-            </select>
-          </div>
-          <div style="height:1px;background:var(--border)"></div>
-          ${versionsHtml}
-        </div>
+      <div class="req-mo-body">
+        ${infoBlock()}
+        <div class="req-divider"></div>
+        <div class="req-section-title">Estado del pedido</div>
+        <div class="req-status-chips">${chipHtml}</div>
+        <select id="mr-st" style="display:none">
+          <option ${r.status==='Nuevo pedido'?'selected':''}>Nuevo pedido</option>
+          <option ${r.status==='En diseño'?'selected':''}>En diseño</option>
+          <option ${r.status==='Para revisar'?'selected':''}>Para revisar</option>
+          <option ${r.status==='Listo'?'selected':''}>Listo</option>
+        </select>
+        <div class="req-divider"></div>
+        ${versionsHtml}
       </div>`;
 
     const saveBtn = document.getElementById('mo-save-btn');
-    saveBtn.style.display = '';
-    saveBtn.onclick = ()=>saveReq(rid);
+    saveBtn.style.display='';
+    saveBtn.onclick=()=>saveReq(rid);
     const delBtn = document.getElementById('mo-delete-btn');
-    delBtn.style.display = r.status!=='Listo' ? '' : 'none';
-    delBtn.onclick = ()=>deleteReq(rid);
+    delBtn.style.display = r.status!=='Listo'?'':'none';
+    delBtn.onclick=()=>deleteReq(rid);
     updateSaveBtn();
 
   } else {
-    // ── CLIENTE ──────────────────────────────────────────
-    const isLocked = r.status==='En diseño'||r.status==='Para revisar'||r.status==='Listo';
-    const isCompleted = r.status==='Listo';
+    const isLocked  = r.status==='En diseño'||r.status==='Para revisar'||r.status==='Listo';
+    const isDone    = r.status==='Listo';
 
     if(isLocked){
-      const hasMiniatura = r.versions && r.versions.length > 0;
-
-      let leftContent = '';
-
-      if(isCompleted){
-        leftContent = `<div style="background:rgba(45,202,115,.08);border:1px solid rgba(45,202,115,.2);border-radius:12px;padding:14px;display:flex;align-items:center;gap:10px;margin-bottom:16px">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          <div>
-            <div style="font-weight:700;font-size:13px">Aprobada y completada</div>
-            <button onclick="toggleReqDetails('${rid}')" id="details-toggle-${rid}" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;padding:0;margin-top:2px">Ver detalles del pedido ↓</button>
-          </div>
+      let banner = '';
+      if(isDone){
+        banner = `<div style="background:rgba(45,202,115,.08);border:1px solid rgba(45,202,115,.2);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span style="font-size:13px;font-weight:700">Aprobada y completada</span>
+          <button onclick="toggleReqDetails('${rid}')" id="details-toggle-${rid}" style="margin-left:auto;background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer">Ver detalles</button>
         </div>
         <div id="req-details-${rid}" style="display:none">`;
-      } else if(!hasMiniatura){
-        leftContent = `<div style="background:rgba(255,77,0,.06);border:1px solid rgba(255,77,0,.15);border-radius:12px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px">
-          <div style="display:flex;align-items:center;gap:10px">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-            <div style="font-size:13px;font-weight:600">Tu diseñador está en esto</div>
+      } else if(!(r.versions&&r.versions.length)){
+        banner = `<div style="background:rgba(255,77,0,.06);border:1px solid rgba(255,77,0,.15);border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            <span style="font-size:13px;font-weight:600">Tu diseñador está trabajando en esto</span>
           </div>
           <a href="https://wa.me/?text=${encodeURIComponent('Hola! Quiero hacer un cambio en mi pedido: '+r.title)}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--text);text-decoration:none;white-space:nowrap">💬 WhatsApp</a>
         </div>`;
       }
 
-      // Info del pedido en modo read-only
-      const readonlyInfo = `
-        <div class="req-title-big" style="font-size:16px">${r.title}</div>
-        <div class="req-chip-row">
-          ${r.deadline?`<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:600;background:var(--surface2);border:1px solid var(--border)">📅 ${fd(r.deadline)}</span>`:''}
-          ${urgencyChip(r.deadline)}
-        </div>
-        ${r.desc?`<div class="req-info-block"><div class="req-info-label">Descripción</div><div class="req-info-val" style="background:var(--surface2);border-radius:10px;padding:10px 12px;border:1px solid var(--border)">${r.desc}</div></div>`:''}
-        ${r.style?`<div class="req-info-block"><div class="req-info-label">Estilo</div><div class="req-info-val">${r.style}</div></div>`:''}
-        ${refsHtml}${clientImgsHtml}
-        ${isCompleted?'</div>':''}`;
-
       document.getElementById('mo-req-body').innerHTML = `
-        <div class="req-mo-shell">
-          <div class="req-mo-left">${leftContent}${readonlyInfo}</div>
-          <div class="req-mo-right">${versionsHtml}</div>
+        <div class="req-mo-body">
+          ${banner}
+          ${infoBlock()}
+          ${isDone?'</div>':''}
+          <div class="req-divider"></div>
+          ${versionsHtml}
         </div>`;
       document.getElementById('mo-save-btn').style.display='none';
 
     } else {
       // Editable — Nuevo pedido
       document.getElementById('mo-req-body').innerHTML = `
-        <div class="req-mo-shell">
-          <div class="req-mo-left">
-            <div class="req-title-big" style="font-size:15px;margin-bottom:16px">${r.title}</div>
-            <div style="display:flex;flex-direction:column;gap:12px">
-              <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:600;display:block;margin-bottom:5px">Título</label><input id="mr-t" type="text" value="${r.title}"></div>
-              <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:600;display:block;margin-bottom:5px">Descripción</label><textarea id="mr-d">${r.desc}</textarea></div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:600;display:block;margin-bottom:5px">Estilo</label><input id="mr-s" type="text" value="${r.style}"></div>
-                <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:600;display:block;margin-bottom:5px">Fecha límite</label><input id="mr-dl" type="date" value="${r.deadline}"></div>
-              </div>
-              <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:600;display:block;margin-bottom:5px">Notas</label><textarea id="mr-n">${r.notes}</textarea></div>
+        <div class="req-mo-body">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="req-field"><div class="req-field-label">Título</div><input id="mr-t" type="text" value="${r.title}"></div>
+            <div class="req-field"><div class="req-field-label">Descripción</div><textarea id="mr-d">${r.desc}</textarea></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div class="req-field"><div class="req-field-label">Estilo / Colores</div><input id="mr-s" type="text" value="${r.style}"></div>
+              <div class="req-field"><div class="req-field-label">Fecha límite</div><input id="mr-dl" type="date" value="${r.deadline}"></div>
             </div>
-          </div>
-          <div class="req-mo-right">
+            <div class="req-field"><div class="req-field-label">Notas adicionales</div><textarea id="mr-n" style="min-height:60px">${r.notes}</textarea></div>
             ${refsHtml}${clientImgsHtml}
-            ${!refsHtml&&!clientImgsHtml?`<div style="color:var(--muted);font-size:13px;text-align:center;padding:40px 0;opacity:.5">Sin referencias adjuntas</div>`:''}
           </div>
         </div>`;
       document.getElementById('mo-save-btn').style.display='';
@@ -2663,8 +2630,8 @@ function _openReqMoRender(rid){
     }
 
     const delBtn = document.getElementById('mo-delete-btn');
-    delBtn.style.display = r.status==='Nuevo pedido' ? '' : 'none';
-    if(r.status==='Nuevo pedido') delBtn.onclick = ()=>deleteReq(rid);
+    delBtn.style.display = r.status==='Nuevo pedido'?'':'none';
+    if(r.status==='Nuevo pedido') delBtn.onclick=()=>deleteReq(rid);
   }
   openMo('mo-req');
 }
@@ -2696,13 +2663,20 @@ async function saveReq(rid){
   if(role==='admin'){
     // Admin: solo modifica el estado (los demás campos son solo lectura)
     const newStatus = document.getElementById('mr-st')?.value;
-    if(newStatus){
+    // Nunca guardar un status vacío o que sea "inferior" al actual sin confirmación explícita
+    // Esto previene que un select con valor por defecto pise el status real
+    if(newStatus && newStatus !== ''){
       const oldStatus = r.status;
-      r.status = newStatus;
+      // Guardia: si el valor del select NO coincide con ningún chip seleccionado visualmente,
+      // es un estado incoherente — no guardar
+      const selectedChip = document.querySelector('.req-status-chip.selected');
+      const chipStatus = selectedChip ? selectedChip.getAttribute('data-st') || selectedChip.textContent.trim().replace(/[●•\s]+/,'').trim() : null;
+      const finalStatus = chipStatus || newStatus;
+      r.status = finalStatus;
       if(isSupabaseMode) await dbUpdateRequest(rid,{status:r.status});
-      if(oldStatus !== newStatus){
+      if(oldStatus !== finalStatus){
         renderADash();
-        if(newStatus==='Listo') checkPackCompletion(r.cid, rid);
+        if(finalStatus==='Listo') checkPackCompletion(r.cid, rid);
       }
     }
   } else {
