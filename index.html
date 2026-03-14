@@ -583,7 +583,7 @@
   .income-sub{font-size:11px;color:rgba(255,255,255,.7);}
 
   /* ════ HISTORIAL DE PACKS ════ */
-  .pack-cycle{background:var(--surface);border:1px solid var(--border);border-radius:16px;margin-bottom:14px;overflow:hidden;transition:border-color .2s;}
+  .pack-cycle{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;transition:border-color .2s;}
   .pack-cycle:hover{border-color:rgba(255,77,0,.3);}
   .pack-cycle-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer;gap:12px;}
   .pack-cycle-chevron{color:var(--muted);transition:transform .25s;flex-shrink:0;}
@@ -2607,6 +2607,76 @@ async function saveReq(rid){
     renderCDash(cid);
   }
 }
+
+function buildCyclesHtml(c, rqs){
+  const packs = c.packs || [];
+  if(!packs.length && !rqs.length) return '<div style="padding:16px 0;color:var(--muted);font-size:13px;text-align:center">Sin pedidos aún</div>';
+
+  const assignedIds = packs.flatMap(p => p.req_ids || []);
+  const unassigned  = rqs.filter(r => !assignedIds.includes(r.id));
+  const sorted      = [...packs].reverse(); // más reciente primero
+  const totalCycles = packs.length;
+
+  function reqRow(r){
+    return '<div class="profile-recent-req">'
+      + '<div style="min-width:0;flex:1">'
+      + '<div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + r.title + '</div>'
+      + '<div style="font-size:11px;color:var(--muted)">' + (fd(r.deadline) || 'Sin fecha') + '</div>'
+      + '</div>'
+      + '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:10px">'
+      + sb(r.status)
+      + '<button class="btn btn-g btn-sm" onclick="closeMo(\'mo-cl\');openReqMo(\'' + r.id + '\')">Ver</button>'
+      + '</div></div>';
+  }
+
+  let html = sorted.map(function(pack, i){
+    const cycleNum    = totalCycles - i;
+    const isActive    = !pack.closed_at;
+    const sizeLabel   = pack.size === 99 ? 'Ilimitado' : pack.size + ' minis';
+    const cycleLabel  = 'Ciclo #' + cycleNum + ' — ' + sizeLabel;
+    const dateRange   = isActive
+      ? 'Desde ' + fd(pack.opened_at)
+      : fd(pack.opened_at) + ' → ' + fd(pack.closed_at);
+    const packReqs    = (pack.req_ids || []).map(function(rid){ return S.reqs.find(function(r){ return r.id === rid; }); }).filter(Boolean);
+    const doneCount   = packReqs.filter(function(r){ return r.status === 'Completado'; }).length;
+
+    const reqsHtml = packReqs.length
+      ? packReqs.map(reqRow).join('')
+      : '<div style="padding:12px 0;color:var(--muted);font-size:12px">Sin pedidos en este ciclo.</div>';
+
+    const badgeCls  = isActive ? 'pack-active-badge' : 'pack-complete-badge';
+    const badgeTxt  = isActive ? 'Activo' : 'Cerrado';
+    const openClass = i === 0 ? 'pack-cycle open' : 'pack-cycle';
+
+    return '<div class="' + openClass + '" id="modal-pack-' + pack.id + '">'
+      + '<div class="pack-cycle-header" onclick="this.closest(&quot;.pack-cycle&quot;).classList.toggle(&quot;open&quot;)">'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">'
+      + '<span style="font-weight:700;font-size:14px">' + cycleLabel + '</span>'
+      + '<span class="pack-cycle-badge ' + badgeCls + '">' + badgeTxt + '</span>'
+      + '</div>'
+      + '<div style="font-size:11px;color:var(--muted);display:flex;gap:10px">'
+      + '<span>' + dateRange + '</span><span>·</span>'
+      + '<span>' + doneCount + (pack.size !== 99 ? '/' + pack.size : '') + ' completadas</span>'
+      + '</div></div>'
+      + '<svg class="pack-cycle-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>'
+      + '</div>'
+      + '<div class="pack-cycle-body" style="padding-top:4px">' + reqsHtml + '</div>'
+      + '</div>';
+  }).join('');
+
+  if(unassigned.length){
+    html += '<div class="pack-cycle">'
+      + '<div class="pack-cycle-header" onclick="this.closest(&quot;.pack-cycle&quot;).classList.toggle(&quot;open&quot;)">'
+      + '<div style="flex:1"><span style="font-weight:700;font-size:14px">Sin ciclo asignado</span></div>'
+      + '<svg class="pack-cycle-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>'
+      + '</div>'
+      + '<div class="pack-cycle-body">' + unassigned.map(reqRow).join('') + '</div>'
+      + '</div>';
+  }
+
+  return html;
+}
 function openClMo(cid){
   viewCid=cid; const c=gc(cid); if(!c)return;
   const rqs=gr(cid);
@@ -2642,19 +2712,12 @@ function openClMo(cid){
       </button>
     </div>
 
-    <!-- STATS -->
-    <div class="profile-stats">
-      <div class="profile-stat">
-        <div class="profile-stat-val c-blue">${c.pack===99?'∞':c.pack}</div>
-        <div class="profile-stat-lbl">Pack</div>
-      </div>
-      <div class="profile-stat">
-        <div class="profile-stat-val ${typeof av==='number'&&av<=1?'c-red':'c-green'}">${av}</div>
-        <div class="profile-stat-lbl">Disponibles</div>
-      </div>
-      <div class="profile-stat">
-        <div class="profile-stat-val c-yellow">${pending}</div>
-        <div class="profile-stat-lbl">Pendientes</div>
+    <!-- STATS — solo disponibles del pack activo -->
+    <div style="margin-bottom:18px;">
+      <div class="profile-stat" style="text-align:center;padding:16px;">
+        <div class="profile-stat-val ${c.pack===99?'c-green':typeof av==='number'&&av<=0?'c-red':av<=2?'c-yellow':'c-green'}" style="font-size:32px">${c.pack===99?'∞':av}</div>
+        <div class="profile-stat-lbl">Miniaturas disponibles en este ciclo</div>
+        ${c.pack!==99?`<div style="font-size:11px;color:var(--muted);margin-top:4px">${usedCount} de ${c.pack} usadas · ${packLabel}</div>`:''}
       </div>
     </div>
 
@@ -2719,25 +2782,12 @@ function openClMo(cid){
       </div>
     </div>
 
-    <!-- PEDIDOS RECIENTES -->
+    <!-- PEDIDOS AGRUPADOS POR CICLO -->
     <div class="profile-section-title" style="margin-top:4px">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-      Pedidos (${rqs.length})
+      Historial de pedidos
     </div>
-    <div style="background:var(--surface2);border-radius:12px;padding:4px 14px;">
-      ${rqs.length ? rqs.slice(0,4).map(r=>`
-        <div class="profile-recent-req">
-          <div style="min-width:0;flex:1">
-            <div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.title}</div>
-            <div style="font-size:11px;color:var(--muted)">📅 ${fd(r.deadline)}</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:10px">
-            ${sb(r.status)}
-            <button class="btn btn-g btn-sm" onclick="closeMo('mo-cl');openReqMo('${r.id}')">Ver</button>
-          </div>
-        </div>`).join('')
-      : '<div style="padding:16px 0;color:var(--muted);font-size:13px;text-align:center">Sin pedidos aún</div>'}
-    </div>`;
+    ${buildCyclesHtml(c, rqs)}`;
 
   // Actualizar botones footer
   const archBtn = document.getElementById('mo-cl-archive-btn');
@@ -3250,8 +3300,16 @@ function installPWA(){
 
 
 function getUsed(cid){
-  // Cuenta los pedidos Completados de este cliente — fuente de verdad
-  return S.reqs.filter(r=>r.cid===cid && r.status==='Completado').length;
+  // Solo cuenta los Completados del pack ACTIVO (no todo el historial)
+  const cl = gc(cid); if(!cl) return 0;
+  if(cl.pack===99) return S.reqs.filter(r=>r.cid===cid && r.status==='Completado').length;
+  const ap = getActivePack(cl);
+  if(!ap) return 0;
+  // req_ids del pack activo que están Completados
+  return ap.req_ids.filter(rid=>{
+    const r = S.reqs.find(x=>x.id===rid);
+    return r && r.status==='Completado';
+  }).length;
 }
 
 
