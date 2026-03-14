@@ -1,6 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<link rel="manifest" href="data:application/manifest+json,{
+  %22name%22: %22ThumbFlow%22,
+  %22short_name%22: %22ThumbFlow%22,
+  %22description%22: %22Gestión de miniaturas YouTube%22,
+  %22start_url%22: %22.%22,
+  %22display%22: %22standalone%22,
+  %22background_color%22: %22%230a0a0f%22,
+  %22theme_color%22: %22%23ff4d00%22,
+  %22orientation%22: %22portrait-primary%22,
+  %22icons%22: [
+    {%22src%22:%22data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%23ff4d00'/%3E%3Ctext x='256' y='340' font-size='280' text-anchor='middle' font-family='Arial Black,sans-serif' fill='white'%3ETF%3C/text%3E%3C/svg%3E%22,%22sizes%22:%22any%22,%22type%22:%22image/svg+xml%22,%22purpose%22:%22any maskable%22}
+  ]
+}">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ThumbFlow">
+<meta name="theme-color" content="#ff4d00">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%23ff4d00'/%3E%3Ctext x='256' y='340' font-size='280' text-anchor='middle' font-family='Arial Black,sans-serif' fill='white'%3ETF%3C/text%3E%3C/svg%3E">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ThumbFlow</title>
@@ -591,6 +610,11 @@
   /* Modal pack completo */
   .pack-complete-modal-inner{text-align:center;padding:8px 0 0;}
   .pack-complete-confetti{font-size:56px;margin-bottom:12px;animation:fadeUp .4s ease;}
+
+  /* ════ PWA INSTALL BTN ════ */
+  #pwa-install-btn{display:none;align-items:center;gap:7px;padding:7px 14px;background:rgba(255,77,0,.12);border:1px solid rgba(255,77,0,.3);border-radius:10px;color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;}
+  #pwa-install-btn:hover{background:rgba(255,77,0,.2);}
+  #pwa-install-btn svg{flex-shrink:0;}
 </style>
 <script type="module">
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -2892,6 +2916,22 @@ function escHtml(t){ return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').r
 
 applyTheme();
 
+function installPWA(){
+  if(window._pwaPrompt){
+    window._pwaPrompt.prompt();
+    window._pwaPrompt.userChoice.then(r=>{
+      if(r.outcome==='accepted'){
+        document.getElementById('pwa-install-btn').style.display='none';
+        toast('✓ ThumbFlow instalada correctamente');
+      }
+      window._pwaPrompt = null;
+    });
+  } else {
+    appAlert({msg:'Para instalar ThumbFlow:\n\n• Android: menú ⋮ → "Instalar app" o "Agregar a pantalla de inicio"\n• iPhone: Compartir → "Agregar a pantalla de inicio"',icon:'📱'});
+  }
+}
+
+
 function getUsed(cid){
   // Cuenta los pedidos Completados de este cliente — fuente de verdad
   return S.reqs.filter(r=>r.cid===cid && r.status==='Completado').length;
@@ -3608,6 +3648,51 @@ function undoStroke(){annStrokes.pop();redrawCanvas();}
 function clearCanvas(){annStrokes=[];redrawCanvas();}
 
 
+</script>
+
+<script>
+if('serviceWorker' in navigator){
+  // Inline service worker como blob
+  const swCode = `
+    const CACHE = 'thumbflow-v1';
+    const ASSETS = [self.location.href.replace('sw.js','')];
+    self.addEventListener('install', e => {
+      e.waitUntil(
+        caches.open(CACHE).then(cache => {
+          return fetch(self.registration.scope).then(r => cache.put(self.registration.scope, r)).catch(()=>{});
+        }).then(() => self.skipWaiting())
+      );
+    });
+    self.addEventListener('activate', e => {
+      e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));
+    });
+    self.addEventListener('fetch', e => {
+      if(e.request.mode === 'navigate'){
+        e.respondWith(fetch(e.request).catch(()=>caches.match(self.registration.scope)));
+      }
+    });
+  `;
+  const blob = new Blob([swCode], {type:'application/javascript'});
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl, {scope: '/'})
+    .then(reg => {
+      console.log('ThumbFlow SW registrado');
+      // Mostrar banner de instalación en Android
+      window.addEventListener('beforeinstallprompt', e => {
+        e.preventDefault();
+        window._pwaPrompt = e;
+        // Mostrar botón de instalación si existe
+        const btn = document.getElementById('pwa-install-btn');
+        if(btn) btn.style.display = 'flex';
+      });
+      window.addEventListener('appinstalled', () => {
+        const btn = document.getElementById('pwa-install-btn');
+        if(btn) btn.style.display = 'none';
+        console.log('ThumbFlow instalada ✓');
+      });
+    })
+    .catch(err => console.log('SW error:', err));
+}
 </script>
 </body>
 </html>
