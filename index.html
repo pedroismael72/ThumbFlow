@@ -730,6 +730,59 @@
   .req-status-chip.selected{color:white;}
   .req-section-title{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
   .req-section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+  /* ════ DASHBOARD WORKFLOW ════ */
+  .dash-week-hero{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px 24px;margin-bottom:20px;display:flex;align-items:center;gap:24px;}
+  .dash-week-num{font-size:64px;font-weight:800;line-height:1;color:var(--text);flex-shrink:0;}
+  .dash-week-num.zero{color:var(--green);}
+  .dash-week-label{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.4;}
+  .dash-week-divider{width:1px;background:var(--border);align-self:stretch;flex-shrink:0;}
+  .dash-week-sub{display:flex;flex-direction:column;gap:10px;flex:1;}
+  .dash-week-sub-item{display:flex;align-items:center;gap:10px;}
+  .dash-week-sub-num{font-size:22px;font-weight:800;min-width:28px;}
+  .dash-week-sub-lbl{font-size:12px;color:var(--muted);}
+  .dash-feed-section{margin-bottom:6px;}
+  .dash-feed-head{display:flex;align-items:center;gap:10px;padding:10px 0 8px;}
+  .dash-feed-head-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:700;color:var(--muted);}
+  .dash-feed-head-line{flex:1;height:1px;background:var(--border);}
+  .dash-feed-head-count{font-size:10px;color:var(--muted);background:var(--surface2);border-radius:20px;padding:2px 8px;font-weight:600;}
+  /* Cards — versión simplificada */
+  .fc{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:7px;cursor:pointer;transition:border-color .15s,transform .1s;}
+  .fc:hover{border-color:rgba(255,77,0,.3);transform:translateY(-1px);}
+  .fc:active{transform:translateY(0);}
+  .fc.urg{border-left:3px solid var(--red);}
+  .fc.rev{border-left:3px solid #4d9fff;}
+  .fc.soon{border-left:3px solid var(--yellow);}
+  .fc.normal{border-left:3px solid var(--border);}
+  .fc-av{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text);}
+  .fc-av img{width:32px;height:32px;border-radius:50%;object-fit:cover;}
+  .fc-body{flex:1;min-width:0;}
+  .fc-client{font-size:11px;color:var(--muted);margin-bottom:2px;}
+  .fc-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);}
+  .fc-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+  .fc-state{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;}
+  .fc-state.s-new{color:#8888a0;background:rgba(136,136,160,.1);}
+  .fc-state.s-design{color:#ff4d00;background:rgba(255,77,0,.1);}
+  .fc-state.s-review{color:#4d9fff;background:rgba(77,159,255,.12);}
+  .fc-state.s-done{color:#2dca73;background:rgba(45,202,115,.1);}
+  .fc-deadline{font-size:10px;color:var(--muted);}
+  .fc-deadline.urgent{color:var(--red);font-weight:700;}
+  .fc-deadline.soon{color:var(--yellow);font-weight:700;}
+  /* Colapsable sin fecha */
+  .no-date-toggle{display:flex;align-items:center;gap:8px;padding:8px 0;cursor:pointer;color:var(--muted);font-size:12px;font-weight:600;user-select:none;}
+  .no-date-toggle:hover{color:var(--text);}
+  .no-date-body{display:none;}
+  .no-date-body.open{display:block;}
+  /* Sidebar clientes compacto */
+  .cl-dash-row{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity .15s;}
+  .cl-dash-row:last-child{border-bottom:none;}
+  .cl-dash-row:hover{opacity:.8;}
+  .cl-dash-av{width:28px;height:28px;border-radius:50%;overflow:hidden;flex-shrink:0;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;}
+  .cl-dash-av img{width:100%;height:100%;object-fit:cover;}
+  .cl-dash-info{flex:1;min-width:0;}
+  .cl-dash-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);}
+  .cl-dash-meta{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:5px;margin-top:1px;}
+  .cl-pay-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
 </style>
 <script type="module">
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -827,45 +880,85 @@
     <div class="main-content">
       <div class="panel active" id="admin-panel-dashboard">
 
-        <!-- Métricas rápidas -->
-        <div class="dash-metrics">
-          <div class="dash-metric" onclick="showPanel('admin','pedidos',document.querySelector('.nav-item:nth-child(3)'))">
-            <div class="dash-metric-val c-yellow" id="dash-p">0</div>
-            <div class="dash-metric-lbl">En diseño</div>
-            <div class="dash-metric-sub" id="dash-p-sub">pedidos activos</div>
+        <!-- Hero semanal -->
+        <div class="dash-week-hero">
+          <div>
+            <div class="dash-week-num" id="dash-week-num">0</div>
+            <div class="dash-week-label" id="dash-week-label">para esta semana</div>
           </div>
-          <div class="dash-metric" style="border-left:3px solid #378ADD" onclick="showPanel('admin','pedidos',document.querySelector('.nav-item:nth-child(3)'))">
-            <div class="dash-metric-val" style="color:#378ADD" id="dash-review">0</div>
-            <div class="dash-metric-lbl">Para revisar</div>
-            <div class="dash-metric-sub">esperando tu ok</div>
+          <div class="dash-week-divider"></div>
+          <div class="dash-week-sub">
+            <div class="dash-week-sub-item">
+              <div class="dash-week-sub-num" style="color:#4d9fff" id="dash-review">0</div>
+              <div class="dash-week-sub-lbl">esperando revisión del cliente</div>
+            </div>
+            <div class="dash-week-sub-item">
+              <div class="dash-week-sub-num" style="color:#ff4d00" id="dash-p">0</div>
+              <div class="dash-week-sub-lbl">en diseño ahora mismo</div>
+            </div>
           </div>
-          <div class="dash-metric" onclick="showPanel('admin','clientes',document.querySelector('.nav-item:nth-child(2)'))">
-            <div class="dash-metric-val c-blue" id="dash-cl">0</div>
-            <div class="dash-metric-lbl">Clientes</div>
-            <div class="dash-metric-sub">activos</div>
-          </div>
-          <div class="dash-metric" onclick="showPanel('admin','pedidos',document.querySelector('.nav-item:nth-child(3)'))">
-            <div class="dash-metric-val c-green" id="dash-d">0</div>
-            <div class="dash-metric-lbl">Completadas</div>
-            <div class="dash-metric-sub">total histórico</div>
+          <div class="dash-week-divider"></div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:600;margin-bottom:4px">Este mes</div>
+            <div style="font-size:20px;font-weight:800;color:var(--text)" id="dash-income">$0</div>
+            <div style="font-size:10px;color:var(--muted)" id="dash-income-sub"></div>
           </div>
         </div>
 
-        <!-- Feed principal -->
-        <div>
-            <div id="dash-feed-urgent-section" style="display:none">
-              <div class="feed-section-title">Urgente</div>
-              <div id="dash-feed-urgent"></div>
-            </div>
-            <div id="dash-feed-review-section" style="display:none">
-              <div class="feed-section-title">Para revisar</div>
-              <div id="dash-feed-review"></div>
-            </div>
-            <div id="dash-feed-all-section">
-              <div class="feed-section-title">Otros pedidos activos</div>
-              <div id="dash-feed-all"></div>
-            </div>
+        <!-- Feed jerárquico -->
+        <div id="dash-feed-urgent-section" class="dash-feed-section" style="display:none">
+          <div class="dash-feed-head">
+            <div class="dash-feed-head-label" style="color:var(--red)">🔴 Urgente</div>
+            <div class="dash-feed-head-line"></div>
+            <div class="dash-feed-head-count" id="dash-urg-count"></div>
+          </div>
+          <div id="dash-feed-urgent"></div>
         </div>
+
+        <div id="dash-feed-review-section" class="dash-feed-section" style="display:none">
+          <div class="dash-feed-head">
+            <div class="dash-feed-head-label" style="color:#4d9fff">👁 Para revisar</div>
+            <div class="dash-feed-head-line"></div>
+            <div class="dash-feed-head-count" id="dash-rev-count"></div>
+          </div>
+          <div id="dash-feed-review"></div>
+        </div>
+
+        <div id="dash-feed-week-section" class="dash-feed-section" style="display:none">
+          <div class="dash-feed-head">
+            <div class="dash-feed-head-label">📅 Esta semana</div>
+            <div class="dash-feed-head-line"></div>
+            <div class="dash-feed-head-count" id="dash-week-count"></div>
+          </div>
+          <div id="dash-feed-week"></div>
+        </div>
+
+        <div id="dash-feed-later-section" class="dash-feed-section" style="display:none">
+          <div class="dash-feed-head">
+            <div class="dash-feed-head-label">📋 Más adelante</div>
+            <div class="dash-feed-head-line"></div>
+            <div class="dash-feed-head-count" id="dash-later-count"></div>
+          </div>
+          <div id="dash-feed-later"></div>
+        </div>
+
+        <div id="dash-feed-nodate-section" style="display:none">
+          <div class="no-date-toggle" onclick="this.nextElementSibling.classList.toggle('open')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            Sin fecha límite
+            <span id="dash-nodate-count" style="background:var(--surface2);border-radius:20px;padding:1px 7px;font-size:10px"></span>
+          </div>
+          <div class="no-date-body">
+            <div id="dash-feed-nodate"></div>
+          </div>
+        </div>
+
+        <div id="dash-feed-empty" style="display:none;text-align:center;padding:48px 0;color:var(--muted)">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.3;margin-bottom:12px"><polyline points="20 6 9 17 4 12"/></svg>
+          <div style="font-size:14px;font-weight:600;margin-bottom:4px">Todo al día</div>
+          <div style="font-size:12px">No hay pedidos activos esta semana</div>
+        </div>
+
       </div>
       <div class="panel" id="admin-panel-clientes">
         <div class="ar"><div class="page-header" style="margin:0"><div class="page-title">Clientes</div><div class="page-sub">Gestioná tus clientes</div></div><button class="btn btn-p" onclick="openMo('mo-nc')">+ Nuevo cliente</button></div>
@@ -1893,139 +1986,135 @@ function closeMo(id){document.getElementById(id).classList.remove('open');}
 /* ADMIN */
 function renderADash(){
   const today = new Date(); today.setHours(0,0,0,0);
+  const weekEnd = new Date(today); weekEnd.setDate(weekEnd.getDate()+7);
 
-  // Cálculos base
   const active     = S.reqs.filter(r=>r.status!=='Listo');
   const completed  = S.reqs.filter(r=>r.status==='Listo').length;
   const forReview  = active.filter(r=>r.status==='Para revisar');
+  const inDesign   = active.filter(r=>r.status==='En diseño'||r.status==='Nuevo pedido');
   const activeClients = S.clients.filter(c=>!c.archived).length;
   const totalIncome   = S.clients.filter(c=>!c.archived).reduce((sum,c)=>sum+(c.price||0),0);
 
-  // Función para calcular días a deadline
-  const daysTo = deadline => {
-    if(!deadline) return null;
-    const dl = new Date(deadline); dl.setHours(0,0,0,0);
-    return Math.round((dl-today)/(1000*60*60*24));
+  const daysTo = dl => {
+    if(!dl) return null;
+    const d = new Date(dl); d.setHours(0,0,0,0);
+    return Math.round((d-today)/(1000*60*60*24));
   };
 
-  // Urgentes = vencidos o con deadline hoy/mañana (excluyendo Completados)
-  const urgent = active.filter(r=>{
-    const d = daysTo(r.deadline);
-    return d !== null && d <= 1;
-  });
+  // Categorías jerárquicas
+  const urgent   = active.filter(r=>{ const d=daysTo(r.deadline); return d!==null&&d<=1; });
+  const review   = forReview.filter(r=>{ const d=daysTo(r.deadline); return d===null||d>1; }); // para revisar sin urgencia
+  const thisWeek = active.filter(r=>{ const d=daysTo(r.deadline); return d!==null&&d>1&&d<=7&&r.status!=='Para revisar'; });
+  const later    = active.filter(r=>{ const d=daysTo(r.deadline); return d!==null&&d>7; });
+  const noDate   = active.filter(r=>!r.deadline);
 
-  // Métricas
-  const dp = document.getElementById('dash-p');       if(dp) dp.textContent = active.filter(r=>r.status==='En diseño'||r.status==='Nuevo pedido').length;
-  const dr = document.getElementById('dash-review');   if(dr) dr.textContent = forReview.length;
-  const dd = document.getElementById('dash-d');        if(dd) dd.textContent = completed;
-  const dcl= document.getElementById('dash-cl');       if(dcl) dcl.textContent = activeClients;
-  const di = document.getElementById('dash-income');   if(di) di.textContent = '$'+totalIncome;
-  const dis= document.getElementById('dash-income-sub'); if(dis) dis.textContent = activeClients+' pack'+(activeClients!==1?'s':'')+' activo'+(activeClients!==1?'s':'');
+  // Pedidos activos esta semana (para el número grande)
+  const weekTotal = active.filter(r=>{ const d=daysTo(r.deadline); return d!==null&&d<=7; }).length;
 
-  // Helper: construir una feed-card
-  function feedCard(r, prioCls){
-    const cl = gc(r.cid);
-    const d  = daysTo(r.deadline);
-    const deadlineLabel = d === null ? '' : d < 0 ? `<span style="color:var(--red);font-size:11px;font-weight:700">Vencido hace ${Math.abs(d)}d</span>` : d === 0 ? `<span style="color:var(--red);font-size:11px;font-weight:700">Vence hoy</span>` : d === 1 ? `<span style="color:var(--yellow);font-size:11px;font-weight:700">Vence mañana</span>` : `<span style="font-size:11px;color:var(--muted)">${fd(r.deadline)}</span>`;
-    const avatarHtml = cl?.ch
-      ? `<img src="https://unavatar.io/youtube/${cl.ch}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0" onerror="this.style.display='none';this.nextSibling.style.display='flex'">`
-        +`<div class="feed-avatar-fallback" style="display:none">${ini(cl?.name||'?')}</div>`
-      : `<div class="feed-avatar-fallback">${ini(cl?.name||'?')}</div>`;
-    return `<div class="feed-card ${prioCls}" onclick="openReqMo('${r.id}')">
-      <div class="feed-card-inner">
-        <div style="position:relative;flex-shrink:0;width:40px;height:40px">${avatarHtml}</div>
-        <div class="feed-body">
-          <div class="feed-client">${cl?.name||'—'} <span style="color:var(--muted);font-size:10px">${cl?.ch||''}</span></div>
-          <div class="feed-title">${r.title}</div>
-          <div class="feed-meta">${sb(r.status)}${deadlineLabel}</div>
-        </div>
-        <div class="feed-right">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--muted)"><polyline points="9 18 15 12 9 6"/></svg>
-        </div>
+  // Hero semanal
+  const weekEl = document.getElementById('dash-week-num');
+  if(weekEl){ weekEl.textContent=weekTotal; weekEl.className='dash-week-num'+(weekTotal===0?' zero':''); }
+  const weekLbl = document.getElementById('dash-week-label');
+  if(weekLbl) weekLbl.textContent = weekTotal===0 ? '¡Semana libre!' : weekTotal===1 ? 'pedido para esta semana' : 'pedidos para esta semana';
+  const dp = document.getElementById('dash-p');     if(dp) dp.textContent=inDesign.length;
+  const dr = document.getElementById('dash-review');if(dr) dr.textContent=forReview.length;
+  const di = document.getElementById('dash-income');if(di){
+    if(di.dataset.hidden==='1'){ di.dataset.real='$'+totalIncome; }
+    else { di.textContent='$'+totalIncome; }
+  }
+  const dis=document.getElementById('dash-income-sub');
+  if(dis) dis.textContent=activeClients+' pack'+(activeClients!==1?'s':'')+' · '+completed+' completadas';
+
+  // Helper: card compacta
+  function fc(r, cls){
+    const cl=gc(r.cid);
+    const d=daysTo(r.deadline);
+    const stateClass={'Nuevo pedido':'s-new','En diseño':'s-design','Para revisar':'s-review','Listo':'s-done'}[r.status]||'s-new';
+    const dlLabel = d===null?''
+      : d<0  ? `<span class="fc-deadline urgent">Vencido hace ${Math.abs(d)}d</span>`
+      : d===0 ? `<span class="fc-deadline urgent">Hoy</span>`
+      : d===1 ? `<span class="fc-deadline soon">Mañana</span>`
+      : `<span class="fc-deadline">${fd(r.deadline)}</span>`;
+    const avSrc = cl?.ch ? `https://unavatar.io/youtube/${cl.ch}` : '';
+    const avHtml = avSrc
+      ? `<div class="fc-av"><img src="${avSrc}" onerror="this.parentNode.textContent='${ini(cl?.name||'?')}'"></div>`
+      : `<div class="fc-av">${ini(cl?.name||'?')}</div>`;
+    return `<div class="fc ${cls}" onclick="openReqMo('${r.id}')">
+      ${avHtml}
+      <div class="fc-body">
+        <div class="fc-client">${cl?.name||'—'}</div>
+        <div class="fc-title">${r.title}</div>
+      </div>
+      <div class="fc-right">
+        <span class="fc-state ${stateClass}">${r.status}</span>
+        ${dlLabel}
       </div>
     </div>`;
   }
 
-  // Sección urgente
-  const urgEl = document.getElementById('dash-feed-urgent');
-  const urgSec = document.getElementById('dash-feed-urgent-section');
-  if(urgEl && urgSec){
-    if(urgent.length){
-      urgSec.style.display='';
-      urgEl.innerHTML = urgent.map(r=>feedCard(r,'prio-urgent')).join('');
-    } else { urgSec.style.display='none'; }
+  // Render secciones
+  function renderSection(ids, el, secEl, countEl, cls){
+    if(!el||!secEl) return;
+    if(!ids.length){ secEl.style.display='none'; return; }
+    secEl.style.display='';
+    if(countEl) countEl.textContent=ids.length;
+    el.innerHTML=ids.map(r=>fc(r,cls)).join('');
   }
 
-  // Sección listo para revisar
-  const revEl = document.getElementById('dash-feed-review');
-  const revSec= document.getElementById('dash-feed-review-section');
-  if(revEl && revSec){
-    if(forReview.length){
-      revSec.style.display='';
-      revEl.innerHTML = forReview.map(r=>feedCard(r,'prio-review')).join('');
-    } else { revSec.style.display='none'; }
+  renderSection(urgent,   document.getElementById('dash-feed-urgent'), document.getElementById('dash-feed-urgent-section'), document.getElementById('dash-urg-count'), 'urg');
+  renderSection(review,   document.getElementById('dash-feed-review'), document.getElementById('dash-feed-review-section'), document.getElementById('dash-rev-count'), 'rev');
+  renderSection(thisWeek, document.getElementById('dash-feed-week'),   document.getElementById('dash-feed-week-section'),   document.getElementById('dash-week-count'), 'soon');
+  renderSection(later,    document.getElementById('dash-feed-later'),  document.getElementById('dash-feed-later-section'),  document.getElementById('dash-later-count'), 'normal');
+
+  // Sin fecha — colapsado
+  const nodateSec = document.getElementById('dash-feed-nodate-section');
+  const nodateEl  = document.getElementById('dash-feed-nodate');
+  const nodateCnt = document.getElementById('dash-nodate-count');
+  if(nodateSec&&nodateEl){
+    if(noDate.length){ nodateSec.style.display=''; if(nodateCnt)nodateCnt.textContent=noDate.length; nodateEl.innerHTML=noDate.map(r=>fc(r,'normal')).join(''); }
+    else { nodateSec.style.display='none'; }
   }
 
-  // IDs ya mostrados en secciones superiores — excluirlos de "todos"
-  const shownIds = new Set([
-    ...urgent.map(r=>r.id),
-    ...forReview.map(r=>r.id)
-  ]);
+  // Empty state
+  const emptyEl = document.getElementById('dash-feed-empty');
+  if(emptyEl) emptyEl.style.display = active.length===0?'':'none';
 
-  // "Todos los activos" = lo que NO aparece arriba, ordenado por deadline
-  const remaining = active
-    .filter(r=>!shownIds.has(r.id))
-    .sort((a,b)=>{ const da=daysTo(a.deadline)??9999, db=daysTo(b.deadline)??9999; return da-db; });
-
-  const allSection = document.getElementById('dash-feed-all-section');
-  const allEl = document.getElementById('dash-feed-all');
-  if(allEl){
-    if(remaining.length){
-      if(allSection) allSection.style.display='';
-      allEl.innerHTML = remaining.map(r=>{
-        const d = daysTo(r.deadline);
-        const prio = d !== null && d <= 3 ? 'prio-soon' : 'prio-normal';
-        return feedCard(r, prio);
-      }).join('');
-    } else {
-      // Si todo está en secciones superiores o no hay nada
-      if(allSection) allSection.style.display = (urgent.length || forReview.length) ? 'none' : '';
-      if(!urgent.length && !forReview.length){
-        allEl.innerHTML=`<div class="feed-empty"><div class="feed-empty-icon">✅</div><p>No hay pedidos activos.</p></div>`;
-      }
-    }
-  }
-
-  // Sidebar — lista de clientes
-  const clListEl = document.getElementById('dash-cl-list');
-  if(clListEl){
-    const cls = S.clients.filter(c=>!c.archived);
-    if(cls.length){
-      clListEl.innerHTML = cls.map(cl=>{
-        const pending = gr(cl.id).filter(r=>r.status!=='Listo').length;
-        const used = getUsed(cl.id);
-        const av = cl.pack===99?'∞':cl.pack-used;
-        const payColor = cl.pay==='Al día'?'var(--green)':cl.pay==='Pendiente'?'var(--yellow)':'var(--red)';
-        const avatarHtml = cl.ch
-          ? `<img src="https://unavatar.io/youtube/${cl.ch}" style="width:30px;height:30px;border-radius:50%;object-fit:cover" onerror="this.style.display='none';this.nextSibling.style.display='flex'"><div class="cl-av-sm" style="display:none">${ini(cl.name)}</div>`
-          : `<div class="cl-av-sm">${ini(cl.name)}</div>`;
-        return `<div class="cl-feed-row" onclick="openClMo('${cl.id}')">
-          <div style="position:relative;flex-shrink:0;width:30px;height:30px">${avatarHtml}</div>
-          <div class="cl-feed-row-info">
-            <div class="cl-feed-row-name">${cl.name}</div>
-            <div class="cl-feed-row-sub">${pending} activo${pending!==1?'s':''} · ${av} disp. · <span style="color:${payColor};font-weight:600">${cl.pay}</span></div>
-          </div>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--muted);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
-        </div>`;
-      }).join('');
-    } else {
-      clListEl.innerHTML=`<div style="color:var(--muted);font-size:13px;padding:8px 0">Sin clientes aún.</div>`;
-    }
-  }
-
+  // Sidebar — clientes
+  renderDashClients();
   updateAdminWorkload();
   restorePanel('admin');
 }
+
+function renderDashClients(){
+  const el = document.getElementById('dash-cl-list'); if(!el) return;
+  const cls = S.clients.filter(c=>!c.archived);
+  if(!cls.length){ el.innerHTML='<div style="color:var(--muted);font-size:12px;padding:8px 0">Sin clientes</div>'; return; }
+  el.innerHTML = cls.map(cl=>{
+    const active = gr(cl.id).filter(r=>r.status!=='Listo').length;
+    const used   = getUsed(cl.id);
+    const avail  = cl.pack===99?'∞':cl.pack-used;
+    const payColor = cl.pay==='Al día'?'var(--green)':cl.pay==='Pendiente'?'var(--yellow)':'var(--red)';
+    const avSrc = cl.ch ? `https://unavatar.io/youtube/${cl.ch}` : '';
+    const avHtml = avSrc
+      ? `<div class="cl-dash-av"><img src="${avSrc}" onerror="this.parentNode.textContent='${ini(cl.name)}'"></div>`
+      : `<div class="cl-dash-av">${ini(cl.name)}</div>`;
+    return `<div class="cl-dash-row" onclick="openClMo('${cl.id}')">
+      ${avHtml}
+      <div class="cl-dash-info">
+        <div class="cl-dash-name">${cl.name.replace('[DEMO] ','')}</div>
+        <div class="cl-dash-meta">
+          <span class="cl-pay-dot" style="background:${payColor}"></span>
+          <span>${cl.pay}</span>
+          <span>·</span>
+          <span>${active} activo${active!==1?'s':''}</span>
+          <span>·</span>
+          <span>${avail} disp.</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function renderAClients(){
   const active = S.clients.filter(c=>!c.archived);
   const archived = S.clients.filter(c=>c.archived);
