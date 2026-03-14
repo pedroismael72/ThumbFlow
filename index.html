@@ -777,7 +777,7 @@
         <div class="dash-metrics">
           <div class="dash-metric" onclick="showPanel('admin','pedidos',document.querySelector('.nav-item:nth-child(3)'))">
             <div class="dash-metric-val c-yellow" id="dash-p">0</div>
-            <div class="dash-metric-lbl">En progreso</div>
+            <div class="dash-metric-lbl">En diseño</div>
             <div class="dash-metric-sub" id="dash-p-sub">pedidos activos</div>
           </div>
           <div class="dash-metric" style="border-left:3px solid #378ADD" onclick="showPanel('admin','pedidos',document.querySelector('.nav-item:nth-child(3)'))">
@@ -804,7 +804,7 @@
               <div id="dash-feed-urgent"></div>
             </div>
             <div id="dash-feed-review-section" style="display:none">
-              <div class="feed-section-title">Listo para revisar</div>
+              <div class="feed-section-title">Para revisar</div>
               <div id="dash-feed-review"></div>
             </div>
             <div id="dash-feed-all-section">
@@ -819,7 +819,7 @@
       </div>
       <div class="panel" id="admin-panel-pedidos">
         <div class="ar"><div class="page-header" style="margin:0"><div class="page-title">Pedidos</div><div class="page-sub">Todos los pedidos</div></div>
-          <select id="filter-st" onchange="renderAReqs()" style="width:auto;padding:8px 12px;font-size:13px"><option value="">Todos</option><option>No iniciado</option><option>En progreso</option><option>Listo para revisar</option><option>Completado</option></select>
+          <select id="filter-st" onchange="renderAReqs()" style="width:auto;padding:8px 12px;font-size:13px"><option value="">Todos</option><option>Nuevo pedido</option><option>En diseño</option><option>Para revisar</option><option>Listo</option></select>
         </div>
         <div id="a-reqs"></div>
       </div>
@@ -1214,8 +1214,8 @@ const S={
     {id:'c3',name:'[DEMO] Diego Torres',email:'diego@gmail.com',ch:'@diegotorres',pack:16,used:9,price:200,pay:'Al día',notes:'Cliente Pro. Siempre manda referencias. Muy organizado.',payments:[{d:'2025-01-20',a:200,s:'Pagado',m:'Efectivo'},{d:'2025-02-20',a:200,s:'Pagado',m:'Efectivo'},{d:'2025-03-20',a:200,s:'Pagado',m:'Efectivo'}],packs:[{id:'pk3a',size:8,price:200,opened_at:'2024-06-01',closed_at:'2024-10-15',req_ids:[]},{id:'pk3b',size:16,price:200,opened_at:'2025-01-20',closed_at:null,req_ids:['r4']}]}
   ],
   reqs:[
-    {id:'r1',cid:'c1',title:'Cómo ganar dinero con IA en 2025',desc:'Miniatura impactante, fondo oscuro, cara de sorpresa.',style:'Oscuro, rojo y blanco',deadline:'2025-03-15',notes:'',status:'Listo para revisar',date:'2025-03-01',refs:[],clientImgs:[],versions:[{img:'https://img.youtube.com/vi/9bZkp7q19f0/maxresdefault.jpg',date:'6 mar 2025',status:'pendiente',comment:'',annotation:null}]},
-    {id:'r2',cid:'c1',title:'Los mejores plugins de Premiere Pro',desc:'Icono de Premiere, colores morados, texto llamativo.',style:'Morado y negro',deadline:'2025-03-10',notes:'Urgente',status:'Aprobado',date:'2025-02-28',refs:[],clientImgs:[],versions:[{img:'https://img.youtube.com/vi/OPf0YbXqDm0/maxresdefault.jpg',date:'2 mar 2025',status:'aprobado',comment:'Quedó perfecta, exactamente lo que necesitaba.',annotation:null}]},
+    {id:'r1',cid:'c1',title:'Cómo ganar dinero con IA en 2025',desc:'Miniatura impactante, fondo oscuro, cara de sorpresa.',style:'Oscuro, rojo y blanco',deadline:'2025-03-15',notes:'',status:'Para revisar',date:'2025-03-01',refs:[],clientImgs:[],versions:[{img:'https://img.youtube.com/vi/9bZkp7q19f0/maxresdefault.jpg',date:'6 mar 2025',status:'pendiente',comment:'',annotation:null}]},
+    {id:'r2',cid:'c1',title:'Los mejores plugins de Premiere Pro',desc:'Icono de Premiere, colores morados, texto llamativo.',style:'Morado y negro',deadline:'2025-03-10',notes:'Urgente',status:'Listo',date:'2025-02-28',refs:[],clientImgs:[],versions:[{img:'https://img.youtube.com/vi/OPf0YbXqDm0/maxresdefault.jpg',date:'2 mar 2025',status:'aprobado',comment:'Quedó perfecta, exactamente lo que necesitaba.',annotation:null}]},
     {id:'r3',cid:'c2',title:'Receta viral de pasta italiana',desc:'Plato de pasta, colores cálidos, tipografía manuscrita.',style:'Cálido, beige y rojo',deadline:'2025-03-12',notes:'',status:'Pendiente',date:'2025-03-03',refs:[],clientImgs:[],versions:[]},
     {id:'r4',cid:'c3',title:'Tutorial Final Cut Pro completo',desc:'Logo FCP, fondo azul, cara mirando pantalla.',style:'Azul y blanco',deadline:'2025-03-20',notes:'',status:'Pendiente',date:'2025-03-05',refs:[],clientImgs:[],versions:[]}
   ]
@@ -1230,10 +1230,10 @@ const ini=n=>n.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
 const fd=d=>{if(!d)return'-';const[y,m,dy]=d.split('-');return`${dy}/${m}/${y}`;};
 const sb=s=>{
   const m={
-    'No iniciado':'bm',
-    'En progreso':'bb',
-    'Listo para revisar':'bb',
-    'Completado':'bg',
+    'Nuevo pedido':'bm',
+    'En diseño':'bb',
+    'Para revisar':'bb',
+    'Listo':'bg',
     // legacy
     'Pendiente':'by','Entregado':'bg','En revisión':'bb','Aprobado':'bg'
   };
@@ -1382,15 +1382,15 @@ function startRealtime(){
         // Re-render tracking en vivo
         renderTracking(user.clientId);
         renderCReqs(user.clientId);
-        // Notificar si pasó a "Listo para revisar"
-        if(r.status === 'Listo para revisar'){
+        // Notificar si pasó a "Para revisar"
+        if(r.status === 'Para revisar'){
           toast('🎉 ¡Tu miniatura está lista para revisar!');
           clAddNotif('✨','¡Miniatura lista para revisar!', `"${r.title}" — Entrá y aprobala o pedí cambios.`, r.id);
           playSound('notif');
-        } else if(r.status === 'En progreso'){
+        } else if(r.status === 'En diseño'){
           clAddNotif('🎨','Tu diseñador empezó a trabajar',`"${r.title}" está en progreso.`, r.id);
           playSound('status');
-        } else if(r.status === 'Completado'){
+        } else if(r.status === 'Listo'){
           clAddNotif('🏆','¡Pedido completado!',`"${r.title}" fue finalizado.`, r.id);
           playSound('approved');
         }
@@ -1461,7 +1461,7 @@ async function handleSession(session){
     startRealtime();
     // Notificar pedidos urgentes al cargar
     setTimeout(()=>{
-      S.reqs.filter(r=>r.status!=='Entregado'&&r.status!=='Aprobado').forEach(r=>{
+      S.reqs.filter(r=>r.status!=='Listo').forEach(r=>{
         const lbl = urgencyLabel(r.deadline);
         if(lbl){ const c=gc(r.cid); addNotification('⏰','Pedido urgente',`${c?.name||''}: "${r.title}" — ${lbl}`,r.id); }
       });
@@ -1771,9 +1771,9 @@ function renderADash(){
   const today = new Date(); today.setHours(0,0,0,0);
 
   // Cálculos base
-  const active     = S.reqs.filter(r=>r.status!=='Completado');
-  const completed  = S.reqs.filter(r=>r.status==='Completado').length;
-  const forReview  = active.filter(r=>r.status==='Listo para revisar');
+  const active     = S.reqs.filter(r=>r.status!=='Listo');
+  const completed  = S.reqs.filter(r=>r.status==='Listo').length;
+  const forReview  = active.filter(r=>r.status==='Para revisar');
   const activeClients = S.clients.filter(c=>!c.archived).length;
   const totalIncome   = S.clients.filter(c=>!c.archived).reduce((sum,c)=>sum+(c.price||0),0);
 
@@ -1791,7 +1791,7 @@ function renderADash(){
   });
 
   // Métricas
-  const dp = document.getElementById('dash-p');       if(dp) dp.textContent = active.filter(r=>r.status==='En progreso'||r.status==='No iniciado').length;
+  const dp = document.getElementById('dash-p');       if(dp) dp.textContent = active.filter(r=>r.status==='En diseño'||r.status==='Nuevo pedido').length;
   const dr = document.getElementById('dash-review');   if(dr) dr.textContent = forReview.length;
   const dd = document.getElementById('dash-d');        if(dd) dd.textContent = completed;
   const dcl= document.getElementById('dash-cl');       if(dcl) dcl.textContent = activeClients;
@@ -1878,7 +1878,7 @@ function renderADash(){
     const cls = S.clients.filter(c=>!c.archived);
     if(cls.length){
       clListEl.innerHTML = cls.map(cl=>{
-        const pending = gr(cl.id).filter(r=>r.status!=='Completado').length;
+        const pending = gr(cl.id).filter(r=>r.status!=='Listo').length;
         const used = getUsed(cl.id);
         const av = cl.pack===99?'∞':cl.pack-used;
         const payColor = cl.pay==='Al día'?'var(--green)':cl.pay==='Pendiente'?'var(--yellow)':'var(--red)';
@@ -1907,7 +1907,7 @@ function renderAClients(){
   const archived = S.clients.filter(c=>c.archived);
 
   const renderCard = (c, isArchived) => {
-    const p = gr(c.id).filter(r=>r.status!=='Completado').length;
+    const p = gr(c.id).filter(r=>r.status!=='Listo').length;
     return `<div class="cc" style="${isArchived?'opacity:.55;border-style:dashed':''}" onclick="openClMo('${c.id}')">
       <div class="cch">
         <div style="position:relative;width:44px;height:44px;flex-shrink:0;">
@@ -1951,10 +1951,10 @@ function renderAReqs(){
 
       </button>
       <select onchange="chStatus('${r.id}',this.value)" style="width:auto;padding:6px 10px;font-size:12px" onclick="event.stopPropagation()">
-        <option ${r.status==='No iniciado'?'selected':''}>No iniciado</option>
-        <option ${r.status==='En progreso'?'selected':''}>En progreso</option>
-        <option ${r.status==='Listo para revisar'?'selected':''}>Listo para revisar</option>
-        <option ${r.status==='Completado'?'selected':''}>Completado</option>
+        <option ${r.status==='Nuevo pedido'?'selected':''}>Nuevo pedido</option>
+        <option ${r.status==='En diseño'?'selected':''}>En diseño</option>
+        <option ${r.status==='Para revisar'?'selected':''}>Para revisar</option>
+        <option ${r.status==='Listo'?'selected':''}>Listo</option>
       </select>
       <button class="btn btn-g btn-sm" onclick="openReqMo('${r.id}')">Ver</button>
     </div></div>`;}).join(''):`<div class="es"><div style="font-size:48px;opacity:.4">📭</div><p>No hay pedidos.</p></div>`;
@@ -1990,7 +1990,7 @@ function updateAdminWorkload(){
   const el = document.getElementById('admin-workload');
   const num = document.getElementById('admin-workload-num');
   if(!el) return;
-  const active = S.reqs.filter(r=>r.status!=='Completado'&&!r.name?.startsWith('[DEMO]')).length;
+  const active = S.reqs.filter(r=>r.status!=='Listo'&&!r.name?.startsWith('[DEMO]')).length;
   num.textContent = active;
   num.style.color = active>=5 ? 'var(--red)' : active>=3 ? 'var(--yellow)' : 'var(--accent)';
   el.style.display = 'flex';
@@ -2012,9 +2012,9 @@ function updateSaveBtn(){
 
   // Actualizar chips visuales
   const statusCfgU = {
-    'No iniciado':        { color:'#8888a0', bg:'rgba(107,107,126,.12)', hex:'#8888a0' },
-    'En progreso':        { color:'#ff4d00', bg:'rgba(255,77,0,.1)',     hex:'#ff4d00' },
-    'Listo para revisar': { color:'#4d9fff', bg:'rgba(77,159,255,.1)',   hex:'#4d9fff' },
+    'Nuevo pedido':        { color:'#8888a0', bg:'rgba(107,107,126,.12)', hex:'#8888a0' },
+    'En diseño':        { color:'#ff4d00', bg:'rgba(255,77,0,.1)',     hex:'#ff4d00' },
+    'Para revisar': { color:'#4d9fff', bg:'rgba(77,159,255,.1)',   hex:'#4d9fff' },
     'Completado':         { color:'#2dca73', bg:'rgba(45,202,115,.1)',   hex:'#2dca73' },
   };
   document.querySelectorAll('#chips-st [data-st]').forEach(el=>{
@@ -2028,18 +2028,18 @@ function updateSaveBtn(){
     const first = el.querySelector('span:first-child');
     if(first){
       if(isSel){ first.style.cssText=`width:7px;height:7px;border-radius:50%;background:${cfg.hex};flex-shrink:0;animation:liveDot 1.8s ease-in-out infinite`; first.textContent=''; }
-      else { first.style.cssText=''; first.textContent = {'No iniciado':'📋','En progreso':'🎨','Listo para revisar':'✨','Completado':'✅'}[st]||''; }
+      else { first.style.cssText=''; first.textContent = {'Nuevo pedido':'📋','En diseño':'🎨','Para revisar':'✨','Completado':'✅'}[st]||''; }
     }
   });
 
-  const _needsMini = newStatus === 'Listo para revisar';
+  const _needsMini = newStatus === 'Para revisar';
   const _hasMini = r.versions && r.versions.length > 0;
   const _blocked = _needsMini && !_hasMini;
 
   // Habilitar/deshabilitar botón "Subir versión" según estado seleccionado en chips
   const uploadBtn = document.getElementById('upload-ver-btn');
   if(uploadBtn){
-    if(newStatus === 'Listo para revisar'){
+    if(newStatus === 'Para revisar'){
       uploadBtn.style.opacity = '';
       uploadBtn.style.cursor = '';
       uploadBtn.style.pointerEvents = '';
@@ -2048,7 +2048,7 @@ function updateSaveBtn(){
       uploadBtn.style.opacity = '0.4';
       uploadBtn.style.cursor = 'not-allowed';
       uploadBtn.style.pointerEvents = 'none';
-      uploadBtn.title = "Cambiá el estado a 'Listo para revisar' para subir la miniatura";
+      uploadBtn.title = "Cambiá el estado a 'Para revisar' para subir la miniatura";
     }
   }
 
@@ -2099,16 +2099,16 @@ function appAlert({msg='', icon='ℹ️'}){
 
 function getTrackingConfig(status){
   const steps = [
-    { key:'No iniciado', icon:'📋', label:'Recibido' },
-    { key:'En progreso', icon:'🎨', label:'Diseñando' },
-    { key:'Listo para revisar', icon:'✨', label:'Listo' },
-    { key:'Completado', icon:'✅', label:'Completado' },
+    { key:'Nuevo pedido', icon:'📋', label:'Recibido' },
+    { key:'En diseño', icon:'🎨', label:'Diseñando' },
+    { key:'Para revisar', icon:'✨', label:'Listo' },
+    { key:'Listo', icon:'✅', label:'Listo' },
   ];
   const msgs = {
-    'No iniciado': { icon:'📬', title:'Pedido recibido', sub:'Tu diseñador ya lo vio. En breve empieza a trabajar en tu miniatura.' },
-    'En progreso': { icon:'🎨', title:'¡Tu miniatura está siendo diseñada!', sub:'El diseñador está trabajando en tu pedido ahora mismo. Te avisamos cuando esté lista para revisar.' },
-    'Listo para revisar': { icon:'🎉', title:'¡Tu miniatura está lista!', sub:'Revisá la miniatura y aprobala o pedí cambios desde el detalle del pedido.' },
-    'Completado': { icon:'🏆', title:'¡Miniatura completada!', sub:'Tu diseñador marcó este pedido como finalizado. ¡A publicar!' },
+    'Nuevo pedido': { icon:'📬', title:'Pedido recibido', sub:'Tu diseñador ya lo vio. En breve empieza a trabajar en tu miniatura.' },
+    'En diseño': { icon:'🎨', title:'¡Tu miniatura está siendo diseñada!', sub:'El diseñador está trabajando en tu pedido ahora mismo. Te avisamos cuando esté lista para revisar.' },
+    'Para revisar': { icon:'🎉', title:'¡Tu miniatura está lista!', sub:'Revisá la miniatura y aprobala o pedí cambios desde el detalle del pedido.' },
+    'Listo': { icon:'🏆', title:'¡Miniatura completada!', sub:'Tu diseñador marcó este pedido como finalizado. ¡A publicar!' },
   };
   const idx = steps.findIndex(s=>s.key===status);
   return { steps, msgs, idx: idx>=0?idx:0 };
@@ -2118,7 +2118,7 @@ function renderTracking(cid){
   const el = document.getElementById('cl-tracking-section');
   if(!el) return;
   const rqs = gr(cid);
-  const active = rqs.filter(r=>r.status!=='Completado')
+  const active = rqs.filter(r=>r.status!=='Listo')
     .sort((a,b)=>{
       if(!a.deadline) return 1;
       if(!b.deadline) return -1;
@@ -2131,15 +2131,15 @@ function renderTracking(cid){
 
   // Colores por estado — usados en tracking y en dots
   const STATUS_CFG = {
-    'No iniciado':        { color:'#6b6b7e',        glow:'rgba(107,107,126,.4)',  dot:'rgba(107,107,126,.15)' },
-    'En progreso':        { color:'var(--accent)',   glow:'rgba(255,77,0,.5)',     dot:'rgba(255,77,0,.15)'    },
-    'Listo para revisar': { color:'var(--blue)',     glow:'rgba(77,159,255,.5)',   dot:'rgba(77,159,255,.15)'  },
+    'Nuevo pedido':        { color:'#6b6b7e',        glow:'rgba(107,107,126,.4)',  dot:'rgba(107,107,126,.15)' },
+    'En diseño':        { color:'var(--accent)',   glow:'rgba(255,77,0,.5)',     dot:'rgba(255,77,0,.15)'    },
+    'Para revisar': { color:'var(--blue)',     glow:'rgba(77,159,255,.5)',   dot:'rgba(77,159,255,.15)'  },
     'Completado':         { color:'var(--green)',    glow:'rgba(45,202,115,.5)',   dot:'rgba(45,202,115,.15)'  },
   };
-  const sc = STATUS_CFG[primary.status] || STATUS_CFG['No iniciado'];
+  const sc = STATUS_CFG[primary.status] || STATUS_CFG['Nuevo pedido'];
 
   const {steps, msgs, idx} = getTrackingConfig(primary.status);
-  const msg = msgs[primary.status] || msgs['No iniciado'];
+  const msg = msgs[primary.status] || msgs['Nuevo pedido'];
   const pct = idx===0?0:idx===1?33:idx===2?66:100;
   const stepsHtml = steps.map((s,i)=>{
     const cls = i<idx?'done':i===idx?'active':'';
@@ -2155,7 +2155,7 @@ function renderTracking(cid){
   }).join('');
 
   // Badge "en vivo" del estado
-  const liveBadge = primary.status !== 'Completado'
+  const liveBadge = primary.status !== 'Listo'
     ? `<span style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:${sc.color};background:${sc.dot};border:1px solid ${sc.color}33;border-radius:20px;padding:3px 10px 3px 6px">
         <span style="width:7px;height:7px;border-radius:50%;background:${sc.color};display:inline-block;animation:livePulse_${primary.status.replace(/ /g,'_')} 1.8s ease-in-out infinite"></span>
         ${primary.status}
@@ -2168,11 +2168,11 @@ function renderTracking(cid){
       ${rest.map(r=>{
         const {idx:ri, steps:rs} = getTrackingConfig(r.status);
         const step = rs[ri];
-        const rsc = STATUS_CFG[r.status]||STATUS_CFG['No iniciado'];
+        const rsc = STATUS_CFG[r.status]||STATUS_CFG['Nuevo pedido'];
         return `<div class="tracking-mini" onclick="this.classList.toggle('open')">
           <div class="tracking-mini-header">
             <div style="display:flex;align-items:center;gap:10px">
-              <span style="width:8px;height:8px;border-radius:50%;background:${rsc.color};flex-shrink:0;${r.status!=='Completado'?'animation:liveDot 1.8s ease-in-out infinite':''}"></span>
+              <span style="width:8px;height:8px;border-radius:50%;background:${rsc.color};flex-shrink:0;${r.status!=='Listo'?'animation:liveDot 1.8s ease-in-out infinite':''}"></span>
               <div>
                 <div style="font-size:13px;font-weight:600">${r.title}</div>
                 <div style="font-size:11px;color:var(--muted)">${r.status} · 📅 ${r.deadline?fd(r.deadline):'Sin fecha'} ${urgencyChip(r.deadline)}</div>
@@ -2218,14 +2218,14 @@ function renderTracking(cid){
           <div class="tmsg-title">${msg.title}</div>
           <div class="tmsg-sub">${msg.sub}</div>
         </div>
-        ${primary.status==='Listo para revisar'?`<button class="btn btn-p btn-sm" style="white-space:nowrap;flex-shrink:0;animation:pulse 2s infinite" onclick="openReqMo('${primary.id}')">👁 Ver miniatura</button>`:''}
+        ${primary.status==='Para revisar'?`<button class="btn btn-p btn-sm" style="white-space:nowrap;flex-shrink:0;animation:pulse 2s infinite" onclick="openReqMo('${primary.id}')">👁 Ver miniatura</button>`:''}
       </div>
     </div>
     ${restHtml}`;
 }
 
 function renderCDash(cid){
-  const c=gc(cid),rqs=gr(cid),pending=rqs.filter(r=>r.status!=='Completado').length;
+  const c=gc(cid),rqs=gr(cid),pending=rqs.filter(r=>r.status!=='Listo').length;
   const usedCount = getUsed(cid);
   const av=c.pack===99?'∞':c.pack-usedCount;
   renderHeroBanner(c, rqs);
@@ -2281,7 +2281,7 @@ function renderCReqs(cid){
   const el=document.getElementById('cl-all-reqs');if(!el)return;
   const rqs=gr(cid);
   el.innerHTML=rqs.length?[...rqs].reverse().map(r=>{
-    return`<div class="rc" onclick="openReqMo('${r.id}')"><div><div class="rt">${r.title}${r.refs&&r.refs.length?` <span style="font-size:11px;color:var(--accent)">📸 ${r.refs.length} ref.</span>`:''}</div><div class="rm"><span class="chip-pair">${sb(r.status)}${urgencyChip(r.deadline)}</span><span>🎨 ${r.style||'-'}</span><span>📅 ${fd(r.deadline)}</span></div></div>${r.status==='No iniciado'?`<button class="btn btn-g btn-sm" onclick="event.stopPropagation();deleteReq('${r.id}')" style="color:var(--red);border-color:rgba(255,77,77,.25);flex-shrink:0" title="Eliminar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>`:``}
+    return`<div class="rc" onclick="openReqMo('${r.id}')"><div><div class="rt">${r.title}${r.refs&&r.refs.length?` <span style="font-size:11px;color:var(--accent)">📸 ${r.refs.length} ref.</span>`:''}</div><div class="rm"><span class="chip-pair">${sb(r.status)}${urgencyChip(r.deadline)}</span><span>🎨 ${r.style||'-'}</span><span>📅 ${fd(r.deadline)}</span></div></div>${r.status==='Nuevo pedido'?`<button class="btn btn-g btn-sm" onclick="event.stopPropagation();deleteReq('${r.id}')" style="color:var(--red);border-color:rgba(255,77,77,.25);flex-shrink:0" title="Eliminar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>`:``}
     <div style="display:flex;gap:8px">
 
       </button>
@@ -2303,7 +2303,7 @@ function renderCPack(c){
   el.innerHTML = history.map((pack, i)=>{
     const isActive = !pack.closed_at;
     const packReqs = getPackReqs(pack);
-    const completedCount = packReqs.filter(r=>r.status==='Completado').length;
+    const completedCount = packReqs.filter(r=>r.status==='Listo').length;
     const totalSlots = pack.size===99 ? packReqs.length : pack.size;
     const pct = totalSlots ? Math.round((completedCount/totalSlots)*100) : 0;
 
@@ -2314,8 +2314,8 @@ function renderCPack(c){
         if(!req) return `<div class="pack-slot empty" title="Disponible">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity=".3"><circle cx="12" cy="12" r="10"/></svg>
         </div>`;
-        const isDone = req.status==='Completado';
-        const isInProgress = req.status==='En progreso'||req.status==='Listo para revisar';
+        const isDone = req.status==='Listo';
+        const isInProgress = req.status==='En diseño'||req.status==='Para revisar';
         return `<div class="pack-slot ${isDone?'done':isInProgress?'active':'empty'}" title="${req.title}">
           ${isDone?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
             :isInProgress?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
@@ -2352,11 +2352,11 @@ function renderCPack(c){
               <div class="pack-mini-num">${ri+1}</div>
               <div class="pack-mini-title" title="${r.title}">${r.title}</div>
               <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-                ${r.status==='Completado'
+                ${r.status==='Listo'
                   ?`<span class="badge bg" style="gap:4px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Completada</span>`
-                  :r.status==='Listo para revisar'
+                  :r.status==='Para revisar'
                   ?`<span class="badge bb">Revisar</span>`
-                  :r.status==='En progreso'
+                  :r.status==='En diseño'
                   ?`<span class="badge bb">En diseño</span>`
                   :`<span class="badge bm">Pendiente</span>`}
                 <button class="btn btn-g btn-sm" onclick="openReqMo('${r.id}')">Ver</button>
@@ -2426,12 +2426,12 @@ function _openReqMoRender(rid){
   if(isA){
     // Config de estado con colores
     const statusCfg = {
-      'No iniciado':        { color:'#8888a0', bg:'rgba(107,107,126,.12)', border:'rgba(107,107,126,.3)',  icon:'📋', hex:'#8888a0' },
-      'En progreso':        { color:'#ff4d00', bg:'rgba(255,77,0,.1)',     border:'rgba(255,77,0,.35)',    icon:'🎨', hex:'#ff4d00' },
-      'Listo para revisar': { color:'#4d9fff', bg:'rgba(77,159,255,.1)',   border:'rgba(77,159,255,.35)', icon:'✨', hex:'#4d9fff' },
+      'Nuevo pedido':        { color:'#8888a0', bg:'rgba(107,107,126,.12)', border:'rgba(107,107,126,.3)',  icon:'📋', hex:'#8888a0' },
+      'En diseño':        { color:'#ff4d00', bg:'rgba(255,77,0,.1)',     border:'rgba(255,77,0,.35)',    icon:'🎨', hex:'#ff4d00' },
+      'Para revisar': { color:'#4d9fff', bg:'rgba(77,159,255,.1)',   border:'rgba(77,159,255,.35)', icon:'✨', hex:'#4d9fff' },
       'Completado':         { color:'#2dca73', bg:'rgba(45,202,115,.1)',   border:'rgba(45,202,115,.35)', icon:'✅', hex:'#2dca73' },
     };
-    const sc = statusCfg[r.status] || statusCfg['No iniciado'];
+    const sc = statusCfg[r.status] || statusCfg['Nuevo pedido'];
 
     document.getElementById('mo-req-body').innerHTML=`
 
@@ -2482,10 +2482,10 @@ function _openReqMoRender(rid){
             </div>`).join('')}
         </div>
         <select id="mr-st" style="display:none">
-          <option ${r.status==='No iniciado'?'selected':''}>No iniciado</option>
-          <option ${r.status==='En progreso'?'selected':''}>En progreso</option>
-          <option ${r.status==='Listo para revisar'?'selected':''}>Listo para revisar</option>
-          <option ${r.status==='Completado'?'selected':''}>Completado</option>
+          <option ${r.status==='Nuevo pedido'?'selected':''}>Nuevo pedido</option>
+          <option ${r.status==='En diseño'?'selected':''}>En diseño</option>
+          <option ${r.status==='Para revisar'?'selected':''}>Para revisar</option>
+          <option ${r.status==='Listo'?'selected':''}>Listo</option>
         </select>
       </div>
 
@@ -2501,13 +2501,13 @@ function _openReqMoRender(rid){
     saveBtn.onclick = ()=>saveReq(rid);
     // Admin puede borrar solo si no está Completado
     const delBtn = document.getElementById('mo-delete-btn');
-    delBtn.style.display = r.status!=='Completado' ? '' : 'none';
+    delBtn.style.display = r.status!=='Listo' ? '' : 'none';
     delBtn.onclick = ()=>deleteReq(rid);
     // Evaluar si el botón guardar debe estar habilitado
     updateSaveBtn();
   } else {
-    const isLocked = r.status==='En progreso'||r.status==='Listo para revisar'||r.status==='Completado';
-    const isCompleted = r.status==='Completado';
+    const isLocked = r.status==='En diseño'||r.status==='Para revisar'||r.status==='Listo';
+    const isCompleted = r.status==='Listo';
 
     if(isLocked){
       // Mostrar vista de solo lectura con mensaje según estado
@@ -2551,7 +2551,7 @@ function _openReqMoRender(rid){
         </div>`;
       document.getElementById('mo-save-btn').style.display='none';
     } else {
-      // Cliente puede editar — No iniciado
+      // Cliente puede editar — Nuevo pedido
       document.getElementById('mo-req-body').innerHTML=`
         ${versionsHtml}
         <div class="fg">
@@ -2566,16 +2566,16 @@ function _openReqMoRender(rid){
       document.getElementById('mo-save-btn').onclick=()=>saveReq(rid);
     }
 
-    // Botón eliminar para cliente — solo si No iniciado
+    // Botón eliminar para cliente — solo si Nuevo pedido
     const delBtn = document.getElementById('mo-delete-btn');
-    delBtn.style.display = r.status==='No iniciado' ? '' : 'none';
-    if(r.status==='No iniciado') delBtn.onclick = ()=>deleteReq(rid);
+    delBtn.style.display = r.status==='Nuevo pedido' ? '' : 'none';
+    if(r.status==='Nuevo pedido') delBtn.onclick = ()=>deleteReq(rid);
   }
   openMo('mo-req');
 }
 async function deleteReq(rid){
   const r = S.reqs.find(x=>x.id===rid); if(!r) return;
-  if(r.status==='Completado'){ toast('❌ No se puede eliminar un pedido completado'); return; }
+  if(r.status==='Listo'){ toast('❌ No se puede eliminar un pedido completado'); return; }
   const ok = await appConfirm({
     title: `Eliminar "${r.title}"`,
     msg: 'Esta acción no se puede deshacer. El pedido se borrará permanentemente.',
@@ -2606,7 +2606,7 @@ async function saveReq(rid){
       if(isSupabaseMode) await dbUpdateRequest(rid,{status:r.status});
       if(oldStatus !== newStatus){
         renderADash();
-        if(newStatus==='Completado') checkPackCompletion(r.cid, rid);
+        if(newStatus==='Listo') checkPackCompletion(r.cid, rid);
       }
     }
   } else {
@@ -2660,7 +2660,7 @@ function buildCyclesHtml(c, rqs){
       ? 'Desde ' + fd(pack.opened_at)
       : fd(pack.opened_at) + ' → ' + fd(pack.closed_at);
     const packReqs    = (pack.req_ids || []).map(function(rid){ return S.reqs.find(function(r){ return r.id === rid; }); }).filter(Boolean);
-    const doneCount   = packReqs.filter(function(r){ return r.status === 'Completado'; }).length;
+    const doneCount   = packReqs.filter(function(r){ return r.status === 'Listo'; }).length;
 
     const reqsHtml = packReqs.length
       ? packReqs.map(reqRow).join('')
@@ -2702,7 +2702,7 @@ function buildCyclesHtml(c, rqs){
 function openClMo(cid){
   viewCid=cid; const c=gc(cid); if(!c)return;
   const rqs=gr(cid);
-  const pending = rqs.filter(r=>r.status!=='Completado'&&r.status!=='Aprobado').length;
+  const pending = rqs.filter(r=>r.status!=='Listo'&&r.status!=='Aprobado').length;
   const packLabel = c.pack===99?'Ilimitado':c.pack===4?'Básico (4)':c.pack===8?'Estándar (8)':c.pack===16?'Pro (16)':'Pack '+c.pack;
   const usedCount = getUsed(cid);
   const av = c.pack===99?'∞':c.pack-usedCount;
@@ -2843,7 +2843,7 @@ function toggleClEdit(cid){
 }
 async function deleteClient(){
   const c=gc(viewCid);if(!c)return;
-  const activeReqs=gr(viewCid).filter(r=>r.status!=='Completado');
+  const activeReqs=gr(viewCid).filter(r=>r.status!=='Listo');
   if(activeReqs.length>0){
     const ok = await appConfirm({
       title: `Eliminar a "${c.name}"`,
@@ -2934,11 +2934,11 @@ async function addClient(){
 }
 async function chStatus(rid,status){
   const r=S.reqs.find(x=>x.id===rid);if(!r)return;
-  const wasCompleted = r.status === 'Completado';
+  const wasCompleted = r.status === 'Listo';
   r.status=status;
   if(isSupabaseMode) await dbUpdateRequest(rid,{status});
   playSound('status');
-  if(status==='Completado' && !wasCompleted) checkPackCompletion(r.cid, rid);
+  if(status==='Listo' && !wasCompleted) checkPackCompletion(r.cid, rid);
   renderADash();renderAReqs();renderAClients();toast('✓ Estado actualizado');
 }
 async function regPay(cid){
@@ -3158,7 +3158,7 @@ async function submitReq(){
     style:document.getElementById('req-style').value,
     deadline:document.getElementById('req-deadline').value,
     notes:document.getElementById('req-notes').value,
-    status:'No iniciado', date:new Date().toISOString().split('T')[0],
+    status:'Nuevo pedido', date:new Date().toISOString().split('T')[0],
     refs:[...refs], clientImgs:uploadedImgs, versions:[]
   };
 
@@ -3231,7 +3231,7 @@ function renderBadges(){
   const cl = document.getElementById('badge-cl');
   const pe = document.getElementById('badge-pe');
   if(cl) cl.textContent = S.clients.filter(x=>!x.archived).length;
-  if(pe) pe.textContent = S.reqs.filter(r=>r.status!=='Completado').length;
+  if(pe) pe.textContent = S.reqs.filter(r=>r.status!=='Listo').length;
 }
 
 function escHtml(t){ return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
@@ -3322,16 +3322,21 @@ function installPWA(){
 
 
 function getUsed(cid){
-  // Solo cuenta los Completados del pack ACTIVO (no todo el historial)
   const cl = gc(cid); if(!cl) return 0;
-  if(cl.pack===99) return S.reqs.filter(r=>r.cid===cid && r.status==='Completado').length;
+  if(cl.pack===99) return S.reqs.filter(r=>r.cid===cid && r.status==='Listo').length;
   const ap = getActivePack(cl);
-  if(!ap) return 0;
-  // req_ids del pack activo que están Completados
-  return ap.req_ids.filter(rid=>{
-    const r = S.reqs.find(x=>x.id===rid);
-    return r && r.status==='Completado';
-  }).length;
+  // Si hay pack activo con fecha de apertura, contar solo Completados/Listos desde esa fecha
+  if(ap && ap.opened_at){
+    const openDate = new Date(ap.opened_at); openDate.setHours(0,0,0,0);
+    return S.reqs.filter(r=>{
+      if(r.cid!==cid || r.status!=='Listo') return false;
+      // Usar r.date (fecha de creación) o r.deadline como aproximación
+      const rd = r.date ? new Date(r.date) : null;
+      return rd ? rd >= openDate : true; // si no hay fecha, incluir por seguridad
+    }).length;
+  }
+  // Fallback: todos los Listos del cliente
+  return S.reqs.filter(r=>r.cid===cid && r.status==='Listo').length;
 }
 
 
@@ -3362,7 +3367,7 @@ function checkPackCompletion(cid, rid){
   if(!ap.req_ids.includes(rid)) return;
   // Contar cuántos del pack están Completados
   const packReqs = getPackReqs(ap);
-  const completedInPack = packReqs.filter(r=>r.status==='Completado').length;
+  const completedInPack = packReqs.filter(r=>r.status==='Listo').length;
   if(completedInPack >= ap.size){
     // Pack completo → cerrar
     ap.closed_at = new Date().toISOString().split('T')[0];
@@ -3556,12 +3561,12 @@ function renderHeroBanner(c, rqs){
   const nombre = c.name.split(' ')[0];
 
   // Pedidos activos (sin completados)
-  const active = rqs.filter(r=>r.status!=='Completado')
+  const active = rqs.filter(r=>r.status!=='Listo')
     .sort((a,b)=>{ if(!a.deadline) return 1; if(!b.deadline) return -1; return new Date(a.deadline)-new Date(b.deadline); });
 
   // Pedidos completados en los últimos 7 días
   const recentDone = rqs.filter(r=>{
-    if(r.status!=='Completado') return false;
+    if(r.status!=='Listo') return false;
     const d = new Date(r.date||'2000-01-01');
     return (today - d) <= 7*24*60*60*1000;
   });
@@ -3577,7 +3582,7 @@ function renderHeroBanner(c, rqs){
   let heroCTA = '';
 
   // P1 — Miniatura lista para revisar
-  const toReview = active.find(r=>r.status==='Listo para revisar');
+  const toReview = active.find(r=>r.status==='Para revisar');
   if(toReview){
     icon='✨';
     heroTitle='¡Tu miniatura llegó!';
@@ -3602,8 +3607,8 @@ function renderHeroBanner(c, rqs){
     </button>`;
   }
   // P3 — Diseñador trabajando
-  else if(active.some(r=>r.status==='En progreso')){
-    const wip = active.find(r=>r.status==='En progreso');
+  else if(active.some(r=>r.status==='En diseño')){
+    const wip = active.find(r=>r.status==='En diseño');
     icon='🎨';
     heroTitle='Tu diseñador está en ello';
     heroSub = active.length>1
@@ -3616,7 +3621,7 @@ function renderHeroBanner(c, rqs){
     heroTitle='¡Otro hit entregado!';
     heroSub=`"${recentDone[0].title}" aprobada y lista para publicar.`;
   }
-  // P5 — Pedidos activos genéricos (No iniciado)
+  // P5 — Pedidos activos genéricos (Nuevo pedido)
   else if(active.length){
     icon='⚡';
     heroTitle=`${active.length} pedido${active.length>1?'s':''} en curso`;
@@ -3660,7 +3665,7 @@ function buildVersionsHtml(r, isAdmin){
         <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px">🎨 Miniaturas entregadas</span>
         ${versions.length?`<span style="background:rgba(45,202,115,.15);color:var(--green);font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px">${versions.length} versión${versions.length>1?'es':''}</span>`:''}
       </div>
-      ${isAdmin?`<button class="btn btn-p btn-sm" id="upload-ver-btn" onclick="openDeliverMo('${r.id}')" style="opacity:.4;cursor:not-allowed;pointer-events:none" title="Cambiá el estado a 'Listo para revisar' para subir la miniatura">+ Subir versión</button>`:''}
+      ${isAdmin?`<button class="btn btn-p btn-sm" id="upload-ver-btn" onclick="openDeliverMo('${r.id}')" style="opacity:.4;cursor:not-allowed;pointer-events:none" title="Cambiá el estado a 'Para revisar' para subir la miniatura">+ Subir versión</button>`:''}
     </div>`;
 
   if(!versions.length){
@@ -3854,14 +3859,14 @@ async function submitReview(decision){
   v.status=decision;
   v.comment=document.getElementById('rev-comment').value;
   v.annotation=annStrokes.length?JSON.stringify(annStrokes):null;
-  if(decision==='aprobado') r.status='Completado';
+  if(decision==='aprobado') r.status='Listo';
   // Con 'cambios' mantenemos el status actual — el admin decide cuándo cambiar
   // else: no tocamos r.status
 
   if(isSupabaseMode){
     if(v.id) await dbUpdateVersion(v.id,{status:decision,comment:v.comment,annotation:v.annotation});
     if(decision==='aprobado'){
-      await dbUpdateRequest(reviewingRid,{status:'Completado'});
+      await dbUpdateRequest(reviewingRid,{status:'Listo'});
       // Sincronizar used en DB = conteo real de pedidos completados
       const clientObj = gc(r.cid||S.clients[0]?.id);
       if(clientObj){
