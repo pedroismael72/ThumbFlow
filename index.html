@@ -283,7 +283,7 @@
   /* ════ UPLOAD DE IMÁGENES (cliente) ════ */
   .upload-zone{border:2px dashed var(--border);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface2);position:relative;}
   .upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:rgba(255,77,0,.05);}
-  .upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+  .upload-zone input[type=file]{display:none;}
   .upload-icon{font-size:32px;margin-bottom:8px;opacity:.6;}
   .upload-label{font-size:13px;color:var(--muted);}
   .upload-label strong{color:var(--accent);}
@@ -935,11 +935,11 @@
               <div style="display:flex;flex-direction:column;gap:6px" class="fg-f"><label>Notas adicionales</label><textarea id="req-notes" placeholder="Cualquier aclaración extra..." style="min-height:70px"></textarea></div>
               <div style="display:flex;flex-direction:column;gap:6px" class="fg-f">
                 <label>Imágenes de referencia propias <span style="color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">(logos, fotos, capturas — opcional)</span></label>
-                <div class="upload-zone" id="ref-upload-zone" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleRefDrop(event)">
-                  <input type="file" accept="image/*" multiple onchange="handleRefFiles(this.files)">
+                <label class="upload-zone" id="ref-upload-zone" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleRefDrop(event)" for="ref-file-input">
+                  <input type="file" id="ref-file-input" accept="image/*" multiple onchange="handleRefFiles(this.files)">
                   <div class="upload-icon">🖼️</div>
                   <div class="upload-label">Arrastrá imágenes o <strong>hacé clic para seleccionar</strong><br><small>PNG, JPG, GIF · Hasta 5 imágenes</small></div>
-                </div>
+                </label>
                 <div class="img-preview-grid" id="ref-img-previews"></div>
               </div>
             </div>
@@ -1159,8 +1159,8 @@
   <div class="md" style="width:500px">
     <div class="mh"><div class="mt">Subir miniatura terminada</div><button class="mc" onclick="closeMo('mo-deliver')">✕</button></div>
     <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Subí la versión lista para que el cliente la revise y apruebe.</p>
-    <div class="upload-zone" id="deliver-zone" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDeliverDrop(event)">
-      <input type="file" accept="image/*" onchange="handleDeliverFile(this.files[0])">
+    <label class="upload-zone" id="deliver-zone" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDeliverDrop(event)" for="deliver-file-input">
+      <input type="file" id="deliver-file-input" accept="image/*" onchange="handleDeliverFile(this.files[0])">
       <div class="upload-icon">🎨</div>
       <div class="upload-label">Arrastrá la miniatura o <strong>hacé clic para seleccionar</strong><br><small>PNG o JPG recomendado · 1280×720px ideal</small></div>
     </div>
@@ -3241,7 +3241,7 @@ function handleRefFiles(files){
     reader.readAsDataURL(f);
   });
   // reset input so same file can be re-selected
-  document.querySelector('#ref-upload-zone input').value='';
+  const rfi=document.getElementById('ref-file-input');if(rfi)rfi.value='';
 }
 
 function handleRefDrop(e){
