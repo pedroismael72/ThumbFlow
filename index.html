@@ -674,6 +674,14 @@
   /* Estado vacío */
   .feed-empty{text-align:center;padding:40px 20px;color:var(--muted);}
   .feed-empty-icon{font-size:40px;opacity:.35;margin-bottom:10px;}
+
+  /* ════ RENOVAR PACK ════ */
+  .renew-pack-box{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:4px;}
+  .renew-pack-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:7px;}
+  .renew-pack-sub{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:14px;}
+  .renew-pack-row{display:flex;align-items:center;gap:10px;}
+  .pack-status-full{display:inline-flex;align-items:center;gap:6px;background:rgba(255,77,77,.1);border:1px solid rgba(255,77,77,.25);color:var(--red);border-radius:20px;font-size:11px;font-weight:700;padding:4px 12px;}
+  .pack-status-active{display:inline-flex;align-items:center;gap:6px;background:rgba(45,202,115,.1);border:1px solid rgba(45,202,115,.25);color:var(--green);border-radius:20px;font-size:11px;font-weight:700;padding:4px 12px;}
 </style>
 <script type="module">
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -2657,10 +2665,34 @@ function openClMo(cid){
         Plan y facturación
       </div>
       <div style="background:var(--surface2);border-radius:12px;padding:4px 14px;margin-bottom:18px;">
-        <div class="profile-field"><span class="profile-field-label">Pack</span><span class="profile-field-val">${packLabel}</span></div>
+        <div class="profile-field"><span class="profile-field-label">Pack actual</span><span class="profile-field-val">${packLabel}</span></div>
         <div class="profile-field"><span class="profile-field-label">Precio</span><span class="profile-field-val">$${c.price}<span style="color:var(--muted);font-size:11px">/ciclo</span></span></div>
         <div class="profile-field"><span class="profile-field-label">Pago</span><span class="profile-field-val">${pb(c.pay)}</span></div>
-        <div class="profile-field"><span class="profile-field-label">Usadas</span><span class="profile-field-val">${usedCount} de ${c.pack===99?'∞':c.pack}</span></div>
+        <div class="profile-field">
+          <span class="profile-field-label">Miniaturas</span>
+          <span class="profile-field-val">
+            ${c.pack===99?'Ilimitado':`${usedCount} de ${c.pack} usadas`}
+            ${(c.pack!==99&&usedCount>=c.pack)?'<span class="pack-status-full">Pack completo</span>':'<span class="pack-status-active">Activo</span>'}
+          </span>
+        </div>
+      </div>
+
+      <!-- RENOVAR PACK -->
+      <div class="renew-pack-box">
+        <div class="renew-pack-title">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Renovar / cambiar pack
+        </div>
+        <div class="renew-pack-sub">Cerrá el ciclo actual y abrí uno nuevo. El historial de miniaturas anteriores queda guardado en la carpeta del ciclo que termina.</div>
+        <div class="renew-pack-row">
+          <select id="ep-renew-size" style="flex:1;padding:8px 12px;font-size:13px;border-radius:10px;background:var(--surface);border:1px solid var(--border);color:var(--text)">
+            <option value="4" ${c.pack==4?'selected':''}>Pack Básico — 4 miniaturas</option>
+            <option value="8" ${c.pack==8?'selected':''}>Pack Estándar — 8 miniaturas</option>
+            <option value="16" ${c.pack==16?'selected':''}>Pack Pro — 16 miniaturas</option>
+            <option value="99" ${c.pack==99?'selected':''}>Ilimitado</option>
+          </select>
+          <button class="btn btn-p" onclick="renewPack('${cid}')" style="white-space:nowrap;flex-shrink:0">Renovar pack</button>
+        </div>
       </div>
 
       ${c.notes?`
@@ -2680,7 +2712,7 @@ function openClMo(cid){
       <div class="fg profile-edit-mode" style="margin-bottom:16px">
         <div style="display:flex;flex-direction:column;gap:6px"><label>Nombre</label><input id="ep-name" type="text" value="${c.name}"></div>
         <div style="display:flex;flex-direction:column;gap:6px"><label>Canal YouTube</label><input id="ep-ch" type="text" value="${c.ch}" placeholder="@micanal"></div>
-        <div style="display:flex;flex-direction:column;gap:6px"><label>Pack</label><select id="ep"><option value="4" ${c.pack==4?'selected':''}>Básico (4)</option><option value="8" ${c.pack==8?'selected':''}>Estándar (8)</option><option value="16" ${c.pack==16?'selected':''}>Pro (16)</option><option value="99" ${c.pack==99?'selected':''}>Ilimitado</option></select></div>
+
         <div style="display:flex;flex-direction:column;gap:6px"><label>Pago</label><select id="eps"><option ${c.pay==='Al día'?'selected':''}>Al día</option><option ${c.pay==='Pendiente'?'selected':''}>Pendiente</option><option ${c.pay==='Vencido'?'selected':''}>Vencido</option></select></div>
         <div style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1"><label>Precio ($)</label><input id="ep-price" type="number" value="${c.price}"></div>
         <div style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1"><label>Notas internas</label><textarea id="en" style="min-height:80px">${c.notes}</textarea></div>
@@ -2797,11 +2829,10 @@ async function saveClientNotes(){
   const c=gc(viewCid);if(!c)return;
   c.notes=document.getElementById('en')?.value||c.notes;
   const ps=document.getElementById('eps')?.value; if(ps)c.pay=ps;
-  const pk=document.getElementById('ep')?.value;  if(pk)c.pack=parseInt(pk);
   const nm=document.getElementById('ep-name')?.value?.trim(); if(nm)c.name=nm;
   const ch=document.getElementById('ep-ch')?.value?.trim();   if(ch!==undefined)c.ch=ch;
   const pr=document.getElementById('ep-price')?.value;        if(pr)c.price=parseInt(pr)||c.price;
-  if(isSupabaseMode) await dbUpdateClient(viewCid,{notes:c.notes,pay:c.pay,pack:c.pack,name:c.name,ch:c.ch,price:c.price});
+  if(isSupabaseMode) await dbUpdateClient(viewCid,{notes:c.notes,pay:c.pay,name:c.name,ch:c.ch,price:c.price});
   closeMo('mo-cl'); playSound('action'); toast('✓ Cliente actualizado');
   renderADash();renderAClients();renderAPays();
 }
@@ -3134,6 +3165,64 @@ function renderBadges(){
 function escHtml(t){ return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
 
 applyTheme();
+
+async function renewPack(cid){
+  const c = gc(cid); if(!c) return;
+  const newSize = parseInt(document.getElementById('ep-renew-size')?.value);
+  if(!newSize) return;
+
+  const usedNow = getUsed(cid);
+  const isPackFull = c.pack !== 99 && usedNow >= c.pack;
+  const isSameSize = newSize === c.pack;
+
+  // Confirmar con mensaje claro
+  const packLabel = newSize===4?'Básico (4)':newSize===8?'Estándar (8)':newSize===16?'Pro (16)':'Ilimitado';
+  const confirmMsg = isPackFull
+    ? `El pack actual (${c.pack} miniaturas) está completo.\n\nSe va a:\n• Archivar el ciclo actual\n• Abrir un nuevo ciclo "${packLabel}"\n• Volver a 0 miniaturas disponibles`
+    : `¿Renovar el pack de ${c.name}?\n\nSe va a:\n• Cerrar el ciclo actual (${usedNow} de ${c.pack===99?'∞':c.pack} usadas)\n• Abrir un nuevo ciclo "${packLabel}"\n• Reiniciar el contador a 0`;
+
+  const ok = await appConfirm({
+    title: 'Renovar pack',
+    msg: confirmMsg,
+    icon: '🔄',
+    okLabel: 'Sí, renovar',
+  });
+  if(!ok) return;
+
+  // Cerrar el pack activo si existe
+  if(!c.packs) c.packs = [];
+  const ap = getActivePack(c);
+  if(ap) ap.closed_at = new Date().toISOString().split('T')[0];
+
+  // Crear nuevo pack activo
+  const newPack = {
+    id: 'pk' + Date.now(),
+    size: newSize,
+    price: c.price,
+    opened_at: new Date().toISOString().split('T')[0],
+    closed_at: null,
+    req_ids: []
+  };
+  c.packs.push(newPack);
+
+  // Actualizar pack actual del cliente
+  c.pack = newSize;
+  // used se calcula dinámicamente desde getUsed(), no hace falta resetearlo en el objeto
+  // Pero en Supabase sí guardamos used=0 para sincronía
+  if(isSupabaseMode){
+    await dbUpdateClient(cid, {
+      pack: newSize,
+      used: 0,
+      packs: JSON.stringify(c.packs)
+    });
+  }
+
+  closeMo('mo-cl');
+  playSound('approved');
+  toast('✓ Pack renovado — ciclo nuevo abierto');
+  renderADash(); renderAClients(); renderAPays();
+}
+
 function toggleReqDetails(rid){
   const el = document.getElementById('req-details-'+rid);
   const btn = document.getElementById('details-toggle-'+rid);
