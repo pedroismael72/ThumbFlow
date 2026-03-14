@@ -1263,15 +1263,85 @@ let isSupabaseMode = false;
 // Datos demo (usados cuando Supabase no está configurado)
 const S={
   clients:[
-    {id:'c1',name:'[DEMO] Marcos Rueda',email:'marcos@gmail.com',ch:'@marcosrueda',pack:8,used:5,price:120,pay:'Al día',notes:'Cliente puntual. Prefiere miniaturas oscuras con texto grande.',payments:[{d:'2025-01-05',a:120,s:'Pagado',m:'Transferencia'},{d:'2025-02-05',a:120,s:'Pagado',m:'Transferencia'},{d:'2025-03-05',a:120,s:'Pendiente',m:'-'}],packs:[{id:'pk1',size:8,price:120,opened_at:'2025-01-05',closed_at:null,req_ids:['r1','r2']}]},
-    {id:'c2',name:'[DEMO] Sofía Gómez',email:'sofi@gmail.com',ch:'@sofigomez',pack:4,used:4,price:70,pay:'Vencido',notes:'Necesita renovar pack. Le gusta estilo minimalista con pasteles.',payments:[{d:'2025-01-12',a:70,s:'Pagado',m:'PayPal'},{d:'2025-02-12',a:70,s:'Vencido',m:'-'}],packs:[{id:'pk2a',size:4,price:70,opened_at:'2024-10-01',closed_at:'2024-11-30',req_ids:[]},{id:'pk2b',size:4,price:70,opened_at:'2025-01-12',closed_at:null,req_ids:['r3']}]},
-    {id:'c3',name:'[DEMO] Diego Torres',email:'diego@gmail.com',ch:'@diegotorres',pack:16,used:9,price:200,pay:'Al día',notes:'Cliente Pro. Siempre manda referencias. Muy organizado.',payments:[{d:'2025-01-20',a:200,s:'Pagado',m:'Efectivo'},{d:'2025-02-20',a:200,s:'Pagado',m:'Efectivo'},{d:'2025-03-20',a:200,s:'Pagado',m:'Efectivo'}],packs:[{id:'pk3a',size:8,price:200,opened_at:'2024-06-01',closed_at:'2024-10-15',req_ids:[]},{id:'pk3b',size:16,price:200,opened_at:'2025-01-20',closed_at:null,req_ids:['r4']}]}
+    {
+      id:'c1',name:'[DEMO] Mateo Ríos',email:'mateo@mateorioschannel.com',ch:'@mateoriosok',
+      pack:8,price:140,pay:'Al día',notes:'Canal de finanzas personales. Le gusta minimalista, números grandes, fondo oscuro. Muy puntual con los pagos.',
+      packs:[{id:'pk1',size:8,price:140,opened_at:'2026-02-01',closed_at:null,req_ids:['r1','r2','r3','r4','r5']}],
+      payments:[{d:'2026-02-01',a:140,s:'Pagado',m:'Transferencia'},{d:'2026-03-01',a:140,s:'Pagado',m:'Transferencia'}]
+    },
+    {
+      id:'c2',name:'[DEMO] Valentina Cruz',email:'vale@valecruztv.com',ch:'@valecruztv',
+      pack:4,price:80,pay:'Al día',notes:'Canal lifestyle y viajes. Fotos reales de fondo, colores vibrantes. Manda muchísimas referencias.',
+      packs:[
+        {id:'pk2a',size:4,price:80,opened_at:'2025-11-01',closed_at:'2026-01-15',req_ids:['r6','r7','r8','r9']},
+        {id:'pk2b',size:4,price:80,opened_at:'2026-01-16',closed_at:null,req_ids:['r10','r11']}
+      ],
+      payments:[{d:'2025-11-01',a:80,s:'Pagado',m:'PayPal'},{d:'2026-01-16',a:80,s:'Pagado',m:'PayPal'}]
+    },
+    {
+      id:'c3',name:'[DEMO] Lucas Peralta',email:'lucas@lucasperalta.gg',ch:'@lucasperaltaGG',
+      pack:16,price:220,pay:'Pendiente',notes:'Canal de gaming. Thumbnails estilo gaming agresivo, mucho texto, caras exageradas. Siempre llega tarde con el feedback.',
+      packs:[{id:'pk3',size:16,price:220,opened_at:'2026-01-01',closed_at:null,req_ids:['r12','r13','r14','r15','r16','r17']}],
+      payments:[{d:'2026-01-01',a:220,s:'Pagado',m:'Efectivo'},{d:'2026-02-01',a:220,s:'Pendiente',m:'-'}]
+    },
+    {
+      id:'c4',name:'[DEMO] Sofía Mendez',email:'sofi@sofifit.com',ch:'@sofifit',
+      pack:4,price:75,pay:'Al día',notes:'Canal fitness. Colores neón, cuerpo en movimiento, texto impactante. Pack recién renovado.',
+      packs:[
+        {id:'pk4a',size:4,price:75,opened_at:'2025-09-01',closed_at:'2025-12-31',req_ids:[]},
+        {id:'pk4b',size:4,price:75,opened_at:'2026-03-01',closed_at:null,req_ids:['r18']}
+      ],
+      payments:[{d:'2025-09-01',a:75,s:'Pagado',m:'Transferencia'},{d:'2026-03-01',a:75,s:'Pagado',m:'Transferencia'}]
+    },
+    {
+      id:'c5',name:'[DEMO] Diego Morales',email:'diego@diegomoralestech.com',ch:'@diegomoralestech',
+      pack:8,price:130,pay:'Vencido',notes:'Canal tech y tutoriales. Fondo oscuro, gradientes, UI screenshots. Tiene pago vencido, recordarle.',
+      packs:[{id:'pk5',size:8,price:130,opened_at:'2026-01-15',closed_at:null,req_ids:['r19','r20','r21']}],
+      payments:[{d:'2026-01-15',a:130,s:'Pagado',m:'Transferencia'},{d:'2026-02-15',a:130,s:'Vencido',m:'-'}]
+    }
   ],
   reqs:[
-    {id:'r1',cid:'c1',title:'Cómo ganar dinero con IA en 2025',desc:'Miniatura impactante, fondo oscuro, cara de sorpresa.',style:'Oscuro, rojo y blanco',deadline:'2025-03-15',notes:'',status:'Para revisar',date:'2025-03-01',refs:[],clientImgs:[],versions:[{img:'https://img.youtube.com/vi/9bZkp7q19f0/maxresdefault.jpg',date:'6 mar 2025',status:'pendiente',comment:'',annotation:null}]},
-    {id:'r2',cid:'c1',title:'Los mejores plugins de Premiere Pro',desc:'Icono de Premiere, colores morados, texto llamativo.',style:'Morado y negro',deadline:'2025-03-10',notes:'Urgente',status:'Listo',date:'2025-02-28',refs:[],clientImgs:[],versions:[{img:'https://img.youtube.com/vi/OPf0YbXqDm0/maxresdefault.jpg',date:'2 mar 2025',status:'aprobado',comment:'Quedó perfecta, exactamente lo que necesitaba.',annotation:null}]},
-    {id:'r3',cid:'c2',title:'Receta viral de pasta italiana',desc:'Plato de pasta, colores cálidos, tipografía manuscrita.',style:'Cálido, beige y rojo',deadline:'2025-03-12',notes:'',status:'Pendiente',date:'2025-03-03',refs:[],clientImgs:[],versions:[]},
-    {id:'r4',cid:'c3',title:'Tutorial Final Cut Pro completo',desc:'Logo FCP, fondo azul, cara mirando pantalla.',style:'Azul y blanco',deadline:'2025-03-20',notes:'',status:'Pendiente',date:'2025-03-05',refs:[],clientImgs:[],versions:[]}
+    // ── MATEO RÍOS (@mateoriosok) — Finanzas ──────────────────────────
+    {id:'r1',cid:'c1',title:'Cómo ahorrar $10.000 en 6 meses (sin sacrificar nada)',desc:'Hombre con cara de sorpresa, billetes volando, fondo oscuro. Texto grande arriba.',style:'Oscuro, naranja y blanco',deadline:'2026-03-14',notes:'',status:'Para revisar',date:'2026-03-06',refs:[],clientImgs:[],
+      versions:[{img:'https://img.youtube.com/vi/kJQP7kiw5Fk/maxresdefault.jpg',date:'13 mar 2026',status:'pendiente',comment:'',annotation:null}]},
+    {id:'r2',cid:'c1',title:'El error que destruye tu dinero antes de los 30',desc:'Cara preocupada, gráfico bajando, texto de advertencia.',style:'Rojo y negro, urgente',deadline:'2026-03-15',notes:'¡Urgente! Sale mañana',status:'En diseño',date:'2026-03-10',refs:[],clientImgs:[],versions:[]},
+    {id:'r3',cid:'c1',title:'5 inversiones que SÍ funcionan en 2026',desc:'Gráfico subiendo, cara positiva, fondo verde oscuro.',style:'Verde y dorado',deadline:'2026-03-21',notes:'',status:'Nuevo pedido',date:'2026-03-13',refs:[],clientImgs:[],versions:[]},
+    {id:'r4',cid:'c1',title:'Criptomonedas: guía completa para principiantes',desc:'Bitcoin grande, cara mirando, fondo dark.',style:'Morado y naranja',deadline:'2026-03-26',notes:'',status:'Listo',date:'2026-02-20',refs:[],clientImgs:[],
+      versions:[{img:'https://img.youtube.com/vi/9bZkp7q19f0/maxresdefault.jpg',date:'28 feb 2026',status:'aprobado',comment:'Perfecta, exactamente lo que pedí!',annotation:null}]},
+    {id:'r5',cid:'c1',title:'Qué hacer con tu primer sueldo',desc:'Joven sosteniendo billetera, sonriendo, colores frescos.',style:'Azul y blanco, fresco',deadline:'2026-02-27',notes:'',status:'Listo',date:'2026-02-10',refs:[],clientImgs:[],
+      versions:[{img:'https://img.youtube.com/vi/OPf0YbXqDm0/maxresdefault.jpg',date:'25 feb 2026',status:'aprobado',comment:'Excelente trabajo!',annotation:null}]},
+
+    // ── VALENTINA CRUZ (@valecruztv) — Lifestyle ──────────────────────
+    {id:'r6',cid:'c2',title:'Mi rutina de mañana que cambió mi vida',desc:'Taza de café, luz cálida, chica sonriendo. Vibe acogedor.',style:'Beige y dorado, cálido',deadline:'2025-12-10',notes:'',status:'Listo',date:'2025-11-25',refs:[],clientImgs:[],
+      versions:[{img:'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',date:'8 dic 2025',status:'aprobado',comment:'Me encantó!',annotation:null}]},
+    {id:'r7',cid:'c2',title:'3 semanas viajando sola por Europa',desc:'Foto de fondo de ciudad europea, mochila, cara emocionada.',style:'Vibrante, azul cielo y coral',deadline:'2025-12-20',notes:'',status:'Listo',date:'2025-12-05',refs:[],clientImgs:[],
+      versions:[{img:'https://img.youtube.com/vi/9bZkp7q19f0/maxresdefault.jpg',date:'18 dic 2025',status:'aprobado',comment:'',annotation:null}]},
+    {id:'r8',cid:'c2',title:'Lo que nadie te dice de vivir sola',desc:'Piso en desorden, chica seria, texto impactante.',style:'Contrastado, blanco y negro con acento rojo',deadline:'2026-01-05',notes:'',status:'Listo',date:'2025-12-20',refs:[],clientImgs:[],
+      versions:[{img:'https://img.youtube.com/vi/OPf0YbXqDm0/maxresdefault.jpg',date:'3 ene 2026',status:'aprobado',comment:'',annotation:null}]},
+    {id:'r9',cid:'c2',title:'Reorganicé todo mi departamento por $200',desc:'Antes y después del cuarto, colores claros.',style:'Minimalista, blanco y verde',deadline:'2026-01-12',notes:'',status:'Listo',date:'2026-01-03',refs:[],clientImgs:[],
+      versions:[{img:'https://img.youtube.com/vi/kJQP7kiw5Fk/maxresdefault.jpg',date:'11 ene 2026',status:'aprobado',comment:'Hermosa como siempre',annotation:null}]},
+    {id:'r10',cid:'c2',title:'Mi experiencia probando el método 75 Hard',desc:'Chica haciendo ejercicio, cara de esfuerzo, números grandes.',style:'Enérgico, naranja y gris oscuro',deadline:'2026-03-18',notes:'Quiere cara de sorpresa al final',status:'En diseño',date:'2026-03-11',refs:[],clientImgs:[],versions:[]},
+    {id:'r11',cid:'c2',title:'Compras de Zara que valen DEMASIADO la pena',desc:'Ropa desplegada, colores de temporada, texto con precio.',style:'Rosa y blanco, fashion',deadline:'2026-03-26',notes:'',status:'Nuevo pedido',date:'2026-03-13',refs:[],clientImgs:[],versions:[]},
+
+    // ── LUCAS PERALTA (@lucasperaltaGG) — Gaming ──────────────────────
+    {id:'r12',cid:'c3',title:'Probé el juego MÁS DIFÍCIL del mundo (y lloré)',desc:'Cara de sufrimiento extremo, fondo rojo, texto enorme.',style:'Gaming agresivo, rojo y negro',deadline:'2026-03-13',notes:'',status:'Para revisar',date:'2026-03-05',refs:[],clientImgs:[],
+      versions:[{img:'https://img.youtube.com/vi/9bZkp7q19f0/maxresdefault.jpg',date:'12 mar 2026',status:'pendiente',comment:'',annotation:null}]},
+    {id:'r13',cid:'c3',title:'GTA 6 llegó y es INCREÍBLE (review honesta)',desc:'Logo GTA, cara emocionada, ciudad de fondo.',style:'GTA vibes, naranja y negro',deadline:'2026-03-16',notes:'Necesita estar listo para el lunes',status:'En diseño',date:'2026-03-11',refs:[],clientImgs:[],versions:[]},
+    {id:'r14',cid:'c3',title:'Gané $5000 jugando videojuegos en un mes',desc:'Dinero cayendo, joystick, cara de ganador.',style:'Dorado y verde, impactante',deadline:'2026-03-21',notes:'',status:'Nuevo pedido',date:'2026-03-13',refs:[],clientImgs:[],versions:[]},
+    {id:'r15',cid:'c3',title:'Los 10 juegos que ARRUINARON mi vida (buenos)',desc:'Grid de juegos, cara entre drama y risa.',style:'Collage, colorido',deadline:'2026-03-28',notes:'',status:'Nuevo pedido',date:'2026-03-13',refs:[],clientImgs:[],versions:[]},
+    {id:'r16',cid:'c3',title:'Minecraft en 2026: ¿vale la pena volver?',desc:'Paisaje minecraft, cara nostálgica, año visible.',style:'Pixelado y moderno',deadline:'2026-02-28',notes:'',status:'Listo',date:'2026-02-15',refs:[],clientImgs:[],
+      versions:[{img:'https://img.youtube.com/vi/OPf0YbXqDm0/maxresdefault.jpg',date:'26 feb 2026',status:'aprobado',comment:'',annotation:null}]},
+    {id:'r17',cid:'c3',title:'Hice SPEEDRUN del juego más corto del mundo',desc:'Timer gigante, cara de concentración extrema.',style:'Urgente, rojo y blanco',deadline:'2026-02-20',notes:'',status:'Listo',date:'2026-02-08',refs:[],clientImgs:[],
+      versions:[{img:'https://img.youtube.com/vi/kJQP7kiw5Fk/maxresdefault.jpg',date:'19 feb 2026',status:'aprobado',comment:'Tremendo como siempre',annotation:null}]},
+
+    // ── SOFÍA MENDEZ (@sofifit) — Fitness ─────────────────────────────
+    {id:'r18',cid:'c4',title:'Transformación 30 días: perdí 8kg con esto',desc:'Antes y después, cara emocionada, números grandes.',style:'Neón verde y negro, energético',deadline:'2026-03-21',notes:'Primera del nuevo ciclo, quiere marcar el estilo nuevo',status:'Nuevo pedido',date:'2026-03-13',refs:[],clientImgs:[],versions:[]},
+
+    // ── DIEGO MORALES (@diegomoralestech) — Tech ──────────────────────
+    {id:'r19',cid:'c5',title:'Instalé Linux en mi Mac y esto pasó',desc:'Logo Linux, Mac de fondo, cara de sorpresa.',style:'Oscuro, terminal verde, tech',deadline:'2026-03-14',notes:'',status:'Para revisar',date:'2026-03-07',refs:[],clientImgs:[],
+      versions:[{img:'https://img.youtube.com/vi/9bZkp7q19f0/maxresdefault.jpg',date:'13 mar 2026',status:'pendiente',comment:'',annotation:null}]},
+    {id:'r20',cid:'c5',title:'Las 5 extensiones de VSCode que uso todos los días',desc:'VSCode de fondo, iconos de extensiones, texto limpio.',style:'Dark mode, azul y blanco',deadline:'2026-03-18',notes:'',status:'En diseño',date:'2026-03-11',refs:[],clientImgs:[],versions:[]},
+    {id:'r21',cid:'c5',title:'Construí mi PC de $500 y le gana a una Mac',desc:'PC armada, caras de PC vs Mac, precio visible.',style:'Rojo y gris, comparativo',deadline:'2026-03-26',notes:'',status:'Nuevo pedido',date:'2026-03-12',refs:[],clientImgs:[],versions:[]}
   ]
 };
 
@@ -1557,7 +1627,7 @@ async function logout(){
 
 // Demo login (sin Supabase)
 function selectRole(r,btn){role=r;document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
-function demoLogin(r){role=r;login(r==='admin'?'Diseñador Pro':'Marcos Rueda');}
+function demoLogin(ro){role=ro;if(ro==='admin'){login('Diseñador Pro');}else{login('Mateo Ríos');S.clients=[S.clients.find(x=>x.id==='c1')];S.reqs=S.reqs.filter(x=>x.cid==='c1');}}
 function login(name){
   user={name,role};
   showScreen(role==='admin'?'screen-admin':'screen-client');
